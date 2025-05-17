@@ -128,12 +128,11 @@ export default function Dashboard() {
                                     <XAxis dataKey="name" stroke="#888888" fontSize={12} />
                                     <YAxis stroke="#888888" fontSize={12} />
                                     <Tooltip
-                                        cursor={{ fill: 'rgba(255,255,255,0.1)' }}
-                                        contentStyle={{ backgroundColor: '#1f2937', border: 'none', borderRadius: '6px' }}
+                                        contentStyle={{ backgroundColor: '#1f2937', border: 'none', borderRadius: '5px', height:'50px', fontSize: '11px' }}
                                         labelStyle={{ color: '#9ca3af' }}
                                         itemStyle={{ color: '#fff' }}
                                     />
-                                    <Bar dataKey="total" fill="#ffffff" radius={[4, 4, 0, 0]} />
+                                    <Bar dataKey="total" fill="oklch(0.795 0.184 86.047)" radius={[4, 4, 0, 0]} />
                                 </BarChart>
                             </ResponsiveContainer>
                         </CardContent>
