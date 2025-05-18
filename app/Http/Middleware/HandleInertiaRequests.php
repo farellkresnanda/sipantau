@@ -35,9 +35,20 @@ class HandleInertiaRequests extends Middleware
      *
      * @return array<string, mixed>
      */
+    private function quotes()
+    {
+        return collect([
+            "Keselamatan bukan hanya prioritas, tetapi nilai dasar yang tidak bisa dikompromikan. - B.J. Habibie",
+            "Tidak ada pekerjaan yang terlalu penting hingga kita harus mengorbankan keselamatan seseorang. - Nelson Mandela",
+            "Tempat kerja yang aman menciptakan pikiran yang tenang dan hasil kerja yang hebat. - Mahatma Gandhi",
+            "Keselamatan kerja adalah investasi untuk masa depan, bukan beban hari ini. - Ir. Soekarno",
+            "Pekerja yang sehat dan selamat adalah aset terbaik perusahaan. - Jack Welch",
+        ]);
+    }
+
     public function share(Request $request): array
     {
-        [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
+        [$message, $author] = str($this->quotes()->random())->explode('-');
 
         return [
             ...parent::share($request),
@@ -53,4 +64,5 @@ class HandleInertiaRequests extends Middleware
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }
+
 }
