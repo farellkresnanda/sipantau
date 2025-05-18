@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\UserController;
 
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -12,6 +13,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('home', function () {
         return Inertia::render('home');
     })->name('home');
+
+    Route::resource('users', UserController::class);
+
 });
 
 require __DIR__.'/settings.php';
