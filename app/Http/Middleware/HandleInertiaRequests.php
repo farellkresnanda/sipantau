@@ -38,11 +38,11 @@ class HandleInertiaRequests extends Middleware
     private function quotes()
     {
         return collect([
-            "Keselamatan bukan hanya prioritas, tetapi nilai dasar yang tidak bisa dikompromikan. - B.J. Habibie",
-            "Tidak ada pekerjaan yang terlalu penting hingga kita harus mengorbankan keselamatan seseorang. - Nelson Mandela",
-            "Tempat kerja yang aman menciptakan pikiran yang tenang dan hasil kerja yang hebat. - Mahatma Gandhi",
-            "Keselamatan kerja adalah investasi untuk masa depan, bukan beban hari ini. - Ir. Soekarno",
-            "Pekerja yang sehat dan selamat adalah aset terbaik perusahaan. - Jack Welch",
+            "Keselamatan kerja adalah kunci utama dalam menjaga kualitas layanan dan keberlanjutan bisnis Kimia Farma. - Direktur Utama",
+            "Di industri farmasi, satu kelalaian bisa berdampak besar. Budaya K3 wajib jadi DNA setiap insan Kimia Farma. - Direktur Keuangan & Manajemen Risiko",
+            "Penerapan K3 yang konsisten mencerminkan integritas dan profesionalisme Kimia Farma sebagai perusahaan kesehatan nasional. -  Direktur Komersial",
+            "Kami tidak hanya memproduksi obat, kami juga menjaga kehidupan — dimulai dari keselamatan para pekerjanya. - Direktur Sumber Daya Manusia",
+            "Lingkungan kerja yang aman dan sehat adalah bentuk kepedulian nyata Kimia Farma kepada seluruh karyawan dan pelanggan. - Tim K3 Kimia Farma",
         ]);
     }
 
