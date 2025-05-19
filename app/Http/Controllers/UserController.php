@@ -13,7 +13,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::all();
+        $users = User::latest()->get();
 
         return Inertia::render('users/page', compact('users'));
     }
@@ -23,7 +23,7 @@ class UserController extends Controller
      */
     public function create()
     {
-        //
+        return Inertia::render('users/create');
     }
 
     /**
@@ -31,7 +31,21 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
+        ]);
+
+        activity()->log('User created a new user');
+
+        return redirect()->route('users.index')->with('success', 'User created successfully.');
     }
 
     /**

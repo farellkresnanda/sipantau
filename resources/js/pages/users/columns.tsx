@@ -25,35 +25,6 @@ export const columns: ColumnDef<User>[] = [
         header: 'No',
     },
     {
-        id: "actions",
-        header: '#',
-        cell: ({ row }) => {
-            const user = row.original
-
-            return (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem
-                            onClick={() => navigator.clipboard.writeText(user.id)}
-                        >
-                            Copy user ID
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem>Edit User</DropdownMenuItem>
-                        <DropdownMenuItem>Delete User</DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            )
-        },
-    },
-    {
         accessorKey: 'name',
         header: 'Name',
     },
@@ -75,6 +46,28 @@ export const columns: ColumnDef<User>[] = [
         cell: ({ getValue }) => {
             const value = getValue() as string;
             return value?.replace('T', ' ').split('.')[0];
+        },
+    },
+    {
+        id: "actions",
+        header: '#',
+        cell: () => {
+            return (
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">Open menu</span>
+                            <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem>Edit User</DropdownMenuItem>
+                        <DropdownMenuItem>Delete User</DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            )
         },
     },
 ];
