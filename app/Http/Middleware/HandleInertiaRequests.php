@@ -2,7 +2,6 @@
 
 namespace App\Http\Middleware;
 
-use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
@@ -38,11 +37,11 @@ class HandleInertiaRequests extends Middleware
     private function quotes()
     {
         return collect([
-            "Keselamatan kerja adalah kunci utama dalam menjaga kualitas layanan dan keberlanjutan bisnis Kimia Farma. - Direktur Utama",
-            "Di industri farmasi, satu kelalaian bisa berdampak besar. Budaya K3 wajib jadi DNA setiap insan Kimia Farma. - Direktur Keuangan & Manajemen Risiko",
-            "Penerapan K3 yang konsisten mencerminkan integritas dan profesionalisme Kimia Farma sebagai perusahaan kesehatan nasional. -  Direktur Komersial",
-            "Kami tidak hanya memproduksi obat, kami juga menjaga kehidupan — dimulai dari keselamatan para pekerjanya. - Direktur Sumber Daya Manusia",
-            "Lingkungan kerja yang aman dan sehat adalah bentuk kepedulian nyata Kimia Farma kepada seluruh karyawan dan pelanggan. - Tim K3 Kimia Farma",
+            'Keselamatan kerja adalah kunci utama dalam menjaga kualitas layanan dan keberlanjutan bisnis Kimia Farma. - Direktur Utama',
+            'Di industri farmasi, satu kelalaian bisa berdampak besar. Budaya K3 wajib jadi DNA setiap insan Kimia Farma. - Direktur Keuangan & Manajemen Risiko',
+            'Penerapan K3 yang konsisten mencerminkan integritas dan profesionalisme Kimia Farma sebagai perusahaan kesehatan nasional. -  Direktur Komersial',
+            'Kami tidak hanya memproduksi obat, kami juga menjaga kehidupan — dimulai dari keselamatan para pekerjanya. - Direktur Sumber Daya Manusia',
+            'Lingkungan kerja yang aman dan sehat adalah bentuk kepedulian nyata Kimia Farma kepada seluruh karyawan dan pelanggan. - Tim K3 Kimia Farma',
         ]);
     }
 
@@ -64,5 +63,4 @@ class HandleInertiaRequests extends Middleware
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }
-
 }

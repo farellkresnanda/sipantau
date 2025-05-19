@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
-use Illuminate\Http\Request;
 
 class ActivityLogController extends Controller
 {
@@ -14,6 +13,7 @@ class ActivityLogController extends Controller
     public function page()
     {
         $activityLogs = ActivityLog::with('user')->latest()->get();
+
         return inertia('settings/activity-log', [
             'activityLogs' => $activityLogs,
         ]);
