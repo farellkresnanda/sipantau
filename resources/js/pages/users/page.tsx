@@ -16,7 +16,7 @@ export default function Page({ users }: { users: never[] }) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Manage Users" />
 
-            <div className="w-full p-7">
+            <div className="w-full p-5">
                 <DataTable columns={columns} data={users} />
             </div>
         </AppLayout>

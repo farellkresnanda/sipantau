@@ -16,6 +16,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::resource('users', UserController::class);
 
+    Route::get('about-us', function () {
+        return Inertia::render('about-us');
+    })->name('about-us');
+
 });
 
 require __DIR__.'/settings.php';
