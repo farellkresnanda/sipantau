@@ -34,6 +34,8 @@ class PasswordController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
+        activity()->log('User updated password');
+
         return back();
     }
 }

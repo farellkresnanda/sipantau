@@ -37,6 +37,8 @@ class ProfileController extends Controller
 
         $request->user()->save();
 
+        activity()->log('User updated profile');
+
         return to_route('profile.edit');
     }
 
@@ -57,6 +59,8 @@ class ProfileController extends Controller
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
+        activity()->log('User deleted account');
 
         return redirect('/');
     }

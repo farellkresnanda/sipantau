@@ -46,6 +46,8 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
+        activity()->log('User registered');
+
         return to_route('home');
     }
 }

@@ -4,7 +4,16 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, Info, LayoutGrid, UsersIcon } from 'lucide-react';
+import {
+    BackpackIcon, BookMarkedIcon,
+    BookOpen,
+    ChartBarIcon,
+    FileUserIcon,
+    Info,
+    LayoutGrid, ShieldCheck,
+    TargetIcon,
+    UsersIcon
+} from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -12,6 +21,60 @@ const mainNavItems: NavItem[] = [
         title: 'Home',
         href: '/home',
         icon: LayoutGrid,
+    },
+
+    {
+        title: 'Temuan',
+        href: '#',
+        icon: UsersIcon,
+    },
+
+    {
+        title: 'Inspeksi',
+        href: '#',
+        icon: UsersIcon,
+    },
+
+    {
+        title: 'JSA',
+        href: '#',
+        icon: UsersIcon,
+    },
+
+    {
+        title: 'Working Permit',
+        href: '#',
+        icon: UsersIcon,
+    },
+
+    {
+        title: 'Dokumen',
+        href: '#',
+        icon: FileUserIcon,
+    },
+
+    {
+        title: 'Target & Capaian',
+        href: '#',
+        icon: TargetIcon,
+    },
+
+    {
+        title: 'Statistik K3',
+        href: '#',
+        icon: ChartBarIcon,
+    },
+
+    {
+        title: 'IBPR',
+        href: '#',
+        icon: BackpackIcon,
+    },
+
+    {
+        title: 'Audit K3',
+        href: '#',
+        icon: ShieldCheck,
     },
 
     {
@@ -28,8 +91,8 @@ const footerNavItems: NavItem[] = [
         icon: Info,
     },
     {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#react',
+        title: 'Informasi K3',
+        href: 'informasi-k3',
         icon: BookOpen,
     },
 ];
