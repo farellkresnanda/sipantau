@@ -40,9 +40,9 @@ export default function PageUser({ users }: { users: never[] }) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Manage Users" />
             <div className="p-4">
-                <div className="mb-3 flex items-center justify-between">
+                <div className="mb-3 flex flex-col items-center justify-between gap-4 sm:flex-row">
                     <SectionHeader title="Manage Users" subtitle="Manage your users here. You can add, edit, and delete users." />
-                    <Button asChild>
+                    <Button asChild className="w-full sm:w-auto">
                         <Link href="/users/create">Create User</Link>
                     </Button>
                 </div>

@@ -88,7 +88,7 @@ export default function CreateUser({ roles }: { roles: { id: string; name: strin
                     <CardContent className="p-6">
                         <Form {...form}>
                             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                     <div className="space-y-4">
                                         {/* Name Field */}
                                         <FormField
@@ -171,7 +171,12 @@ export default function CreateUser({ roles }: { roles: { id: string; name: strin
                                                 <FormItem>
                                                     <FormLabel>Confirm Password</FormLabel>
                                                     <FormControl>
-                                                        <Input  type="password"  placeholder="Confirm password" {...field}  name="password_confirmation" />
+                                                        <Input
+                                                            type="password"
+                                                            placeholder="Confirm password"
+                                                            {...field}
+                                                            name="password_confirmation"
+                                                        />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>

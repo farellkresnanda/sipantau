@@ -5,18 +5,29 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, Sid
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
 import {
-    BackpackIcon, BookMarkedIcon,
-    BookOpen,
+    BackpackIcon,
+    BookOpen, BriefcaseMedical,
+    Building2,
     ChartBarIcon,
+    ClipboardCheck, ComputerIcon, DoorClosedIcon, DoorOpenIcon,
     FileUserIcon,
+    HardHat,
     Info,
-    LayoutGrid, ShieldCheck,
+    LayoutGrid,
+    Power,
+    Recycle,
+    ShieldCheck,
     TargetIcon,
-    UsersIcon
+    UsersIcon,
+    Wind
 } from 'lucide-react';
 import AppLogo from './app-logo';
 
-const mainNavItems: NavItem[] = [
+interface NavItemWithChildren extends NavItem {
+    children?: NavItem[];
+}
+
+const mainNavItems: NavItemWithChildren[] = [
     {
         title: 'Home',
         href: '/home',
@@ -26,55 +37,93 @@ const mainNavItems: NavItem[] = [
     {
         title: 'Temuan',
         href: '#',
-        icon: UsersIcon,
+        icon: DoorClosedIcon,
     },
 
     {
         title: 'Inspeksi',
         href: '#',
-        icon: UsersIcon,
+        icon: ComputerIcon,
+        children: [
+            {
+                title: 'Inspeksi APAR/APAB',
+                href: '/inspeksi/apar-apab',
+                icon: ClipboardCheck,
+            },
+            {
+                title: 'Inspeksi Kotak P3K',
+                href: '/inspeksi/kotak-p3k',
+                icon: BriefcaseMedical,
+            },
+            {
+                title: 'Inspeksi APD',
+                href: '/inspeksi/apd',
+                icon: HardHat,
+            },
+            {
+                title: 'Inspeksi K3L',
+                href: '/inspeksi/k3l',
+                icon: Recycle,
+            },
+            {
+                title: 'Inspeksi AC',
+                href: '/inspeksi/ac',
+                icon: Wind,
+            },
+            {
+                title: 'Pemeliharaan Gedung',
+                href: '/inspeksi/gedung',
+                icon: Building2,
+            },
+            {
+                title: 'Pemeliharaan Genset',
+                href: '/inspeksi/genset',
+                icon: Power,
+            },
+        ],
     },
 
     {
-        title: 'JSA',
-        href: '#',
-        icon: UsersIcon,
-    },
-
-    {
-        title: 'Working Permit',
-        href: '#',
-        icon: UsersIcon,
-    },
-
-    {
-        title: 'Dokumen',
-        href: '#',
-        icon: FileUserIcon,
-    },
-
-    {
-        title: 'Target & Capaian',
-        href: '#',
-        icon: TargetIcon,
-    },
-
-    {
-        title: 'Statistik K3',
+        title: 'Reports & Analytics',
         href: '#',
         icon: ChartBarIcon,
-    },
-
-    {
-        title: 'IBPR',
-        href: '#',
-        icon: BackpackIcon,
-    },
-
-    {
-        title: 'Audit K3',
-        href: '#',
-        icon: ShieldCheck,
+        children: [
+            {
+                title: 'JSA',
+                href: '/reports/jsa',
+                icon: UsersIcon,
+            },
+            {
+                title: 'Working Permit',
+                href: '/reports/working-permit',
+                icon: UsersIcon,
+            },
+            {
+                title: 'Dokumen',
+                href: '/reports/dokumen',
+                icon: FileUserIcon,
+            },
+            {
+                title: 'Target & Capaian',
+                href: '/reports/target-capaian',
+                icon: TargetIcon,
+            },
+            {
+                title: 'Statistik K3',
+                href: '/reports/statistik-k3',
+                icon: ChartBarIcon,
+            },
+            {
+                title: 'IBPR',
+                href: '/reports/ibpr',
+                icon: BackpackIcon,
+            },
+            {
+                title: 'Audit K3',
+                href: '/reports/audit-k3',
+                icon: ShieldCheck,
+            },
+        ],
     },
 
     {
