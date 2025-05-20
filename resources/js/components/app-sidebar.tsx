@@ -9,11 +9,11 @@ import {
     BookOpen, BriefcaseMedical,
     Building2,
     ChartBarIcon,
-    ClipboardCheck, ComputerIcon, DoorClosedIcon, DoorOpenIcon,
+    ClipboardCheck, ComputerIcon, DoorClosedIcon, DoorOpenIcon, FenceIcon,
     FileUserIcon,
     HardHat,
-    Info,
-    LayoutGrid,
+    Info, InfoIcon,
+    LayoutGrid, LucideBadgeInfo,
     Power,
     Recycle,
     ShieldCheck,
@@ -36,7 +36,7 @@ const mainNavItems: NavItemWithChildren[] = [
 
     {
         title: 'Temuan',
-        href: '#',
+        href: '/temuan',
         icon: DoorClosedIcon,
     },
 
@@ -119,6 +119,11 @@ const mainNavItems: NavItemWithChildren[] = [
                 icon: BackpackIcon,
             },
             {
+                title: 'Informasi K3',
+                href: '/reports/informasi-k3',
+                icon: FenceIcon,
+            },
+            {
                 title: 'Audit K3',
                 href: '/reports/audit-k3',
                 icon: ShieldCheck,
@@ -127,9 +132,31 @@ const mainNavItems: NavItemWithChildren[] = [
     },
 
     {
-        title: 'Manage Users',
-        href: '/users',
+        title: 'Manage',
+        href: '#',
         icon: UsersIcon,
+        children: [
+            {
+                title: 'Users',
+                href: '/users',
+                icon: UsersIcon,
+            },
+            {
+                title: 'Gedung',
+                href: '/master/gedung',
+                icon: Building2,
+            },
+            {
+                title: 'Kategori Inspeksi',
+                href: '/master/kategori-inspeksi',
+                icon: ClipboardCheck,
+            },
+            {
+                title: 'Kategori Temuan',
+                href: '/master/kategori-temuan',
+                icon: DoorClosedIcon,
+            },
+        ],
     },
 ];
 
@@ -140,8 +167,8 @@ const footerNavItems: NavItem[] = [
         icon: Info,
     },
     {
-        title: 'Informasi K3',
-        href: 'informasi-k3',
+        title: 'Dokumentasi',
+        href: 'dokumentasi',
         icon: BookOpen,
     },
 ];
