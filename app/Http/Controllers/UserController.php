@@ -58,7 +58,10 @@ class UserController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $user = User::with('roles')->findOrFail($id);
+        $roles = Role::orderBy('name')->get();
+
+        return Inertia::render('users/edit', compact('user', 'roles'));
     }
 
     /**
@@ -66,7 +69,28 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $id,
+            'password' => 'nullable|string|min:8|confirmed',
+            'role' => 'required|exists:roles,name',
+        ]);
+
+        $user = User::findOrFail($id);
+        $user->name = $request->name;
+        $user->email = $request->email;
+
+        if ($request->filled('password')) {
+            $user->password = bcrypt($request->password);
+        }
+
+        $user->save();
+
+        $user->syncRoles($request->role);
+
+        activity()->log('User updated a user');
+
+        return redirect()->route('users.index')->with('success', 'User updated successfully.');
     }
 
     /**

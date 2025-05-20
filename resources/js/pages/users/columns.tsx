@@ -9,7 +9,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { router } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
 
@@ -81,7 +81,9 @@ export const columns: ColumnDef<User>[] = [
                     <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>Edit User</DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                            <Link href={`/users/${row.original.id}/edit`}>Edit User</Link>
+                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={handleDelete}>Delete User</DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
