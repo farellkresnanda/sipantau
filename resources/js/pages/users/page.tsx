@@ -1,10 +1,12 @@
+import SectionHeader from '@/components/section-header';
+import { Button } from '@/components/ui/button';
+import { DataTable } from '@/components/ui/data-table';
 import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem } from '@/types';
-import {Head, Link} from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
+import { useEffect } from 'react';
 import { columns } from './columns';
-import { DataTable } from '@/components/ui/data-table';
-import SectionHeader from "@/components/section-header";
-import {Button} from "@/components/ui/button";
+import { showToast } from '@/components/ui/toast';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -18,6 +20,22 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function PageUser({ users }: { users: never[] }) {
+    const { flash } = usePage().props as {
+        flash?: { success?: string; error?: string; message?: string };
+    };
+
+    useEffect(() => {
+        if (flash?.success) {
+            showToast({ type: 'success', message: flash.success });
+        }
+        if (flash?.error) {
+            showToast({ type: 'error', message: flash.error });
+        }
+        if (flash?.message) {
+            showToast({ message: flash.message });
+        }
+    }, [flash]);
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Manage Users" />

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
@@ -13,7 +14,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::latest()->get();
+        $users = User::with('roles')->latest()->get();
 
         return Inertia::render('users/page', compact('users'));
     }
@@ -23,7 +24,8 @@ class UserController extends Controller
      */
     public function create()
     {
-        return Inertia::render('users/create');
+        $roles = Role::orderBy('name')->get();
+        return Inertia::render('users/create', compact('roles'));
     }
 
     /**
@@ -35,25 +37,20 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
+            'role' => 'required|exists:roles,name',
         ]);
 
-        User::create([
+        $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => bcrypt($request->password),
         ]);
 
+        $user->assignRole($request->role);
+
         activity()->log('User created a new user');
 
         return redirect()->route('users.index')->with('success', 'User created successfully.');
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
     }
 
     /**
@@ -77,6 +74,16 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $user = User::findOrFail($id);
+
+        if ($user->id === auth()->user()->id) {
+            return redirect()->route('users.index')->with('error', 'You cannot delete your own account.');
+        }
+
+        $user->delete();
+
+        activity()->log('User deleted a user');
+
+        return redirect()->route('users.index')->with('success', 'User deleted successfully.');
     }
 }

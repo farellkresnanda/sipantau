@@ -1,21 +1,26 @@
 'use client';
 
-import { ColumnDef } from '@tanstack/react-table';
+import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
-    DropdownMenuContent, DropdownMenuItem,
-    DropdownMenuLabel, DropdownMenuSeparator,
-    DropdownMenuTrigger
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
+import { router } from '@inertiajs/react';
+import { ColumnDef } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
 
-// This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
 export type User = {
+    roles: Array<{
+        id: number;
+        name: string;
+    }>;
     id: string;
-    amount: number;
-    status: 'pending' | 'processing' | 'success' | 'failed';
+    name: string;
     email: string;
 };
 
@@ -31,6 +36,13 @@ export const columns: ColumnDef<User>[] = [
     {
         accessorKey: 'email',
         header: 'Email',
+    },
+    {
+        accessorKey: 'roles',
+        header: 'Role',
+        cell: ({ row }) => {
+            return row.original.roles[0]?.name ?? '-';
+        },
     },
     {
         accessorKey: 'created_at',
@@ -49,9 +61,15 @@ export const columns: ColumnDef<User>[] = [
         },
     },
     {
-        id: "actions",
+        id: 'actions',
         header: '#',
-        cell: () => {
+        cell: ({ row }) => {
+            const handleDelete = () => {
+                if (confirm('Are you sure you want to delete this user?')) {
+                    router.delete(`/users/${row.original.id}`);
+                }
+            };
+
             return (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -64,10 +82,10 @@ export const columns: ColumnDef<User>[] = [
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem>Edit User</DropdownMenuItem>
-                        <DropdownMenuItem>Delete User</DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleDelete}>Delete User</DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
-            )
+            );
         },
     },
 ];

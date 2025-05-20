@@ -1,22 +1,16 @@
-import AppLayout from '@/layouts/app-layout';
-import type { BreadcrumbItem } from '@/types';
-import { useForm } from 'react-hook-form';
 import SectionHeader from '@/components/section-header';
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import AppLayout from '@/layouts/app-layout';
+import type { BreadcrumbItem } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useEffect } from 'react';
-import {Head, Link, router, usePage} from "@inertiajs/react";
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -40,14 +34,14 @@ const formSchema = z
         email: z.string().email(),
         password: z.string().min(8),
         password_confirmation: z.string().min(8),
+        role: z.enum(['super-admin', 'admin', 'technician', 'validator', 'user']).default('user'),
     })
     .refine((data) => data.password === data.password_confirmation, {
         message: 'Passwords do not match',
         path: ['password_confirmation'],
     });
 
-
-export default function CreateUser() {
+export default function CreateUser({ roles }: { roles: { id: string; name: string }[] }) {
     const { errors } = usePage().props as {
         errors: Record<string, string>;
     };
@@ -59,6 +53,7 @@ export default function CreateUser() {
             email: '',
             password: '',
             password_confirmation: '',
+            role: 'user',
         },
     });
 
@@ -89,69 +84,101 @@ export default function CreateUser() {
                     <SectionHeader title="Create User" subtitle="Fill in the form below to create a new user." />
                 </div>
 
-                <Card className="w-full max-w-lg">
+                <Card className="w-full">
                     <CardContent className="p-6">
                         <Form {...form}>
                             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                                {/* Name Field */}
-                                <FormField
-                                    control={form.control}
-                                    name="name"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Name</FormLabel>
-                                            <FormControl>
-                                                <Input placeholder="Enter name" {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-4">
+                                        {/* Name Field */}
+                                        <FormField
+                                            control={form.control}
+                                            name="name"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Name</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="Enter name" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
 
-                                {/* Email Field */}
-                                <FormField
-                                    control={form.control}
-                                    name="email"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Email</FormLabel>
-                                            <FormControl>
-                                                <Input type="email" placeholder="Enter email" {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
+                                        {/* Email Field */}
+                                        <FormField
+                                            control={form.control}
+                                            name="email"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Email</FormLabel>
+                                                    <FormControl>
+                                                        <Input type="email" placeholder="Enter email" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
 
-                                {/* Password Field */}
-                                <FormField
-                                    control={form.control}
-                                    name="password"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Password</FormLabel>
-                                            <FormControl>
-                                                <Input type="password" placeholder="Enter password" {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
+                                        {/* Role Field */}
+                                        <FormField
+                                            control={form.control}
+                                            name="role"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Role</FormLabel>
+                                                    <FormControl>
+                                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                            <SelectTrigger className="w-full">
+                                                                <SelectValue placeholder="Select role" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                {roles.map((role) => (
+                                                                    <SelectItem key={role.id} value={role.name}>
+                                                                        {role.name}
+                                                                    </SelectItem>
+                                                                ))}
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
 
-                                {/* Confirm Password Field */}
-                                <FormField
-                                    control={form.control}
-                                    name="password_confirmation"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Confirm Password</FormLabel>
-                                            <FormControl>
-                                                <Input type="password" placeholder="Confirm password" {...field} name="password_confirmation" />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
+                                    <div className="space-y-4">
+                                        {/* Password Field */}
+                                        <FormField
+                                            control={form.control}
+                                            name="password"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Password</FormLabel>
+                                                    <FormControl>
+                                                        <Input type="password" placeholder="Enter password" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        {/* Confirm Password Field */}
+                                        <FormField
+                                            control={form.control}
+                                            name="password_confirmation"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Confirm Password</FormLabel>
+                                                    <FormControl>
+                                                        <Input  type="password"  placeholder="Confirm password" {...field}  name="password_confirmation" />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                </div>
 
                                 {/* Submit & Cancel */}
                                 <div className="flex items-center gap-2">
