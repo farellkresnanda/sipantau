@@ -160,7 +160,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                             autoComplete="email"
                             value={data.email}
                             onChange={(e) => setData('email', e.target.value)}
-                            placeholder="email@kimiafarma.co.id"
+                            placeholder="mail@kimiafarma.co.id"
                         />
                         <InputError message={errors.email} />
                     </div>
@@ -182,7 +182,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                             autoComplete="current-password"
                             value={data.password}
                             onChange={(e) => setData('password', e.target.value)}
-                            placeholder="Password"
+                            placeholder="********"
                         />
                         <InputError message={errors.password} />
                     </div>
