@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\K3InfoController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -14,6 +15,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('home');
 
     Route::resource('users', UserController::class);
+
+
+    Route::prefix('reports')->group(function () {
+        Route::resource('k3info', K3InfoController::class);
+    });
 
     Route::get('about-us', function () {
         return Inertia::render('about-us');

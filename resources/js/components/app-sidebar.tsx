@@ -120,7 +120,7 @@ const mainNavItems: NavItemWithChildren[] = [
             },
             {
                 title: 'Informasi K3',
-                href: '/reports/informasi-k3',
+                href: '/reports/k3info',
                 icon: FenceIcon,
             },
             {
