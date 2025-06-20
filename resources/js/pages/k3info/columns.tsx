@@ -51,7 +51,7 @@ export const columns: ColumnDef<{
         header: 'Image',
         cell: ({ row }) => {
             const imagePath = row.getValue('image_path') as string;
-            return <img src={`/storage/${imagePath}`} alt="K3 Info" className="h-10 w-10 rounded object-cover" />;
+            return <img src={imagePath ? `/storage/${imagePath}` : '/images/default.png'} alt="K3 Info" className="h-10 w-10 rounded object-cover" />;
         },
     },
     {
