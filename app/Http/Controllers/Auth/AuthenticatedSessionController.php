@@ -7,6 +7,7 @@ use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -29,8 +30,29 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-        $request->authenticate();
+        // ✅ Validasi reCAPTCHA token wajib ada
+        //$request->validate([
+          //  'g-recaptcha-response' => ['required', 'string'],
+        //]);
 
+        // ✅ Kirim token ke Google untuk diverifikasi
+        //$recaptchaResponse = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+          //  'secret' => env('RECAPTCHAV3_SECRET'),
+          //  'response' => $request->input('g-recaptcha-response'),
+          //  'remoteip' => $request->ip(),
+        //]);
+
+        //$recaptcha = $recaptchaResponse->json();
+
+        // ✅ Gagal jika token tidak valid atau skor rendah
+       // if (!($recaptcha['success'] ?? false) || ($recaptcha['score'] ?? 0) < 0.5) {
+         //   return back()->withErrors([
+           //     'g-recaptcha-response' => 'Verifikasi reCAPTCHA gagal. Silakan coba lagi.',
+            //]);
+        //}
+
+        // ✅ Autentikasi pengguna jika verifikasi berhasil
+        $request->authenticate();
         $request->session()->regenerate();
 
         activity()->log('User logged in');
