@@ -14,8 +14,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('home');
     })->name('home');
 
-    Route::resource('users', UserController::class);
-
+    Route::group(['middleware' => ['role:Admin|Super Admin']], function () {
+        Route::resource('users', UserController::class);
+    });
 
     Route::prefix('reports')->group(function () {
         Route::resource('k3info', K3InfoController::class);
