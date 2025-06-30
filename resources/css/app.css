@@ -153,6 +153,10 @@
         @apply border-border;
     }
 
+    html {
+        font-size: 14px; /* default-nya 16px, jadi ini akan membuat semua ukuran font (dan rem-based) mengecil */
+    }
+
     body {
         @apply bg-background text-foreground;
     }

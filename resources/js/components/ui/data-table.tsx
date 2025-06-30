@@ -41,45 +41,43 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
 
     return (
         <div className="w-full space-y-4">
-            <div className="flex items-center justify-between">
-                <div className="flex w-full items-center justify-between">
-                    <Input
-                        placeholder="Search all columns..."
-                        value={globalFilter ?? ''}
-                        onChange={(event) => setGlobalFilter(event.target.value)}
-                        className="max-w-sm"
-                    />
-                    <div className="flex items-center space-x-2">
-                        <p className="text-sm font-medium">Rows per page</p>
-                        <select
-                            value={table.getState().pagination.pageSize}
-                            onChange={(e) => {
-                                table.setPageSize(Number(e.target.value));
-                            }}
-                            className="h-8 w-[70px] rounded-md border border-input bg-background px-2 py-1 text-sm"
-                        >
-                            {[10, 20, 30, 40, 50].map((pageSize) => (
-                                <option key={pageSize} value={pageSize}>
-                                    {pageSize}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+            {/* Bagian Search dan Rows per page */}
+            <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                <Input
+                    placeholder="Search all columns..."
+                    value={globalFilter ?? ''}
+                    onChange={(event) => setGlobalFilter(event.target.value)}
+                    className="w-full md:max-w-sm"
+                />
+                <div className="flex flex-wrap items-center gap-2">
+                    <p className="text-sm font-medium">Rows per page</p>
+                    <select
+                        value={table.getState().pagination.pageSize}
+                        onChange={(e) => {
+                            table.setPageSize(Number(e.target.value));
+                        }}
+                        className="h-8 w-[70px] rounded-md border border-input bg-background px-2 py-1 text-sm"
+                    >
+                        {[10, 20, 30, 40, 50].map((pageSize) => (
+                            <option key={pageSize} value={pageSize}>
+                                {pageSize}
+                            </option>
+                        ))}
+                    </select>
                 </div>
             </div>
 
-            <div className="rounded-md border">
-                <Table>
+            {/* Tabel */}
+            <div className="overflow-auto rounded-md border">
+                <Table className="min-w-full">
                     <TableHeader>
                         {table.getHeaderGroups().map((headerGroup) => (
                             <TableRow key={headerGroup.id}>
-                                {headerGroup.headers.map((header) => {
-                                    return (
-                                        <TableHead key={header.id}>
-                                            {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                                        </TableHead>
-                                    );
-                                })}
+                                {headerGroup.headers.map((header) => (
+                                    <TableHead key={header.id}>
+                                        {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                                    </TableHead>
+                                ))}
                             </TableRow>
                         ))}
                     </TableHeader>
@@ -105,11 +103,12 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
                 </Table>
             </div>
 
-            <div className="flex items-center justify-between">
-                <div className="flex-1 text-sm text-muted-foreground">
+            {/* Bagian Pagination */}
+            <div className="flex flex-col gap-2 items-center justify-between md:flex-row">
+                <div className="text-sm text-muted-foreground">
                     Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className="flex flex-wrap items-center gap-2">
                     <Button
                         variant="outline"
                         size="sm"
@@ -131,5 +130,6 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
                 </div>
             </div>
         </div>
+
     );
 }

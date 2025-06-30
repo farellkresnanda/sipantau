@@ -6,7 +6,7 @@ import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
 import {
     BackpackIcon,
-    BookOpen, BriefcaseMedical,
+    BookOpen, BookUpIcon, BriefcaseMedical,
     Building2,
     ChartBarIcon,
     ClipboardCheck, ComputerIcon, DoorClosedIcon, DoorOpenIcon, FenceIcon,
@@ -36,7 +36,7 @@ const mainNavItems: NavItemWithChildren[] = [
 
     {
         title: 'Temuan',
-        href: '/temuan',
+        href: '/k3temuan',
         icon: DoorClosedIcon,
     },
 
@@ -46,8 +46,8 @@ const mainNavItems: NavItemWithChildren[] = [
         icon: ComputerIcon,
         children: [
             {
-                title: 'Inspeksi APAR/APAB',
-                href: '/inspeksi/apar-apab',
+                title: 'Inspeksi APAR',
+                href: '/inspeksi/apar',
                 icon: ClipboardCheck,
             },
             {
@@ -84,7 +84,7 @@ const mainNavItems: NavItemWithChildren[] = [
     },
 
     {
-        title: 'Reports & Analytics',
+        title: 'Analisis',
         href: '#',
         icon: ChartBarIcon,
         children: [
@@ -94,24 +94,19 @@ const mainNavItems: NavItemWithChildren[] = [
                 icon: UsersIcon,
             },
             {
-                title: 'Working Permit',
-                href: '/reports/working-permit',
+                title: 'Izin Kerja',
+                href: '/reports/izin-kerja',
                 icon: UsersIcon,
             },
             {
-                title: 'Dokumen',
+                title: 'Program Kerja K3',
                 href: '/reports/dokumen',
                 icon: FileUserIcon,
             },
             {
-                title: 'Target & Capaian',
-                href: '/reports/target-capaian',
-                icon: TargetIcon,
-            },
-            {
-                title: 'Statistik K3',
-                href: '/reports/statistik-k3',
-                icon: ChartBarIcon,
+                title: 'Kecelakaan Kerja ',
+                href: '/reports/dokumen',
+                icon: FileUserIcon,
             },
             {
                 title: 'IBPR',
@@ -123,10 +118,28 @@ const mainNavItems: NavItemWithChildren[] = [
                 href: '/reports/k3info',
                 icon: FenceIcon,
             },
+        ],
+    },
+
+    {
+        title: 'Laporan',
+        href: '#',
+        icon: BookUpIcon,
+        children: [
             {
-                title: 'Audit K3',
-                href: '/reports/audit-k3',
-                icon: ShieldCheck,
+                title: 'Laporan P2K3',
+                href: '#',
+                icon: UsersIcon,
+            },
+            {
+                title: 'Uji Riksa',
+                href: '#',
+                icon: UsersIcon,
+            },
+            {
+                title: 'Sertifikasi K3',
+                href: '#',
+                icon: UsersIcon,
             },
         ],
     },
@@ -137,24 +150,109 @@ const mainNavItems: NavItemWithChildren[] = [
         icon: UsersIcon,
         children: [
             {
-                title: 'Users',
+                title: 'Master Users',
                 href: '/users',
                 icon: UsersIcon,
             },
             {
-                title: 'Gedung',
-                href: '/master/gedung',
-                icon: Building2,
+                title: 'Master Inspeksi Ac',
+                href: '#',
+                icon: UsersIcon,
             },
             {
-                title: 'Kategori Inspeksi',
-                href: '/master/kategori-inspeksi',
-                icon: ClipboardCheck,
+                title: 'Master Inspeksi Apar',
+                href: '#',
+                icon: UsersIcon,
             },
             {
-                title: 'Kategori Temuan',
-                href: '/master/kategori-temuan',
-                icon: DoorClosedIcon,
+                title: 'Master Inspeksi Apd',
+                href: '#',
+                icon: UsersIcon,
+            },
+            {
+                title: 'Master Inspeksi Gedung',
+                href: '#',
+                icon: UsersIcon,
+            },
+            {
+                title: 'Master Inspeksi Genset',
+                href: '#',
+                icon: UsersIcon,
+            },
+            {
+                title: 'Master Inspeksi K3l',
+                href: '#',
+                icon: UsersIcon,
+            },
+            {
+                title: 'Master Inspeksi K3l Deskripsi',
+                href: '#',
+                icon: UsersIcon,
+            },
+            {
+                title: 'Master Inspeksi P3k',
+                href: '#',
+                icon: UsersIcon,
+            },
+            {
+                title: 'Master Jenis Ketidaksesuaian',
+                href: '#',
+                icon: UsersIcon,
+            },
+            {
+                title: 'Master Jenis Ketidaksesuaian Sub',
+                href: '#',
+                icon: UsersIcon,
+            },
+            {
+                title: 'Master Konsekuensi',
+                href: '#',
+                icon: UsersIcon,
+            },
+            {
+                title: 'Master Laporan Uji Riksa Fasilitas',
+                href: '#',
+                icon: UsersIcon,
+            },
+            {
+                title: 'Master Laporan Uji Riksa Peralatan',
+                href: '#',
+                icon: UsersIcon,
+            },
+            {
+                title: 'Master Lokasi',
+                href: '#',
+                icon: UsersIcon,
+            },
+            {
+                title: 'Master Plant',
+                href: '#',
+                icon: UsersIcon,
+            },
+            {
+                title: 'Master Probabilitas',
+                href: '#',
+                icon: UsersIcon,
+            },
+            {
+                title: 'Master Rumus Ltifr',
+                href: '#',
+                icon: UsersIcon,
+            },
+            {
+                title: 'Master Sertifikasi K3',
+                href: '#',
+                icon: UsersIcon,
+            },
+            {
+                title: 'Master Skala Prioritas',
+                href: '#',
+                icon: UsersIcon,
+            },
+            {
+                title: 'Master Statistik K3',
+                href: '#',
+                icon: UsersIcon,
             },
         ],
     },
