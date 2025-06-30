@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class K3Temuan extends Model
 {
     protected $table = 'k3_temuan';
+
     protected $guarded = [];
 
     public function jenisKetidaksesuaian()
