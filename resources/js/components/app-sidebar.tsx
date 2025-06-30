@@ -156,7 +156,7 @@ const mainNavItems: NavItemWithChildren[] = [
             },
             {
                 title: 'Master Entitas',
-                href: '#',
+                href: 'master-entitas',
                 icon: HotelIcon,
             },
             {

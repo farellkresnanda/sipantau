@@ -1,0 +1,12 @@
+<?php
+
+namespace App\Models\Master;
+
+use Illuminate\Database\Eloquent\Model;
+
+class MasterJenisKetidakSesuaianSub extends Model
+{
+    protected $table = 'master_jenis_ketidaksesuaian_sub';
+
+    protected $guarded = [];
+}

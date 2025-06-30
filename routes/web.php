@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\K3InfoController;
 use App\Http\Controllers\K3TemuanController;
-use App\Http\Controllers\MasterEntitasController;
+use App\Http\Controllers\Master\MasterEntitasController;
 use App\Http\Controllers\MasterInspeksiGensetController;
 use App\Http\Controllers\MasterInspeksiK3lController;
 use App\Http\Controllers\MasterInspeksiK3lDeskripsiController;

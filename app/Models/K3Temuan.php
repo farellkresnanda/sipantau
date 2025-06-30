@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Master\MasterJenisKetidakSesuaian;
 use Illuminate\Database\Eloquent\Model;
 
 class K3Temuan extends Model
