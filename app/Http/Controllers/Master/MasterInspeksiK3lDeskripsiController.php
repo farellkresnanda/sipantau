@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Master;
 
+use App\Http\Controllers\Controller;
 use App\Models\Master\MasterInspeksiK3lDeskripsi;
 use Illuminate\Http\Request;
 

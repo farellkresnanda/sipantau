@@ -14,60 +14,53 @@ import { ColumnDef } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
 
 // You can use a Zod schema here if you want.
-export type MasterEntitas = {
+export type InspeksiApar = {
     id: string;
     kode_entitas: string;
-    kode_group: string;
-    nama: string;
-    nama_alias: string;
-    created_at: string;
-    updated_at: string;
+    entitas: string;
+    no_ac: string;
+    kode_ruang: string;
+    ruang: string;
+    kode_inventaris: string;
+    merk: string;
 };
 
-export const columns: ColumnDef<MasterEntitas>[] = [
-    {
-        accessorKey: 'no',
-        header: 'No',
-    },
+export const columns: ColumnDef<InspeksiApar>[] = [
     {
         accessorKey: 'kode_entitas',
-        header: 'Kode Entitas',
+        header: 'Kode Inspeksi Apar',
     },
     {
-        accessorKey: 'kode_group',
-        header: 'Kode Group',
+        accessorKey: 'entitas',
+        header: 'Inspeksi Apar',
     },
     {
-        accessorKey: 'nama',
-        header: 'Nama',
+        accessorKey: 'no_ac',
+        header: 'No AC',
     },
     {
-        accessorKey: 'nama_alias',
-        header: 'Nama Alias',
+        accessorKey: 'kode_ruang',
+        header: 'Kode Ruang',
     },
     {
-        accessorKey: 'created_at',
-        header: 'Created At',
-        cell: ({ getValue }) => {
-            const value = getValue() as string;
-            return value?.replace('T', ' ').split('.')[0];
-        },
+        accessorKey: 'ruang',
+        header: 'Ruang',
     },
     {
-        accessorKey: 'updated_at',
-        header: 'Updated At',
-        cell: ({ getValue }) => {
-            const value = getValue() as string;
-            return value?.replace('T', ' ').split('.')[0];
-        },
+        accessorKey: 'kode_inventaris',
+        header: 'Kode Inventaris',
+    },
+    {
+        accessorKey: 'merk',
+        header: 'Merk',
     },
     {
         id: 'actions',
         header: '#',
         cell: ({ row }) => {
             const handleDelete = () => {
-                if (confirm('Are you sure you want to delete this entitas?')) {
-                    router.delete(`/master/entitas/${row.original.id}`);
+                if (confirm('Are you sure you want to delete this inspeksi APAR?')) {
+                    router.delete(`/inspeksi-apar/${row.original.id}`);
                 }
             };
 
@@ -83,9 +76,9 @@ export const columns: ColumnDef<MasterEntitas>[] = [
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild>
-                            <Link href={`/master/entitas/${row.original.id}/edit`}>Edit Entitas</Link>
+                            <Link href={`/inspeksi-apar/${row.original.id}/edit`}>Edit Inspeksi APAR</Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={handleDelete}>Delete Entitas</DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleDelete}>Delete Inspeksi Apar</DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             );

@@ -47,7 +47,7 @@ class MasterEntitasController extends Controller
 
         activity()->log('User created a new master entitas');
 
-        return redirect()->route('master-entitas.index')->with('success', 'Master entitas created successfully.');
+        return redirect()->route('entitas.index')->with('success', 'Master entitas created successfully.');
     }
 
     /**
@@ -80,7 +80,7 @@ class MasterEntitasController extends Controller
 
         activity()->log('User updated a master entitas');
 
-        return redirect()->route('master-entitas.index')->with('success', 'Master entitas updated successfully.');
+        return redirect()->route('entitas.index')->with('success', 'Master entitas updated successfully.');
     }
 
     /**
@@ -93,6 +93,6 @@ class MasterEntitasController extends Controller
 
         activity()->log('User deleted a master entitas');
 
-        return redirect()->route('master-entitas.index')->with('success', 'Master entitas deleted successfully.');
+        return redirect()->route('entitas.index')->with('success', 'Master entitas deleted successfully.');
     }
 }

@@ -13,7 +13,7 @@ import * as z from 'zod';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Home', href: '/' },
-    { title: 'Manage Entitas', href: '/master-entitas' },
+    { title: 'Manage Entitas', href: '/master/entitas' },
     { title: 'Edit Entitas', href: '#' },
 ];
 
@@ -58,7 +58,7 @@ export default function EditEntitas({
 
     function onSubmit(values: FormSchemaType) {
         const formData = { ...values };
-        router.put(route('master-entitas.update', masterEntitas.id), formData);
+        router.put(route('entitas.update', masterEntitas.id), formData);
     }
 
     return (
@@ -144,7 +144,7 @@ export default function EditEntitas({
                                     <Button type="submit" disabled={form.formState.isSubmitting}>
                                         {form.formState.isSubmitting ? 'Updating...' : 'Update User'}
                                     </Button>
-                                    <Link href={route('master-entitas.index')} className="text-muted-foreground text-sm hover:underline">
+                                    <Link href={route('entitas.index')} className="text-muted-foreground text-sm hover:underline">
                                         Cancel
                                     </Link>
                                 </div>

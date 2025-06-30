@@ -17,21 +17,24 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/',
     },
     {
-        title: 'Manage Entitas',
-        href: '/master/entitas',
+        title: 'Inspeksi APAR',
+        href: '/master/inspeksi-apar',
     },
     {
-        title: 'Create Entitas',
-        href: '/master/entitas/create',
+        title: 'Create Inspeksi APAR',
+        href: '/master/inspeksi-apar/create',
     },
 ];
 
 // Validasi zod
 const formSchema = z.object({
     kode_entitas: z.string().min(1).max(255),
-    kode_group: z.string().min(1).max(255),
-    nama: z.string().min(1).max(255),
-    nama_alias: z.string().min(1).max(255),
+    entitas: z.string().min(1).max(255),
+    no_ac: z.string().min(1).max(255),
+    kode_ruang: z.string().min(1).max(255),
+    ruang: z.string().min(1).max(255),
+    kode_inventaris: z.string().min(1).max(255),
+    merk: z.string().min(1).max(255),
 });
 
 export default function CreateUser() {
@@ -43,9 +46,12 @@ export default function CreateUser() {
         resolver: zodResolver(formSchema),
         defaultValues: {
             kode_entitas: '',
-            kode_group: '',
-            nama: '',
-            nama_alias: '',
+            entitas: '',
+            no_ac: '',
+            kode_ruang: '',
+            ruang: '',
+            kode_inventaris: '',
+            merk: '',
         },
     });
 
@@ -60,7 +66,7 @@ export default function CreateUser() {
     }, [errors, form]);
 
     function onSubmit(values: z.infer<typeof formSchema>) {
-        router.post(route('entitas.store'), values, {
+        router.post(route('inspeksi-apar.store'), values, {
             onSuccess: () => {
                 form.reset();
             },
@@ -82,7 +88,6 @@ export default function CreateUser() {
                             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                     <div className="space-y-4">
-                                        {/* Kode Entitas Field */}
                                         <FormField
                                             control={form.control}
                                             name="kode_entitas"
@@ -97,15 +102,42 @@ export default function CreateUser() {
                                             )}
                                         />
 
-                                        {/* Kode Group Field */}
                                         <FormField
                                             control={form.control}
-                                            name="kode_group"
+                                            name="entitas"
                                             render={({ field }) => (
                                                 <FormItem>
-                                                    <FormLabel>Kode Group</FormLabel>
+                                                    <FormLabel>Entitas</FormLabel>
                                                     <FormControl>
-                                                        <Input placeholder="Enter kode group" {...field} />
+                                                        <Input placeholder="Enter entitas" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name="no_ac"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>No AC</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="Enter no AC" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name="kode_ruang"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Kode Ruang</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="Enter kode ruang" {...field} />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -114,30 +146,42 @@ export default function CreateUser() {
                                     </div>
 
                                     <div className="space-y-4">
-                                        {/* Nama Field */}
                                         <FormField
                                             control={form.control}
-                                            name="nama"
+                                            name="ruang"
                                             render={({ field }) => (
                                                 <FormItem>
-                                                    <FormLabel>Nama</FormLabel>
+                                                    <FormLabel>Ruang</FormLabel>
                                                     <FormControl>
-                                                        <Input placeholder="Enter nama" {...field} />
+                                                        <Input placeholder="Enter ruang" {...field} />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
                                             )}
                                         />
 
-                                        {/* Nama Alias Field */}
                                         <FormField
                                             control={form.control}
-                                            name="nama_alias"
+                                            name="kode_inventaris"
                                             render={({ field }) => (
                                                 <FormItem>
-                                                    <FormLabel>Nama Alias</FormLabel>
+                                                    <FormLabel>Kode Inventaris</FormLabel>
                                                     <FormControl>
-                                                        <Input placeholder="Enter nama alias" {...field} />
+                                                        <Input placeholder="Enter kode inventaris" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name="merk"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Merk</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="Enter merk" {...field} />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
