@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Master;
 use App\Http\Controllers\Controller;
 use App\Models\Master\MasterEntitas;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class MasterEntitasController extends Controller
 {
@@ -13,7 +14,8 @@ class MasterEntitasController extends Controller
      */
     public function index()
     {
-        //
+        $entitas = MasterEntitas::latest()->get();
+        return Inertia::render('master/entitas/page', compact('entitas'));
     }
 
     /**
@@ -21,7 +23,7 @@ class MasterEntitasController extends Controller
      */
     public function create()
     {
-        //
+        return Inertia::render('master/entitas/create');
     }
 
     /**
@@ -29,23 +31,32 @@ class MasterEntitasController extends Controller
      */
     public function store(Request $request)
     {
-        //
-    }
+        $request->validate([
+            'kode_entitas' => 'required|string|max:255',
+            'kode_group' => 'required|string|max:255',
+            'nama' => 'required|string|max:255',
+            'nama_alias' => 'required|string|max:255',
+        ]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(MasterEntitas $masterEntitas)
-    {
-        //
+        MasterEntitas::create([
+            'kode_entitas' => $request->kode_entitas,
+            'kode_group' => $request->kode_group,
+            'nama' => $request->nama,
+            'nama_alias' => $request->nama_alias,
+        ]);
+
+        activity()->log('User created a new master entitas');
+
+        return redirect()->route('master-entitas.index')->with('success', 'Master entitas created successfully.');
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(MasterEntitas $masterEntitas)
+    public function edit(MasterEntitas $masterEntitas, $id)
     {
-        //
+        $masterEntitas = MasterEntitas::findOrFail($id);
+        return Inertia::render('master/entitas/edit', compact('masterEntitas'));
     }
 
     /**
@@ -53,14 +64,35 @@ class MasterEntitasController extends Controller
      */
     public function update(Request $request, MasterEntitas $masterEntitas)
     {
-        //
+        $request->validate([
+            'kode_entitas' => 'required|string|max:255',
+            'kode_group' => 'required|string|max:255',
+            'nama' => 'required|string|max:255',
+            'nama_alias' => 'required|string|max:255',
+        ]);
+
+        $masterEntitas->update([
+            'kode_entitas' => $request->kode_entitas,
+            'kode_group' => $request->kode_group,
+            'nama' => $request->nama,
+            'nama_alias' => $request->nama_alias,
+        ]);
+
+        activity()->log('User updated a master entitas');
+
+        return redirect()->route('master-entitas.index')->with('success', 'Master entitas updated successfully.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(MasterEntitas $masterEntitas)
+    public function destroy(MasterEntitas $masterEntitas, $id)
     {
-        //
+        $masterEntitas = MasterEntitas::findOrFail($id);
+        $masterEntitas->delete();
+
+        activity()->log('User deleted a master entitas');
+
+        return redirect()->route('master-entitas.index')->with('success', 'Master entitas deleted successfully.');
     }
 }
