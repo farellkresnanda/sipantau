@@ -11,7 +11,7 @@ import {
     ChartBarIcon,
     ClipboardCheck, ComputerIcon, DoorClosedIcon, DoorOpenIcon, FenceIcon,
     FileUserIcon,
-    HardHat,
+    HardHat, HotelIcon,
     Info, InfoIcon,
     LayoutGrid, LucideBadgeInfo,
     Power,
@@ -153,6 +153,11 @@ const mainNavItems: NavItemWithChildren[] = [
                 title: 'Master Users',
                 href: '/users',
                 icon: UsersIcon,
+            },
+            {
+                title: 'Master Entitas',
+                href: '#',
+                icon: HotelIcon,
             },
             {
                 title: 'Master Inspeksi Ac',
