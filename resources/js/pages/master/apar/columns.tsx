@@ -13,61 +13,63 @@ import { Link, router } from '@inertiajs/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
 
-// You can use a Zod schema here if you want.
-export type MasterEntitas = {
+export type InspeksiApar = {
     id: string;
     kode_entitas: string;
-    kode_group: string;
-    nama: string;
-    nama_alias: string;
-    created_at: string;
-    updated_at: string;
+    entitas: string;
+    no_apar: string;
+    kode_ruang: string;
+    lokasi: string;
+    jenis: string;
+    apar: string;
+    kode_inventaris: string;
 };
 
-export const columns: ColumnDef<MasterEntitas>[] = [
+export const columns: ColumnDef<InspeksiApar>[] = [
     {
-        accessorKey: 'no',
-        header: 'No',
+        id: 'index',
+        header: '#',
+        cell: ({ row }) => row.index + 1,
     },
     {
         accessorKey: 'kode_entitas',
         header: 'Kode Entitas',
     },
     {
-        accessorKey: 'kode_group',
-        header: 'Kode Group',
+        accessorKey: 'entitas',
+        header: 'Entitas',
     },
     {
-        accessorKey: 'nama',
-        header: 'Nama',
+        accessorKey: 'no_apar',
+        header: 'No APAR',
     },
     {
-        accessorKey: 'nama_alias',
-        header: 'Nama Alias',
+        accessorKey: 'kode_ruang',
+        header: 'Kode Ruang',
     },
     {
-        accessorKey: 'created_at',
-        header: 'Created At',
-        cell: ({ getValue }) => {
-            const value = getValue() as string;
-            return value?.replace('T', ' ').split('.')[0];
-        },
+        accessorKey: 'lokasi',
+        header: 'Lokasi',
     },
     {
-        accessorKey: 'updated_at',
-        header: 'Updated At',
-        cell: ({ getValue }) => {
-            const value = getValue() as string;
-            return value?.replace('T', ' ').split('.')[0];
-        },
+        accessorKey: 'jenis',
+        header: 'Jenis',
+    },
+    {
+        accessorKey: 'apar',
+        header: 'APAR',
+    },
+    {
+        accessorKey: 'kode_inventaris',
+        header: 'Kode Inventaris',
     },
     {
         id: 'actions',
         header: '#',
         cell: ({ row }) => {
             const handleDelete = () => {
-                if (confirm('Are you sure you want to delete this entitas?')) {
-                    router.delete(`/master/entitas/${row.original.id}`);
+                if (confirm('Are you sure you want to delete this Master APAR?')) {
+                    router.delete(`/master/apar/${row.original.id}`);
                 }
             };
 
@@ -83,7 +85,7 @@ export const columns: ColumnDef<MasterEntitas>[] = [
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild>
-                            <Link href={`/master/entitas/${row.original.id}/edit`}>Edit</Link>
+                            <Link href={`/master/apar/${row.original.id}/edit`}>Edit</Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={handleDelete}>Delete</DropdownMenuItem>
                     </DropdownMenuContent>

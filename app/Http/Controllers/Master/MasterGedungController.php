@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Master;
 
 use App\Http\Controllers\Controller;
-use App\Models\Master\MasterInspeksiAc;
+use App\Models\Master\MasterGedung;
 use Illuminate\Http\Request;
 
-class MasterInspeksiAcController extends Controller
+class MasterGedungController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -35,7 +35,7 @@ class MasterInspeksiAcController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(MasterInspeksiAc $masterInspeksiAc)
+    public function show(MasterGedung $masterInspeksiGedung)
     {
         //
     }
@@ -43,7 +43,7 @@ class MasterInspeksiAcController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(MasterInspeksiAc $masterInspeksiAc)
+    public function edit(MasterGedung $masterInspeksiGedung)
     {
         //
     }
@@ -51,7 +51,7 @@ class MasterInspeksiAcController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, MasterInspeksiAc $masterInspeksiAc)
+    public function update(Request $request, MasterGedung $masterInspeksiGedung)
     {
         //
     }
@@ -59,7 +59,7 @@ class MasterInspeksiAcController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(MasterInspeksiAc $masterInspeksiAc)
+    public function destroy(MasterGedung $masterInspeksiGedung)
     {
         //
     }

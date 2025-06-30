@@ -14,12 +14,12 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/',
     },
     {
-        title: 'Inspeksi APAR',
-        href: '/master-inspeksi-apar',
+        title: 'Master APAR',
+        href: '/master-apar',
     },
 ];
 
-export default function PageInspeksiApar({ aparList }: { aparList: never[] }) {
+export default function PageMasterApar({ masterApar }: { masterApar: never[] }) {
     const { flash } = usePage().props as {
         flash?: { success?: string; error?: string; message?: string };
     };
@@ -42,15 +42,15 @@ export default function PageInspeksiApar({ aparList }: { aparList: never[] }) {
             <div className="p-4">
                 <div className="mb-3 flex flex-col items-center justify-between gap-4 sm:flex-row">
                     <SectionHeader
-                        title="Inspeksi APAR"
-                        subtitle="Kelola data inspeksi APAR. Anda dapat menambah, mengubah, dan menghapus data inspeksi APAR."
+                        title="Master APAR"
+                        subtitle="Kelola data master inspeksi APAR. Anda dapat menambah, mengubah, dan menghapus data inspeksi APAR."
                     />
                     <Button asChild className="w-full sm:w-auto">
-                        <Link href="/master-inspeksi-apar/create">Tambah Inspeksi APAR</Link>
+                        <Link href="/master/apar/create">Create Master APAR</Link>
                     </Button>
                 </div>
                 <div className="w-full">
-                    <DataTable columns={columns} data={aparList} />
+                    <DataTable columns={columns} data={masterApar} />
                 </div>
             </div>
         </AppLayout>

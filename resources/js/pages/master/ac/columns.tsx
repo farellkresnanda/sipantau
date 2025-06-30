@@ -13,34 +13,28 @@ import { Link, router } from '@inertiajs/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
 
-// You can use a Zod schema here if you want.
-export type InspeksiApar = {
+export type MasterAc = {
     id: string;
     kode_entitas: string;
     entitas: string;
-    no_ac: string;
-    kode_ruang: string;
     ruang: string;
     kode_inventaris: string;
     merk: string;
 };
 
-export const columns: ColumnDef<InspeksiApar>[] = [
+export const columns: ColumnDef<MasterAc>[] = [
+    {
+        id: 'index',
+        header: '#',
+        cell: ({ row }) => row.index + 1,
+    },
     {
         accessorKey: 'kode_entitas',
-        header: 'Kode Inspeksi Apar',
+        header: 'Kode Entitas',
     },
     {
         accessorKey: 'entitas',
-        header: 'Inspeksi Apar',
-    },
-    {
-        accessorKey: 'no_ac',
-        header: 'No AC',
-    },
-    {
-        accessorKey: 'kode_ruang',
-        header: 'Kode Ruang',
+        header: 'Entitas',
     },
     {
         accessorKey: 'ruang',
@@ -59,8 +53,8 @@ export const columns: ColumnDef<InspeksiApar>[] = [
         header: '#',
         cell: ({ row }) => {
             const handleDelete = () => {
-                if (confirm('Are you sure you want to delete this inspeksi APAR?')) {
-                    router.delete(`/inspeksi-apar/${row.original.id}`);
+                if (confirm('Are you sure you want to delete this Master AC?')) {
+                    router.delete(`/master/ac/${row.original.id}`);
                 }
             };
 
@@ -76,9 +70,9 @@ export const columns: ColumnDef<InspeksiApar>[] = [
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild>
-                            <Link href={`/inspeksi-apar/${row.original.id}/edit`}>Edit Inspeksi APAR</Link>
+                            <Link href={`/master/ac/${row.original.id}/edit`}>Edit</Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={handleDelete}>Delete Inspeksi Apar</DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleDelete}>Delete</DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             );

@@ -4,9 +4,9 @@ namespace App\Models\Master;
 
 use Illuminate\Database\Eloquent\Model;
 
-class MasterInspeksiGenset extends Model
+class MasterGedung extends Model
 {
-    protected $table = 'master_inspeksi_genset';
+    protected $table = 'master_gedung';
 
     protected $guarded = [];
 }

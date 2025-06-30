@@ -71,6 +71,7 @@ class MasterEntitasController extends Controller
             'nama_alias' => 'required|string|max:255',
         ]);
 
+        $masterEntitas = $masterEntitas->findOrFail($request->id);
         $masterEntitas->update([
             'kode_entitas' => $request->kode_entitas,
             'kode_group' => $request->kode_group,

@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Master;
 
 use App\Http\Controllers\Controller;
-use App\Models\Master\MasterInspeksiGenset;
+use App\Models\Master\MasterGenset;
 use Illuminate\Http\Request;
 
-class MasterInspeksiGensetController extends Controller
+class MasterGensetController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -35,7 +35,7 @@ class MasterInspeksiGensetController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(MasterInspeksiGenset $masterInspeksiGenset)
+    public function show(MasterGenset $masterInspeksiGenset)
     {
         //
     }
@@ -43,7 +43,7 @@ class MasterInspeksiGensetController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(MasterInspeksiGenset $masterInspeksiGenset)
+    public function edit(MasterGenset $masterInspeksiGenset)
     {
         //
     }
@@ -51,7 +51,7 @@ class MasterInspeksiGensetController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, MasterInspeksiGenset $masterInspeksiGenset)
+    public function update(Request $request, MasterGenset $masterInspeksiGenset)
     {
         //
     }
@@ -59,7 +59,7 @@ class MasterInspeksiGensetController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(MasterInspeksiGenset $masterInspeksiGenset)
+    public function destroy(MasterGenset $masterInspeksiGenset)
     {
         //
     }

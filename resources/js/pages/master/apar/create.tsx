@@ -17,27 +17,28 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/',
     },
     {
-        title: 'Inspeksi APAR',
-        href: '/master/inspeksi-apar',
+        title: 'Master APAR',
+        href: '/master/apar',
     },
     {
-        title: 'Create Inspeksi APAR',
-        href: '/master/inspeksi-apar/create',
+        title: 'Create Master APAR',
+        href: '/master/apar/create',
     },
 ];
 
 // Validasi zod
 const formSchema = z.object({
-    kode_entitas: z.string().min(1).max(255),
-    entitas: z.string().min(1).max(255),
-    no_ac: z.string().min(1).max(255),
-    kode_ruang: z.string().min(1).max(255),
-    ruang: z.string().min(1).max(255),
-    kode_inventaris: z.string().min(1).max(255),
-    merk: z.string().min(1).max(255),
+    kode_entitas: z.string().min(1, { message: 'Kode entitas is required' }).max(255),
+    entitas: z.string().min(1, { message: 'Entitas is required' }).max(255),
+    no_apar: z.string().min(1, { message: 'No APAR is required' }).max(255),
+    kode_ruang: z.string().min(1, { message: 'Kode ruang is required' }).max(255),
+    lokasi: z.string().min(1, { message: 'Lokasi is required' }).max(255),
+    jenis: z.string().min(1, { message: 'Jenis is required' }).max(255),
+    apar: z.string().min(1, { message: 'APAR is required' }).max(255),
+    kode_inventaris: z.string().min(1, { message: 'Kode inventaris is required' }).max(255),
 });
 
-export default function CreateUser() {
+export default function CreateMasterApar() {
     const { errors } = usePage().props as {
         errors: Record<string, string>;
     };
@@ -47,39 +48,50 @@ export default function CreateUser() {
         defaultValues: {
             kode_entitas: '',
             entitas: '',
-            no_ac: '',
+            no_apar: '',
             kode_ruang: '',
-            ruang: '',
+            lokasi: '',
+            jenis: '',
+            apar: '',
             kode_inventaris: '',
-            merk: '',
         },
     });
 
     // Inject error dari Laravel ke React Hook Form
     useEffect(() => {
-        Object.entries(errors).forEach(([key, message]) => {
-            form.setError(key as keyof typeof formSchema._type, {
-                type: 'manual',
-                message,
+        if (Object.keys(errors).length > 0) {
+            Object.entries(errors).forEach(([key, message]) => {
+                form.setError(key as keyof typeof formSchema._type, {
+                    type: 'manual',
+                    message: message,
+                });
             });
-        });
+        }
     }, [errors, form]);
 
     function onSubmit(values: z.infer<typeof formSchema>) {
-        router.post(route('inspeksi-apar.store'), values, {
+        router.post(route('apar.store'), values, {
             onSuccess: () => {
                 form.reset();
+            },
+            onError: (errors) => {
+                Object.entries(errors).forEach(([key, message]) => {
+                    form.setError(key as keyof typeof formSchema._type, {
+                        type: 'manual',
+                        message: message as string,
+                    });
+                });
             },
         });
     }
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Create User" />
+            <Head title="Create Master APAR" />
 
             <div className="space-y-6 p-4">
                 <div className="flex items-center justify-between">
-                    <SectionHeader title="Create User" subtitle="Fill in the form below to create a new user." />
+                    <SectionHeader title="Buat Data Master APAR" subtitle="Buat catatan data master APAR baru untuk mengelola data inspeksi APAR" />
                 </div>
 
                 <Card className="w-full">
@@ -91,13 +103,13 @@ export default function CreateUser() {
                                         <FormField
                                             control={form.control}
                                             name="kode_entitas"
-                                            render={({ field }) => (
-                                                <FormItem>
+                                            render={({ field, formState }) => (
+                                                <FormItem className={formState.errors.kode_entitas ? 'error' : ''}>
                                                     <FormLabel>Kode Entitas</FormLabel>
                                                     <FormControl>
                                                         <Input placeholder="Enter kode entitas" {...field} />
                                                     </FormControl>
-                                                    <FormMessage />
+                                                    <FormMessage>{formState.errors.kode_entitas?.message}</FormMessage>
                                                 </FormItem>
                                             )}
                                         />
@@ -105,27 +117,27 @@ export default function CreateUser() {
                                         <FormField
                                             control={form.control}
                                             name="entitas"
-                                            render={({ field }) => (
-                                                <FormItem>
+                                            render={({ field, formState }) => (
+                                                <FormItem className={formState.errors.entitas ? 'error' : ''}>
                                                     <FormLabel>Entitas</FormLabel>
                                                     <FormControl>
                                                         <Input placeholder="Enter entitas" {...field} />
                                                     </FormControl>
-                                                    <FormMessage />
+                                                    <FormMessage>{formState.errors.entitas?.message}</FormMessage>
                                                 </FormItem>
                                             )}
                                         />
 
                                         <FormField
                                             control={form.control}
-                                            name="no_ac"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>No AC</FormLabel>
+                                            name="no_apar"
+                                            render={({ field, formState }) => (
+                                                <FormItem className={formState.errors.no_apar ? 'error' : ''}>
+                                                    <FormLabel>No APAR</FormLabel>
                                                     <FormControl>
-                                                        <Input placeholder="Enter no AC" {...field} />
+                                                        <Input placeholder="Enter no APAR" {...field} />
                                                     </FormControl>
-                                                    <FormMessage />
+                                                    <FormMessage>{formState.errors.no_apar?.message}</FormMessage>
                                                 </FormItem>
                                             )}
                                         />
@@ -133,13 +145,13 @@ export default function CreateUser() {
                                         <FormField
                                             control={form.control}
                                             name="kode_ruang"
-                                            render={({ field }) => (
-                                                <FormItem>
+                                            render={({ field, formState }) => (
+                                                <FormItem className={formState.errors.kode_ruang ? 'error' : ''}>
                                                     <FormLabel>Kode Ruang</FormLabel>
                                                     <FormControl>
                                                         <Input placeholder="Enter kode ruang" {...field} />
                                                     </FormControl>
-                                                    <FormMessage />
+                                                    <FormMessage>{formState.errors.kode_ruang?.message}</FormMessage>
                                                 </FormItem>
                                             )}
                                         />
@@ -148,14 +160,42 @@ export default function CreateUser() {
                                     <div className="space-y-4">
                                         <FormField
                                             control={form.control}
-                                            name="ruang"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>Ruang</FormLabel>
+                                            name="lokasi"
+                                            render={({ field, formState }) => (
+                                                <FormItem className={formState.errors.lokasi ? 'error' : ''}>
+                                                    <FormLabel>Lokasi</FormLabel>
                                                     <FormControl>
-                                                        <Input placeholder="Enter ruang" {...field} />
+                                                        <Input placeholder="Enter lokasi" {...field} />
                                                     </FormControl>
-                                                    <FormMessage />
+                                                    <FormMessage>{formState.errors.lokasi?.message}</FormMessage>
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name="jenis"
+                                            render={({ field, formState }) => (
+                                                <FormItem className={formState.errors.jenis ? 'error' : ''}>
+                                                    <FormLabel>Jenis</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="Enter jenis" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage>{formState.errors.jenis?.message}</FormMessage>
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name="apar"
+                                            render={({ field, formState }) => (
+                                                <FormItem className={formState.errors.apar ? 'error' : ''}>
+                                                    <FormLabel>APAR</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="Enter APAR" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage>{formState.errors.apar?.message}</FormMessage>
                                                 </FormItem>
                                             )}
                                         />
@@ -163,27 +203,13 @@ export default function CreateUser() {
                                         <FormField
                                             control={form.control}
                                             name="kode_inventaris"
-                                            render={({ field }) => (
-                                                <FormItem>
+                                            render={({ field, formState }) => (
+                                                <FormItem className={formState.errors.kode_inventaris ? 'error' : ''}>
                                                     <FormLabel>Kode Inventaris</FormLabel>
                                                     <FormControl>
                                                         <Input placeholder="Enter kode inventaris" {...field} />
                                                     </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                        <FormField
-                                            control={form.control}
-                                            name="merk"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>Merk</FormLabel>
-                                                    <FormControl>
-                                                        <Input placeholder="Enter merk" {...field} />
-                                                    </FormControl>
-                                                    <FormMessage />
+                                                    <FormMessage>{formState.errors.kode_inventaris?.message}</FormMessage>
                                                 </FormItem>
                                             )}
                                         />
@@ -193,9 +219,9 @@ export default function CreateUser() {
                                 {/* Submit & Cancel */}
                                 <div className="flex items-center gap-2">
                                     <Button type="submit" disabled={form.formState.isSubmitting}>
-                                        {form.formState.isSubmitting ? 'Creating...' : 'Create User'}
+                                        {form.formState.isSubmitting ? 'Creating...' : 'Create Master APAR'}
                                     </Button>
-                                    <Link href={route('master-entitas.index')} className="text-muted-foreground text-sm hover:underline">
+                                    <Link href={route('apar.index')} className="text-muted-foreground text-sm hover:underline">
                                         Cancel
                                     </Link>
                                 </div>

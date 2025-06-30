@@ -67,7 +67,7 @@ export default function EditEntitas({
 
             <div className="space-y-6 p-4">
                 <div className="flex items-center justify-between">
-                    <SectionHeader title="Edit User" subtitle="Update user data below." />
+                    <SectionHeader title="Edit Entitas" subtitle="Perbarui data entitas di bawah ini." />
                 </div>
 
                 <Card className="w-full">
@@ -142,7 +142,7 @@ export default function EditEntitas({
                                 {/* Submit & Cancel */}
                                 <div className="flex items-center gap-2">
                                     <Button type="submit" disabled={form.formState.isSubmitting}>
-                                        {form.formState.isSubmitting ? 'Updating...' : 'Update User'}
+                                        {form.formState.isSubmitting ? 'Updating...' : 'Update Entitas'}
                                     </Button>
                                     <Link href={route('entitas.index')} className="text-muted-foreground text-sm hover:underline">
                                         Cancel

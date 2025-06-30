@@ -12,80 +12,77 @@ import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
 const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Home',
-        href: '/',
-    },
-    {
-        title: 'Manage Entitas',
-        href: '/master/entitas',
-    },
-    {
-        title: 'Create Entitas',
-        href: '/master/entitas/create',
-    },
+    { title: 'Home', href: '/' },
+    { title: 'Master AC', href: '/master/ac' },
+    { title: 'Edit Master AC', href: '#' },
 ];
 
-// Validasi zod
 const formSchema = z.object({
     kode_entitas: z.string().min(1).max(255),
-    kode_group: z.string().min(1).max(255),
-    nama: z.string().min(1).max(255),
-    nama_alias: z.string().min(1).max(255),
+    entitas: z.string().min(1).max(255),
+    ruang: z.string().min(1).max(255),
+    kode_inventaris: z.string().min(1).max(255),
+    merk: z.string().min(1).max(255),
 });
 
-export default function CreateUser() {
+type FormSchemaType = z.infer<typeof formSchema>;
+
+export default function EditInspeksiApar({
+    masterAc,
+}: {
+    masterAc: {
+        id: number;
+        kode_entitas: string;
+        entitas: string;
+        ruang: string;
+        kode_inventaris: string;
+        merk: string;
+    };
+}) {
     const { errors } = usePage().props as {
         errors: Record<string, string>;
     };
 
-    const form = useForm<z.infer<typeof formSchema>>({
+    const form = useForm<FormSchemaType>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            kode_entitas: '',
-            kode_group: '',
-            nama: '',
-            nama_alias: '',
+            kode_entitas: masterAc.kode_entitas || '',
+            entitas: masterAc.entitas || '',
+            ruang: masterAc.ruang || '',
+            kode_inventaris: masterAc.kode_inventaris || '',
+            merk: masterAc.merk || '',
         },
     });
 
-    // Inject error dari Laravel ke React Hook Form
     useEffect(() => {
         Object.entries(errors).forEach(([key, message]) => {
-            form.setError(key as keyof typeof formSchema._type, {
+            form.setError(key as keyof FormSchemaType, {
                 type: 'manual',
                 message,
             });
         });
     }, [errors, form]);
 
-    function onSubmit(values: z.infer<typeof formSchema>) {
-        router.post(route('entitas.store'), values, {
-            onSuccess: () => {
-                form.reset();
-            },
-        });
+    function onSubmit(values: FormSchemaType) {
+        const formData = { ...values };
+        router.put(route('ac.update', masterAc.id), formData);
     }
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Create User" />
+            <Head title="Edit Master AC" />
 
             <div className="space-y-6 p-4">
                 <div className="flex items-center justify-between">
-                    <SectionHeader
-                        title="Buat Entitas Baru"
-                        subtitle="Isi formulir di bawah ini untuk membuat entitas baru. Pastikan semua kolom yang wajib diisi telah dilengkapi."
-                    />
+                    <SectionHeader title="Edit Master AC" subtitle="Update data Master AC beserta semua informasinya di bawah ini." />
                 </div>
 
                 <Card className="w-full">
                     <CardContent className="p-6">
                         <Form {...form}>
                             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-4">
-                                        {/* Kode Entitas Field */}
                                         <FormField
                                             control={form.control}
                                             name="kode_entitas"
@@ -99,48 +96,55 @@ export default function CreateUser() {
                                                 </FormItem>
                                             )}
                                         />
-
-                                        {/* Kode Group Field */}
                                         <FormField
                                             control={form.control}
-                                            name="kode_group"
+                                            name="entitas"
                                             render={({ field }) => (
                                                 <FormItem>
-                                                    <FormLabel>Kode Group</FormLabel>
+                                                    <FormLabel>Entitas</FormLabel>
                                                     <FormControl>
-                                                        <Input placeholder="Enter kode group" {...field} />
+                                                        <Input placeholder="Enter entitas" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={form.control}
+                                            name="ruang"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Ruang</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="Enter ruang" {...field} />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
                                             )}
                                         />
                                     </div>
-
                                     <div className="space-y-4">
-                                        {/* Nama Field */}
                                         <FormField
                                             control={form.control}
-                                            name="nama"
+                                            name="kode_inventaris"
                                             render={({ field }) => (
                                                 <FormItem>
-                                                    <FormLabel>Nama</FormLabel>
+                                                    <FormLabel>Kode Inventaris</FormLabel>
                                                     <FormControl>
-                                                        <Input placeholder="Enter nama" {...field} />
+                                                        <Input placeholder="Enter kode inventaris" {...field} />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
                                             )}
                                         />
-
-                                        {/* Nama Alias Field */}
                                         <FormField
                                             control={form.control}
-                                            name="nama_alias"
+                                            name="merk"
                                             render={({ field }) => (
                                                 <FormItem>
-                                                    <FormLabel>Nama Alias</FormLabel>
+                                                    <FormLabel>Merk</FormLabel>
                                                     <FormControl>
-                                                        <Input placeholder="Enter nama alias" {...field} />
+                                                        <Input placeholder="Enter merk" {...field} />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -149,12 +153,11 @@ export default function CreateUser() {
                                     </div>
                                 </div>
 
-                                {/* Submit & Cancel */}
                                 <div className="flex items-center gap-2">
                                     <Button type="submit" disabled={form.formState.isSubmitting}>
-                                        {form.formState.isSubmitting ? 'Creating...' : 'Create Entitas'}
+                                        {form.formState.isSubmitting ? 'Updating...' : 'Update Master AC'}
                                     </Button>
-                                    <Link href={route('entitas.index')} className="text-muted-foreground text-sm hover:underline">
+                                    <Link href={route('ac.index')} className="text-muted-foreground text-sm hover:underline">
                                         Cancel
                                     </Link>
                                 </div>

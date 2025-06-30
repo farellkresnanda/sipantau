@@ -3,12 +3,12 @@
 use App\Http\Controllers\K3InfoController;
 use App\Http\Controllers\K3TemuanController;
 use App\Http\Controllers\Master\MasterEntitasController;
-use App\Http\Controllers\Master\MasterInspeksiAcController;
-use App\Http\Controllers\Master\MasterInspeksiAparController;
-use App\Http\Controllers\Master\MasterInspeksiGensetController;
-use App\Http\Controllers\Master\MasterInspeksiK3lController;
-use App\Http\Controllers\Master\MasterInspeksiK3lDeskripsiController;
-use App\Http\Controllers\Master\MasterInspeksiP3kController;
+use App\Http\Controllers\Master\MasterAcController;
+use App\Http\Controllers\Master\MasterAparController;
+use App\Http\Controllers\Master\MasterGensetController;
+use App\Http\Controllers\Master\MasterK3LController;
+use App\Http\Controllers\Master\MasterK3LDeskripsiController;
+use App\Http\Controllers\Master\MasterP3KController;
 use App\Http\Controllers\Master\MasterJenisKetidaksesuaianController;
 use App\Http\Controllers\Master\MasterJenisKetidaksesuaianSubController;
 use App\Http\Controllers\Master\MasterKonsekuensiController;
@@ -51,12 +51,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('users', UserController::class);
         Route::prefix('master')->group(function () {
             Route::resource('entitas', MasterEntitasController::class);
-            Route::resource('inspeksi-ac', MasterInspeksiAcController::class);
-            Route::resource('inspeksi-apar', MasterInspeksiAparController::class);
-            Route::resource('inspeksi-genset', MasterInspeksiGensetController::class);
-            Route::resource('inspeksi-k3l', MasterInspeksiK3lController::class);
-            Route::resource('inspeksi-k3l-deskripsi', MasterInspeksiK3lDeskripsiController::class);
-            Route::resource('inspeksi-p3k', MasterInspeksiP3kController::class);
+            Route::resource('ac', MasterAcController::class);
+            Route::resource('apar', MasterAparController::class);
+            Route::resource('genset', MasterGensetController::class);
+            Route::resource('k3l', MasterK3LController::class);
+            Route::resource('k3l-deskripsi', MasterK3LDeskripsiController::class);
+            Route::resource('p3k', MasterP3KController::class);
             Route::resource('jenis-ketidaksesuaian', MasterJenisKetidaksesuaianController::class);
             Route::resource('jenis-ketidaksesuaian-sub', MasterJenisKetidaksesuaianSubController::class);
             Route::resource('konsekuensi', MasterKonsekuensiController::class);
