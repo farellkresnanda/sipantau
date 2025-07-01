@@ -13,62 +13,60 @@ import { Link, router } from '@inertiajs/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
 
-export type InspeksiApar = {
+// You can use a Zod schema here if you want.
+export type MasterStandarKerja = {
     id: string;
-    kode_entitas: string;
-    entitas: string;
-    no_apar: string;
-    kode_ruang: string;
-    lokasi: string;
-    jenis: string;
-    apar: string;
-    kode_inventaris: string;
+    nama: string;
+    keterangan: string;
+    periode: string;
+    created_at: string;
+    updated_at: string;
 };
 
-export const columns: ColumnDef<InspeksiApar>[] = [
+export const columns: ColumnDef<MasterStandarKerja>[] = [
     {
         accessorKey: 'no',
         header: 'No',
     },
     {
-        accessorKey: 'kode_entitas',
-        header: 'Kode Entitas',
+        accessorKey: 'nama',
+        header: 'Nama',
     },
     {
-        accessorKey: 'entitas',
-        header: 'Entitas',
+        accessorKey: 'keterangan',
+        header: 'Keterangan',
+        cell: ({ getValue }) => {
+            const value = getValue() as string;
+            return value?.length > 50 ? value.substring(0, 50) + '...' : value;
+        },
     },
     {
-        accessorKey: 'no_apar',
-        header: 'No APAR',
+        accessorKey: 'periode',
+        header: 'Periode',
     },
     {
-        accessorKey: 'kode_ruang',
-        header: 'Kode Ruang',
+        accessorKey: 'created_at',
+        header: 'Created At',
+        cell: ({ getValue }) => {
+            const value = getValue() as string;
+            return value?.replace('T', ' ').split('.')[0];
+        },
     },
     {
-        accessorKey: 'lokasi',
-        header: 'Lokasi',
-    },
-    {
-        accessorKey: 'jenis',
-        header: 'Jenis',
-    },
-    {
-        accessorKey: 'apar',
-        header: 'APAR',
-    },
-    {
-        accessorKey: 'kode_inventaris',
-        header: 'Kode Inventaris',
+        accessorKey: 'updated_at',
+        header: 'Updated At',
+        cell: ({ getValue }) => {
+            const value = getValue() as string;
+            return value?.replace('T', ' ').split('.')[0];
+        },
     },
     {
         id: 'actions',
         header: '#',
         cell: ({ row }) => {
             const handleDelete = () => {
-                if (confirm('Are you sure you want to delete this Master APAR?')) {
-                    router.delete(`/master/apar/${row.original.id}`);
+                if (confirm('Are you sure you want to delete this standar kerja?')) {
+                    router.delete(`/master/standar-kerja/${row.original.id}`);
                 }
             };
 
@@ -84,7 +82,7 @@ export const columns: ColumnDef<InspeksiApar>[] = [
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild>
-                            <Link href={`/master/apar/${row.original.id}/edit`}>Edit</Link>
+                            <Link href={`/master/standar-kerja/${row.original.id}/edit`}>Edit</Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={handleDelete}>Delete</DropdownMenuItem>
                     </DropdownMenuContent>
