@@ -1,14 +1,15 @@
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import {AlertTriangle, Ban, Home, ServerCrash} from "lucide-react"
-import { cn } from "@/lib/utils"
-import {Head} from "@inertiajs/react";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
+import { Head } from '@inertiajs/react';
+import { AlertTriangle, Ban, Home, ServerCrash } from 'lucide-react';
 
 type ErrorProps = {
-    status: number
-}
+    status: number;
+    message?: string;
+};
 
-export default function Error({ status }: ErrorProps) {
+export default function Error({ status, message }: ErrorProps) {
     const getErrorInfo = (status: number) => {
         switch (status) {
             case 404:
@@ -32,7 +33,7 @@ export default function Error({ status }: ErrorProps) {
         }
     };
 
-    const { title, description, icon } = getErrorInfo(status)
+    const { title, description, icon } = getErrorInfo(status);
 
     return (
         <div className="bg-muted flex min-h-screen items-center justify-center p-4">
@@ -46,7 +47,7 @@ export default function Error({ status }: ErrorProps) {
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 text-center">
-                    <p className="text-muted-foreground">{description}</p>
+                    <p className="text-muted-foreground">{description || message}</p>
                     <Button asChild>
                         <a href="/">
                             <Home className="inline-block h-4 w-4" /> Kembali ke Home
