@@ -82,5 +82,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 });
 
+Route::get('/test-error', function () {
+    abort(500);
+});
+
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
