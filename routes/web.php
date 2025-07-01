@@ -5,6 +5,7 @@ use App\Http\Controllers\K3TemuanController;
 use App\Http\Controllers\Master\MasterEntitasController;
 use App\Http\Controllers\Master\MasterAcController;
 use App\Http\Controllers\Master\MasterAparController;
+use App\Http\Controllers\Master\MasterApdController;
 use App\Http\Controllers\Master\MasterGensetController;
 use App\Http\Controllers\Master\MasterK3LController;
 use App\Http\Controllers\Master\MasterK3LDeskripsiController;
@@ -53,6 +54,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::resource('entitas', MasterEntitasController::class);
             Route::resource('ac', MasterAcController::class);
             Route::resource('apar', MasterAparController::class);
+            Route::resource('apd', MasterApdController::class);
             Route::resource('genset', MasterGensetController::class);
             Route::resource('k3l', MasterK3LController::class);
             Route::resource('k3l-deskripsi', MasterK3LDeskripsiController::class);
