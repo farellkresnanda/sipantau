@@ -203,7 +203,7 @@ export default function EditMasterApar({
 
                                 <div className="flex items-center gap-2">
                                     <Button type="submit" disabled={form.formState.isSubmitting}>
-                                        {form.formState.isSubmitting ? 'Updating...' : 'Update Master APAR'}
+                                        {form.formState.isSubmitting ? 'Updating...' : 'Update Data'}
                                     </Button>
                                     <Link href={route('apar.index')} className="text-muted-foreground text-sm hover:underline">
                                         Cancel

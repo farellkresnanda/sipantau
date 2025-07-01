@@ -152,7 +152,7 @@ export default function CreateUser() {
                                 {/* Submit & Cancel */}
                                 <div className="flex items-center gap-2">
                                     <Button type="submit" disabled={form.formState.isSubmitting}>
-                                        {form.formState.isSubmitting ? 'Creating...' : 'Create Entitas'}
+                                        {form.formState.isSubmitting ? 'Creating...' : 'Create Data'}
                                     </Button>
                                     <Link href={route('entitas.index')} className="text-muted-foreground text-sm hover:underline">
                                         Cancel

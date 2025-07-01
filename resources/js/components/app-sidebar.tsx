@@ -255,8 +255,8 @@ const mainNavItems: NavItemWithChildren[] = [
                 icon: TargetIcon,
             },
             {
-                title: 'Master Standar Kerja',
-                href: '/master/standar-kerja',
+                title: 'Master Standar Kerja Gedung',
+                href: '/master/standar-kerja-gedung',
                 icon: ClipboardCheck,
             },
             {

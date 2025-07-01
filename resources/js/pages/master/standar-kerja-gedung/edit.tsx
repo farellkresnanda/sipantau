@@ -13,8 +13,8 @@ import * as z from 'zod';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Home', href: '/' },
-    { title: 'Manage Standar Kerja', href: '/master/standar-kerja' },
-    { title: 'Edit Standar Kerja', href: '#' },
+    { title: 'Manage Standar Kerja Gedung', href: '/master/standar-kerja-gedung' },
+    { title: 'Edit Standar Kerja Gedung', href: '#' },
 ];
 
 const formSchema = z.object({
@@ -25,10 +25,10 @@ const formSchema = z.object({
 
 type FormSchemaType = z.infer<typeof formSchema>;
 
-export default function EditStandarKerja({
-    masterStandarPekerjaan,
+export default function EditStandarKerjaGedung({
+    standarKerjaGedung,
 }: {
-    masterStandarPekerjaan: { id: number; nama: string; keterangan: string; periode: string };
+    standarKerjaGedung: { id: number; nama: string; keterangan: string; periode: string };
 }) {
     const { errors } = usePage().props as {
         errors: Record<string, string>;
@@ -37,9 +37,9 @@ export default function EditStandarKerja({
     const form = useForm<FormSchemaType>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            nama: masterStandarPekerjaan.nama || '',
-            keterangan: masterStandarPekerjaan.keterangan || '',
-            periode: masterStandarPekerjaan.periode || '',
+            nama: standarKerjaGedung.nama || '',
+            keterangan: standarKerjaGedung.keterangan || '',
+            periode: standarKerjaGedung.periode || '',
         },
     });
 
@@ -54,16 +54,16 @@ export default function EditStandarKerja({
 
     function onSubmit(values: FormSchemaType) {
         const formData = { ...values };
-        router.put(route('standar-kerja.update', masterStandarPekerjaan.id), formData);
+        router.put(route('standar-kerja-gedung.update', standarKerjaGedung.id), formData);
     }
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Edit Standar Kerja" />
+            <Head title="Edit Standar Kerja Gedung" />
 
             <div className="space-y-6 p-4">
                 <div className="flex items-center justify-between">
-                    <SectionHeader title="Edit Standar Kerja" subtitle="Perbarui data standar kerja di bawah ini." />
+                    <SectionHeader title="Edit Standar Kerja Gedung" subtitle="Perbarui data standar kerja gedung di bawah ini." />
                 </div>
 
                 <Card className="w-full">
@@ -116,9 +116,9 @@ export default function EditStandarKerja({
 
                                 <div className="flex items-center gap-2">
                                     <Button type="submit" disabled={form.formState.isSubmitting}>
-                                        {form.formState.isSubmitting ? 'Updating...' : 'Update Standar Kerja'}
+                                        {form.formState.isSubmitting ? 'Updating...' : 'Update Data'}
                                     </Button>
-                                    <Link href={route('standar-kerja.index')} className="text-muted-foreground text-sm hover:underline">
+                                    <Link href={route('standar-kerja-gedung.index')} className="text-muted-foreground text-sm hover:underline">
                                         Cancel
                                     </Link>
                                 </div>

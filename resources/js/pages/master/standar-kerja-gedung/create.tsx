@@ -17,12 +17,12 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/',
     },
     {
-        title: 'Standar Kerja',
-        href: '/master/standar-kerja',
+        title: 'Standar Kerja Gedung',
+        href: '/master/standar-kerja-gedung',
     },
     {
-        title: 'Create Standar Kerja',
-        href: '/master/standar-kerja/create',
+        title: 'Create Standar Kerja Gedung',
+        href: '/master/standar-kerja-gedung/create',
     },
 ];
 
@@ -32,7 +32,7 @@ const formSchema = z.object({
     periode: z.string().min(1, 'Periode is required').max(255),
 });
 
-export default function CreateStandarKerja() {
+export default function CreateStandarKerjaGedung() {
     const { errors } = usePage().props as {
         errors: Record<string, string>;
     };
@@ -56,7 +56,7 @@ export default function CreateStandarKerja() {
     }, [errors, form]);
 
     function onSubmit(values: z.infer<typeof formSchema>) {
-        router.post(route('standar-kerja.store'), values, {
+        router.post(route('standar-kerja-gedung.store'), values, {
             onSuccess: () => {
                 form.reset();
             },
@@ -65,13 +65,13 @@ export default function CreateStandarKerja() {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Create Standar Kerja" />
+            <Head title="Create Standar Kerja Gedung" />
 
             <div className="space-y-6 p-4">
                 <div className="flex items-center justify-between">
                     <SectionHeader
-                        title="Buat Standar Kerja Baru"
-                        subtitle="Isi formulir di bawah ini untuk membuat standar kerja baru. Pastikan semua kolom yang wajib diisi telah dilengkapi."
+                        title="Buat Standar Kerja Gedung Baru"
+                        subtitle="Isi formulir di bawah ini untuk membuat standar kerja gedung baru. Pastikan semua kolom yang wajib diisi telah dilengkapi."
                     />
                 </div>
 
@@ -129,9 +129,9 @@ export default function CreateStandarKerja() {
 
                                 <div className="flex items-center gap-2">
                                     <Button type="submit" disabled={form.formState.isSubmitting}>
-                                        {form.formState.isSubmitting ? 'Menyimpan...' : 'Simpan'}
+                                        {form.formState.isSubmitting ? 'Creating...' : 'Create Data'}
                                     </Button>
-                                    <Link href={route('standar-kerja.index')} className="text-muted-foreground text-sm hover:underline">
+                                    <Link href={route('standar-kerja-gedung.index')} className="text-muted-foreground text-sm hover:underline">
                                         Batal
                                     </Link>
                                 </div>

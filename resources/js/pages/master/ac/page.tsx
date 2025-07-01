@@ -46,7 +46,7 @@ export default function PageAc({ acList }: { acList: never[] }) {
                         subtitle="Kelola data master AC di sistem ini. Anda dapat menambah, mengubah, dan menghapus data master AC sesuai dengan kebutuhan sistem dan pengguna."
                     />
                     <Button asChild className="w-full sm:w-auto">
-                        <Link href="/master/ac/create">Create Master AC</Link>
+                        <Link href="/master/ac/create">Create Data</Link>
                     </Button>
                 </div>
                 <div className="w-full">

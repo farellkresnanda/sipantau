@@ -55,7 +55,7 @@ class MasterEntitasController extends Controller
      */
     public function edit(MasterEntitas $masterEntitas, $id)
     {
-        $masterEntitas = MasterEntitas::findOrFail($id);
+        $masterEntitas = $masterEntitas->findOrFail($id);
         return Inertia::render('master/entitas/edit', compact('masterEntitas'));
     }
 
@@ -89,7 +89,7 @@ class MasterEntitasController extends Controller
      */
     public function destroy(MasterEntitas $masterEntitas, $id)
     {
-        $masterEntitas = MasterEntitas::findOrFail($id);
+        $masterEntitas = $masterEntitas->findOrFail($id);
         $masterEntitas->delete();
 
         activity()->log('User deleted a master entitas');

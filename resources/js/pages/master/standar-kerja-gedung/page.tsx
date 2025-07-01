@@ -14,12 +14,12 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/',
     },
     {
-        title: 'Master Standar Kerja',
-        href: '/master/standar-kerja',
+        title: 'Master Standar Kerja Gedung',
+        href: '/master/standar-kerja-gedung',
     },
 ];
 
-export default function PageStandarKerja({ standarKerja }: { standarKerja: never[] }) {
+export default function PageStandarKerjaGedung({ standarKerjaGedung }: { standarKerjaGedung: never[] }) {
     const { flash } = usePage().props as {
         flash?: { success?: string; error?: string; message?: string };
     };
@@ -38,19 +38,19 @@ export default function PageStandarKerja({ standarKerja }: { standarKerja: never
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Master Standar Kerja" />
+            <Head title="Master Standar Kerja Gedung" />
             <div className="p-4">
                 <div className="mb-3 flex flex-col items-center justify-between gap-4 sm:flex-row">
                     <SectionHeader
-                        title="Master Standar Kerja"
-                        subtitle="Kelola data standar kerja Anda di sini. Anda dapat menambah, mengubah, dan menghapus standar kerja."
+                        title="Master Standar Kerja Gedung"
+                        subtitle="Kelola data standar kerja gedung Anda di sini. Anda dapat menambah, mengubah, dan menghapus standar kerja gedung."
                     />
                     <Button asChild className="w-full sm:w-auto">
-                        <Link href="/master/standar-kerja/create">Create Master Standar Kerja</Link>
+                        <Link href="/master/standar-kerja-gedung/create">Create Data</Link>
                     </Button>
                 </div>
                 <div className="w-full">
-                    <DataTable columns={columns} data={standarKerja} />
+                    <DataTable columns={columns} data={standarKerjaGedung} />
                 </div>
             </div>
         </AppLayout>

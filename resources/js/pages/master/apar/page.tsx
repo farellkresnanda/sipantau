@@ -46,7 +46,7 @@ export default function PageMasterApar({ masterApar }: { masterApar: never[] }) 
                         subtitle="Kelola data master inspeksi APAR. Anda dapat menambah, mengubah, dan menghapus data inspeksi APAR."
                     />
                     <Button asChild className="w-full sm:w-auto">
-                        <Link href="/master/apar/create">Create Master APAR</Link>
+                        <Link href="/master/apar/create">Create Data</Link>
                     </Button>
                 </div>
                 <div className="w-full">

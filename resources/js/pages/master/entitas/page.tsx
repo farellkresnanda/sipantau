@@ -46,7 +46,7 @@ export default function PageEntitas({ entitas }: { entitas: never[] }) {
                         subtitle="Kelola data entitas Anda di sini. Anda dapat menambah, mengubah, dan menghapus entitas."
                     />
                     <Button asChild className="w-full sm:w-auto">
-                        <Link href="/master/entitas/create">Create Master Entitas</Link>
+                        <Link href="/master/entitas/create">Create Data</Link>
                     </Button>
                 </div>
                 <div className="w-full">

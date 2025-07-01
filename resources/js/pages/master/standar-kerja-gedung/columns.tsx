@@ -14,7 +14,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
 
 // You can use a Zod schema here if you want.
-export type MasterStandarKerja = {
+export type MasterStandarKerjaGedung = {
     id: string;
     nama: string;
     keterangan: string;
@@ -23,7 +23,7 @@ export type MasterStandarKerja = {
     updated_at: string;
 };
 
-export const columns: ColumnDef<MasterStandarKerja>[] = [
+export const columns: ColumnDef<MasterStandarKerjaGedung>[] = [
     {
         accessorKey: 'no',
         header: 'No',
@@ -65,8 +65,8 @@ export const columns: ColumnDef<MasterStandarKerja>[] = [
         header: '#',
         cell: ({ row }) => {
             const handleDelete = () => {
-                if (confirm('Are you sure you want to delete this standar kerja?')) {
-                    router.delete(`/master/standar-kerja/${row.original.id}`);
+                if (confirm('Are you sure you want to delete this standar kerja gedung?')) {
+                    router.delete(`/master/standar-kerja-gedung/${row.original.id}`);
                 }
             };
 
@@ -82,7 +82,7 @@ export const columns: ColumnDef<MasterStandarKerja>[] = [
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild>
-                            <Link href={`/master/standar-kerja/${row.original.id}/edit`}>Edit</Link>
+                            <Link href={`/master/standar-kerja-gedung/${row.original.id}/edit`}>Edit</Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={handleDelete}>Delete</DropdownMenuItem>
                     </DropdownMenuContent>

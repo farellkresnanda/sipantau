@@ -142,7 +142,7 @@ export default function EditEntitas({
                                 {/* Submit & Cancel */}
                                 <div className="flex items-center gap-2">
                                     <Button type="submit" disabled={form.formState.isSubmitting}>
-                                        {form.formState.isSubmitting ? 'Updating...' : 'Update Entitas'}
+                                        {form.formState.isSubmitting ? 'Updating...' : 'Update Data'}
                                     </Button>
                                     <Link href={route('entitas.index')} className="text-muted-foreground text-sm hover:underline">
                                         Cancel

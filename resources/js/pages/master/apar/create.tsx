@@ -219,7 +219,7 @@ export default function CreateMasterApar() {
                                 {/* Submit & Cancel */}
                                 <div className="flex items-center gap-2">
                                     <Button type="submit" disabled={form.formState.isSubmitting}>
-                                        {form.formState.isSubmitting ? 'Creating...' : 'Create Master APAR'}
+                                        {form.formState.isSubmitting ? 'Creating...' : 'Create Data'}
                                     </Button>
                                     <Link href={route('apar.index')} className="text-muted-foreground text-sm hover:underline">
                                         Cancel

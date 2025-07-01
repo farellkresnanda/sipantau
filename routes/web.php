@@ -21,7 +21,7 @@ use App\Http\Controllers\Master\MasterProbabilitasController;
 use App\Http\Controllers\Master\MasterRumusLtifrController;
 use App\Http\Controllers\Master\MasterSertifikasiK3Controller;
 use App\Http\Controllers\Master\MasterSkalaPrioritasController;
-use App\Http\Controllers\Master\MasterStandarKerjaController;
+use App\Http\Controllers\Master\MasterStandarKerjaGedungController;
 use App\Http\Controllers\Master\MasterStatistikK3Controller;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -71,7 +71,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::resource('rumus-ltifr', MasterRumusLtifrController::class);
             Route::resource('sertifikasi-k3', MasterSertifikasiK3Controller::class);
             Route::resource('skala-prioritas', MasterSkalaPrioritasController::class);
-            Route::resource('standar-kerja', MasterStandarKerjaController::class);
+            Route::resource('standar-kerja-gedung', MasterStandarKerjaGedungController::class);
             Route::resource('statistik-k3', MasterStatistikK3Controller::class);
         });
     });
