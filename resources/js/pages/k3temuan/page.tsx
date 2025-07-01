@@ -41,9 +41,12 @@ export default function PageK3Temuan({ k3Temuans }: { k3Temuans: any[] }) {
             <Head title="Temuan" />
             <div className="p-4">
                 <div className="mb-3 flex flex-col items-center justify-between gap-4 sm:flex-row">
-                    <SectionHeader title="Temuan Users" subtitle="Temuan your k3temuan here. You can add, edit, and delete k3temuan." />
+                    <SectionHeader
+                        title="Daftar Temuan"
+                        subtitle="Kelola data temuan di sini. Anda dapat menambah, mengubah, dan menghapus temuan."
+                    />
                     <Button asChild className="w-full sm:w-auto">
-                        <Link href="/k3temuan/create">Create User</Link>
+                        <Link href="/k3temuan/create">Create Temuan</Link>
                     </Button>
                 </div>
                 <div className="w-full overflow-x-auto">
@@ -51,7 +54,6 @@ export default function PageK3Temuan({ k3Temuans }: { k3Temuans: any[] }) {
                         <DataTable columns={columns} data={k3Temuans} />
                     </div>
                 </div>
-
             </div>
         </AppLayout>
     );
