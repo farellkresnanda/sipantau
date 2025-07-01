@@ -2,25 +2,27 @@
 
 use App\Http\Controllers\K3InfoController;
 use App\Http\Controllers\K3TemuanController;
-use App\Http\Controllers\Master\MasterEntitasController;
 use App\Http\Controllers\Master\MasterAcController;
 use App\Http\Controllers\Master\MasterAparController;
 use App\Http\Controllers\Master\MasterApdController;
+use App\Http\Controllers\Master\MasterEntitasController;
+use App\Http\Controllers\Master\MasterGedungController;
 use App\Http\Controllers\Master\MasterGensetController;
-use App\Http\Controllers\Master\MasterK3LController;
-use App\Http\Controllers\Master\MasterK3LDeskripsiController;
-use App\Http\Controllers\Master\MasterP3KController;
 use App\Http\Controllers\Master\MasterJenisKetidaksesuaianController;
 use App\Http\Controllers\Master\MasterJenisKetidaksesuaianSubController;
+use App\Http\Controllers\Master\MasterK3LController;
+use App\Http\Controllers\Master\MasterK3LDeskripsiController;
 use App\Http\Controllers\Master\MasterKonsekuensiController;
 use App\Http\Controllers\Master\MasterLaporanUjiRiksaFasilitasController;
 use App\Http\Controllers\Master\MasterLaporanUjiRiksaPeralatanController;
 use App\Http\Controllers\Master\MasterLokasiController;
+use App\Http\Controllers\Master\MasterP3KController;
 use App\Http\Controllers\Master\MasterPlantController;
 use App\Http\Controllers\Master\MasterProbabilitasController;
 use App\Http\Controllers\Master\MasterRumusLtifrController;
 use App\Http\Controllers\Master\MasterSertifikasiK3Controller;
 use App\Http\Controllers\Master\MasterSkalaPrioritasController;
+use App\Http\Controllers\Master\MasterStandarKerjaGedungController;
 use App\Http\Controllers\Master\MasterStatistikK3Controller;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -55,6 +57,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::resource('ac', MasterAcController::class);
             Route::resource('apar', MasterAparController::class);
             Route::resource('apd', MasterApdController::class);
+            Route::resource('gedung', MasterGedungController::class);
             Route::resource('genset', MasterGensetController::class);
             Route::resource('k3l', MasterK3LController::class);
             Route::resource('k3l-deskripsi', MasterK3LDeskripsiController::class);
@@ -70,6 +73,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::resource('rumus-ltifr', MasterRumusLtifrController::class);
             Route::resource('sertifikasi-k3', MasterSertifikasiK3Controller::class);
             Route::resource('skala-prioritas', MasterSkalaPrioritasController::class);
+            Route::resource('standar-kerja-gedung', MasterStandarKerjaGedungController::class);
             Route::resource('statistik-k3', MasterStatistikK3Controller::class);
         });
     });
@@ -78,6 +82,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('about-us');
     })->name('about-us');
 
+});
+
+Route::get('/test-error', function () {
+    abort(500);
 });
 
 require __DIR__.'/settings.php';

@@ -87,7 +87,10 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
                                 <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
                                     {row.getVisibleCells().map((cell, cellIndex) => (
                                         <TableCell key={cell.id}>
-                                            {cellIndex === 0 ? index + 1 : flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                            {cellIndex === 0
+                                                ? table.getState().pagination.pageIndex * table.getState().pagination.pageSize + index + 1
+                                                : flexRender(cell.column.columnDef.cell, cell.getContext())
+                                            }
                                         </TableCell>
                                     ))}
                                 </TableRow>

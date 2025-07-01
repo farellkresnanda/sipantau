@@ -41,7 +41,10 @@ export default function PageUser({ users }: { users: never[] }) {
             <Head title="Manage Users" />
             <div className="p-4">
                 <div className="mb-3 flex flex-col items-center justify-between gap-4 sm:flex-row">
-                    <SectionHeader title="Manage Users" subtitle="Manage your users here. You can add, edit, and delete users." />
+                    <SectionHeader
+                        title="Manage Users"
+                        subtitle="Kelola data pengguna di sini. Anda dapat menambah, mengubah, dan menghapus data pengguna."
+                    />
                     <Button asChild className="w-full sm:w-auto">
                         <Link href="/users/create">Create User</Link>
                     </Button>

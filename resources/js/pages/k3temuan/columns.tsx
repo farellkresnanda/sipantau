@@ -13,17 +13,13 @@ export const columns: ColumnDef<{
     tanggal: string;
     jenis_ketidaksesuaian_id: string;
     deskripsi_temuan: string;
-    foto_temuan_sebelum: string;
     detail_lokasi_temuan: string;
     akar_masalah: string;
-    nomor_car_manual: string;
     rencana_perbaikan: string;
     batas_waktu_perbaikan: string;
     tindakan_perbaikan: string;
     verifikasi_perbaikan: string;
-    tanggal_verifikasi: string;
     catatan: string;
-    foto_temuan_sesudah: string;
 }>[] = [
     {
         accessorKey: 'index',
@@ -42,9 +38,7 @@ export const columns: ColumnDef<{
     {
         accessorKey: 'status_approval',
         header: 'Status Approval',
-        cell: ({ row }) => (
-            <div className="max-w-[150px] truncate">{row.getValue('status_approval')}</div>
-        ),
+        cell: ({ row }) => <div className="max-w-[150px] truncate">{row.getValue('status_approval')}</div>,
     },
     {
         accessorKey: 'nomor_car_auto',
@@ -56,90 +50,16 @@ export const columns: ColumnDef<{
     },
     {
         accessorKey: 'jenis_ketidaksesuaian_id',
-        header: 'Jenis Ketidaksesuaian',
+        header: 'Jenis',
     },
     {
         accessorKey: 'deskripsi_temuan',
-        header: 'Deskripsi Temuan',
-        cell: ({ row }) => (
-            <div className="max-w-[200px] truncate">{row.getValue('deskripsi_temuan')}</div>
-        ),
-    },
-    {
-        accessorKey: 'foto_temuan_sebelum',
-        header: 'Foto Temuan Sebelum',
-        cell: ({ row }) => {
-            const imagePath = row.getValue('foto_temuan_sebelum') as string;
-            return (
-                <img
-                    src={imagePath ? `/storage/${imagePath}` : '/images/default.png'}
-                    alt="Foto Temuan Sebelum"
-                    className="h-10 w-10 rounded object-cover"
-                />
-            );
-        },
+        header: 'Deskripsi',
+        cell: ({ row }) => <div className="max-w-[200px] truncate">{row.getValue('deskripsi_temuan')}</div>,
     },
     {
         accessorKey: 'detail_lokasi_temuan',
         header: 'Detail Lokasi Temuan',
-    },
-    {
-        accessorKey: 'akar_masalah',
-        header: 'Akar Masalah',
-        cell: ({ row }) => (
-            <div className="max-w-[200px] truncate">{row.getValue('akar_masalah')}</div>
-        ),
-    },
-    {
-        accessorKey: 'nomor_car_manual',
-        header: 'Nomor CAR (Manual)',
-    },
-    {
-        accessorKey: 'rencana_perbaikan',
-        header: 'Rencana Perbaikan',
-        cell: ({ row }) => (
-            <div className="max-w-[200px] truncate">{row.getValue('rencana_perbaikan')}</div>
-        ),
-    },
-    {
-        accessorKey: 'batas_waktu_perbaikan',
-        header: 'Batas Waktu Perbaikan',
-    },
-    {
-        accessorKey: 'tindakan_perbaikan',
-        header: 'Tindakan Perbaikan',
-        cell: ({ row }) => (
-            <div className="max-w-[200px] truncate">{row.getValue('tindakan_perbaikan')}</div>
-        ),
-    },
-    {
-        accessorKey: 'verifikasi_perbaikan',
-        header: 'Verifikasi Perbaikan',
-    },
-    {
-        accessorKey: 'tanggal_verifikasi',
-        header: 'Tanggal Verifikasi',
-    },
-    {
-        accessorKey: 'catatan',
-        header: 'Catatan',
-        cell: ({ row }) => (
-            <div className="max-w-[200px] truncate">{row.getValue('catatan')}</div>
-        ),
-    },
-    {
-        accessorKey: 'foto_temuan_sesudah',
-        header: 'Foto Temuan Sesudah',
-        cell: ({ row }) => {
-            const imagePath = row.getValue('foto_temuan_sesudah') as string;
-            return (
-                <img
-                    src={imagePath ? `/storage/${imagePath}` : '/images/default.png'}
-                    alt="Foto Temuan Sesudah"
-                    className="h-10 w-10 rounded object-cover"
-                />
-            );
-        },
     },
     {
         id: 'actions',
@@ -186,4 +106,3 @@ export const columns: ColumnDef<{
         },
     },
 ];
-

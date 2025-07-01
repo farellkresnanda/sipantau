@@ -24,9 +24,8 @@ export type MasterAc = {
 
 export const columns: ColumnDef<MasterAc>[] = [
     {
-        id: 'index',
-        header: '#',
-        cell: ({ row }) => row.index + 1,
+        accessorKey: 'no',
+        header: 'No',
     },
     {
         accessorKey: 'kode_entitas',

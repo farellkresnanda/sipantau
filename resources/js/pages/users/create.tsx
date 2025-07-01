@@ -34,7 +34,7 @@ const formSchema = z
         email: z.string().email(),
         password: z.string().min(8),
         password_confirmation: z.string().min(8),
-        role: z.enum(['super-admin', 'admin', 'technician', 'validator', 'user']).default('user'),
+        role: z.enum(['Super Admin', 'Admin', 'Officer', 'Technician', 'Validator', 'Viewer']).default('Viewer'),
     })
     .refine((data) => data.password === data.password_confirmation, {
         message: 'Passwords do not match',
@@ -53,7 +53,7 @@ export default function CreateUser({ roles }: { roles: { id: string; name: strin
             email: '',
             password: '',
             password_confirmation: '',
-            role: 'user',
+            role: 'Viewer',
         },
     });
 

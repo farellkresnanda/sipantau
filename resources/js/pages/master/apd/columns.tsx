@@ -10,65 +10,39 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Link, router } from '@inertiajs/react';
-import { ColumnDef } from '@tanstack/react-table';
+import type { ColumnDef } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
 
-export type InspeksiApar = {
+export type MasterApd = {
     id: string;
-    kode_entitas: string;
-    entitas: string;
-    no_apar: string;
-    kode_ruang: string;
-    lokasi: string;
-    jenis: string;
-    apar: string;
-    kode_inventaris: string;
+    nama_apd: string;
+    kriteria_inspeksi: string;
 };
 
-export const columns: ColumnDef<InspeksiApar>[] = [
+export const columns: ColumnDef<MasterApd, unknown>[] = [
     {
-        accessorKey: 'no',
-        header: 'No',
+        id: 'index',
+        header: '#',
+        cell: ({ row }) => row.index + 1,
     },
     {
-        accessorKey: 'kode_entitas',
-        header: 'Kode Entitas',
+        accessorKey: 'nama_apd',
+        header: 'Nama APD',
     },
     {
-        accessorKey: 'entitas',
-        header: 'Entitas',
-    },
-    {
-        accessorKey: 'no_apar',
-        header: 'No APAR',
-    },
-    {
-        accessorKey: 'kode_ruang',
-        header: 'Kode Ruang',
-    },
-    {
-        accessorKey: 'lokasi',
-        header: 'Lokasi',
-    },
-    {
-        accessorKey: 'jenis',
-        header: 'Jenis',
-    },
-    {
-        accessorKey: 'apar',
-        header: 'APAR',
-    },
-    {
-        accessorKey: 'kode_inventaris',
-        header: 'Kode Inventaris',
+        accessorKey: 'kriteria_inspeksi',
+        header: 'Kriteria Inspeksi',
+        cell: ({ row }) => (
+            <div className="whitespace-pre-wrap">{row.original.kriteria_inspeksi}</div>
+        ),
     },
     {
         id: 'actions',
-        header: '#',
+        header: '',
         cell: ({ row }) => {
             const handleDelete = () => {
-                if (confirm('Are you sure you want to delete this Master APAR?')) {
-                    router.delete(`/master/apar/${row.original.id}`);
+                if (confirm('Are you sure you want to delete this APD?')) {
+                    router.delete(`/master/apd/${row.original.id}`);
                 }
             };
 
@@ -84,7 +58,7 @@ export const columns: ColumnDef<InspeksiApar>[] = [
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild>
-                            <Link href={`/master/apar/${row.original.id}/edit`}>Edit</Link>
+                            <Link href={`/master/apd/${row.original.id}/edit`}>Edit</Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={handleDelete}>Delete</DropdownMenuItem>
                     </DropdownMenuContent>
