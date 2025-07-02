@@ -190,11 +190,6 @@ const mainNavItems: NavItemWithChildren[] = [
                 icon: Recycle,
             },
             {
-                title: 'Master K3L Deskripsi',
-                href: '/master/k3l-deskripsi',
-                icon: InfoIcon,
-            },
-            {
                 title: 'Master P3K',
                 href: '/master/p3k',
                 icon: BriefcaseMedical,
