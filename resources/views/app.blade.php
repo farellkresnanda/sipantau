@@ -30,7 +30,7 @@
             }
         </style>
 
-        <title inertia>Sipantau K3</title>
+        <title inertia>{{ config('app.name', 'Sipantau K3') }}</title>
 
         <link rel="icon" href="{{ asset('logo/favicon.png') }}" sizes="any">
         <link rel="icon" href="{{ asset('logo/favicon.png') }}" type="image/svg+xml">
