@@ -111,7 +111,7 @@ export default function CreateMasterApd() {
 
                                 <div className="flex items-center gap-2">
                                     <Button type="submit" disabled={form.formState.isSubmitting}>
-                                        {form.formState.isSubmitting ? 'Menyimpan...' : 'Simpan'}
+                                        {form.formState.isSubmitting ? 'Creating...' : 'Submit Data'}
                                     </Button>
                                     <Link href={route('apd.index')} className="text-muted-foreground text-sm hover:underline">
                                         Batal

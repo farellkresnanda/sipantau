@@ -121,7 +121,7 @@ export default function EditMasterApd({
                                     <Button type="submit" disabled={form.formState.isSubmitting}>
                                         {form.formState.isSubmitting
                                             ? 'Updating...'
-                                            : 'Update Master APD'}
+                                            : 'Update Data'}
                                     </Button>
                                     <Link
                                         href={route('apd.index')}

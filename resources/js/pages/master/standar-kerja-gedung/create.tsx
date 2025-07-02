@@ -129,7 +129,7 @@ export default function CreateStandarKerjaGedung() {
 
                                 <div className="flex items-center gap-2">
                                     <Button type="submit" disabled={form.formState.isSubmitting}>
-                                        {form.formState.isSubmitting ? 'Creating...' : 'Create Data'}
+                                        {form.formState.isSubmitting ? 'Creating...' : 'Submit Data'}
                                     </Button>
                                     <Link href={route('standar-kerja-gedung.index')} className="text-muted-foreground text-sm hover:underline">
                                         Batal
