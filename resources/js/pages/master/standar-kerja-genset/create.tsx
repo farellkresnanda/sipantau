@@ -17,18 +17,17 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/',
     },
     {
-        title: 'Standar Kerja Gedung',
-        href: '/master/standar-kerja-gedung',
+        title: 'Standar Kerja Genset',
+        href: '/master/standar-kerja-genset',
     },
     {
-        title: 'Create Standar Kerja Gedung',
-        href: '/master/standar-kerja-gedung/create',
+        title: 'Create Standar Kerja Genset',
+        href: '/master/standar-kerja-genset/create',
     },
 ];
 
 const formSchema = z.object({
-    nama: z.string().min(1, 'Nama is required').max(255),
-    keterangan: z.string().min(1, 'Keterangan is required').max(255),
+    item_pekerjaan: z.string().min(1, 'Item pekerjaan is required').max(255),
     periode: z.string().min(1, 'Periode is required').max(255),
 });
 
@@ -40,8 +39,7 @@ export default function CreateStandarKerjaGedung() {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            nama: '',
-            keterangan: '',
+            item_pekerjaan: '',
             periode: '',
         },
     });
@@ -56,7 +54,7 @@ export default function CreateStandarKerjaGedung() {
     }, [errors, form]);
 
     function onSubmit(values: z.infer<typeof formSchema>) {
-        router.post(route('standar-kerja-gedung.store'), values, {
+        router.post(route('standar-kerja-genset.store'), values, {
             onSuccess: () => {
                 form.reset();
             },
@@ -65,13 +63,13 @@ export default function CreateStandarKerjaGedung() {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Create Standar Kerja Gedung" />
+            <Head title="Create Standar Kerja Genset" />
 
             <div className="space-y-6 p-4">
                 <div className="flex items-center justify-between">
                     <SectionHeader
-                        title="Buat Standar Kerja Gedung Baru"
-                        subtitle="Isi formulir di bawah ini untuk membuat standar kerja gedung baru. Pastikan semua kolom yang wajib diisi telah dilengkapi."
+                        title="Buat Standar Kerja Genset Baru"
+                        subtitle="Isi formulir di bawah ini untuk membuat standar kerja genset baru. Pastikan semua kolom yang wajib diisi telah dilengkapi."
                     />
                 </div>
 
@@ -83,26 +81,12 @@ export default function CreateStandarKerjaGedung() {
                                     <div className="space-y-4">
                                         <FormField
                                             control={form.control}
-                                            name="nama"
+                                            name="item_pekerjaan"
                                             render={({ field }) => (
                                                 <FormItem>
-                                                    <FormLabel>Nama</FormLabel>
+                                                    <FormLabel>Item Pekerjaan</FormLabel>
                                                     <FormControl>
-                                                        <Input placeholder="Masukkan nama" {...field} />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                        <FormField
-                                            control={form.control}
-                                            name="keterangan"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>Keterangan</FormLabel>
-                                                    <FormControl>
-                                                        <Input placeholder="Masukkan keterangan" {...field} />
+                                                        <Input placeholder="Masukkan item pekerjaan" {...field} />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -131,7 +115,7 @@ export default function CreateStandarKerjaGedung() {
                                     <Button type="submit" disabled={form.formState.isSubmitting}>
                                         {form.formState.isSubmitting ? 'Creating...' : 'Submit Data'}
                                     </Button>
-                                    <Link href={route('standar-kerja-gedung.index')} className="text-muted-foreground text-sm hover:underline">
+                                    <Link href={route('standar-kerja-genset.index')} className="text-muted-foreground text-sm hover:underline">
                                         Cancel
                                     </Link>
                                 </div>

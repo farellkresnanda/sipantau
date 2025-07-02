@@ -23,6 +23,7 @@ use App\Http\Controllers\Master\MasterRumusLtifrController;
 use App\Http\Controllers\Master\MasterSertifikasiK3Controller;
 use App\Http\Controllers\Master\MasterSkalaPrioritasController;
 use App\Http\Controllers\Master\MasterStandarKerjaGedungController;
+use App\Http\Controllers\Master\MasterStandarKerjaGensetController;
 use App\Http\Controllers\Master\MasterStatistikK3Controller;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -74,6 +75,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::resource('sertifikasi-k3', MasterSertifikasiK3Controller::class);
             Route::resource('skala-prioritas', MasterSkalaPrioritasController::class);
             Route::resource('standar-kerja-gedung', MasterStandarKerjaGedungController::class);
+            Route::resource('standar-kerja-genset', MasterStandarKerjaGensetController::class);
             Route::resource('statistik-k3', MasterStatistikK3Controller::class);
         });
     });

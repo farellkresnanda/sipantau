@@ -260,6 +260,11 @@ const mainNavItems: NavItemWithChildren[] = [
                 icon: ClipboardCheck,
             },
             {
+                title: 'Master Standar Kerja Genset',
+                href: '/master/standar-kerja-genset',
+                icon: Power,
+            },
+            {
                 title: 'Master Statistik K3',
                 href: '/master/statistik-k3',
                 icon: ChartBarIcon,

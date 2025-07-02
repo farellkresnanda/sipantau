@@ -114,7 +114,7 @@ export default function CreateMasterApd() {
                                         {form.formState.isSubmitting ? 'Creating...' : 'Submit Data'}
                                     </Button>
                                     <Link href={route('apd.index')} className="text-muted-foreground text-sm hover:underline">
-                                        Batal
+                                        Cancel
                                     </Link>
                                 </div>
                             </form>
