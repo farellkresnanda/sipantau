@@ -3,21 +3,14 @@
 import SectionHeader from '@/components/section-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useEffect } from 'react';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useFieldArray, useForm } from 'react-hook-form';
 import * as z from 'zod';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -33,7 +26,7 @@ const formSchema = z.object({
             z.object({
                 id: z.number().optional(),
                 deskripsi: z.string().min(1, { message: 'Deskripsi wajib diisi' }),
-            })
+            }),
         )
         .min(1, { message: 'Minimal satu deskripsi' }),
 });
@@ -90,18 +83,14 @@ export default function EditMasterK3l() {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Edit Master K3l" />
             <div className="space-y-6 p-4">
-                <SectionHeader
-                    title="Edit Data Master K3l"
-                    subtitle="Perbarui data tujuan dan deskripsi K3L"
-                />
+                <SectionHeader title="Edit Data Master K3l" subtitle="Perbarui data tujuan dan deskripsi K3L" />
 
                 <Card>
                     <CardContent className="p-6">
                         <Form {...form}>
                             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-
                                 {/* Tujuan dengan grid untuk menyamakan lebar */}
-                                <div className="grid grid-cols-1 gap-2 items-start">
+                                <div className="grid grid-cols-1 items-start gap-2">
                                     <div className="w-10" />
                                     <FormField
                                         control={form.control}
@@ -133,10 +122,7 @@ export default function EditMasterK3l() {
                                         const showDelete = fields.length > 1;
 
                                         return (
-                                            <div
-                                                key={item.id}
-                                                className="grid grid-cols-[40px_1fr_40px] gap-2 items-start"
-                                            >
+                                            <div key={item.id} className="grid grid-cols-[40px_1fr_40px] items-start gap-2">
                                                 {/* Kolom kiri: Tombol Tambah (selalu tampil, hanya aktif di baris terakhir) */}
                                                 <Button
                                                     type="button"
@@ -144,7 +130,7 @@ export default function EditMasterK3l() {
                                                     size="icon"
                                                     onClick={() => append({ deskripsi: '' })}
                                                     title="Tambah deskripsi"
-                                                    className="w-10 h-10"
+                                                    className="h-10 w-10"
                                                     disabled={!isLast} // Hanya aktif di baris terakhir
                                                 >
                                                     ➕
@@ -157,10 +143,7 @@ export default function EditMasterK3l() {
                                                     render={({ field }) => (
                                                         <FormItem className="w-full">
                                                             <FormControl>
-                                                                <Input
-                                                                    placeholder={`Deskripsi ${index + 1}`}
-                                                                    {...field}
-                                                                />
+                                                                <Input placeholder={`Deskripsi ${index + 1}`} {...field} />
                                                             </FormControl>
                                                             <FormMessage />
                                                         </FormItem>
@@ -174,7 +157,7 @@ export default function EditMasterK3l() {
                                                     size="icon"
                                                     onClick={() => remove(index)}
                                                     title="Hapus deskripsi"
-                                                    className="w-10 h-10"
+                                                    className="h-10 w-10"
                                                     disabled={!showDelete} // Hanya aktif jika lebih dari 1 field
                                                 >
                                                     🗑️
@@ -184,20 +167,13 @@ export default function EditMasterK3l() {
                                     })}
                                 </div>
 
-
                                 {/* Tombol Submit & Batal */}
                                 <div className="flex items-center gap-2">
-                                    <Button
-                                        type="submit"
-                                        disabled={form.formState.isSubmitting}
-                                    >
-                                        {form.formState.isSubmitting ? 'Menyimpan...' : 'Simpan'}
+                                    <Button type="submit" disabled={form.formState.isSubmitting}>
+                                        {form.formState.isSubmitting ? 'Menyimpan...' : 'Update Data'}
                                     </Button>
-                                    <Link
-                                        href={route('k3l.index')}
-                                        className="text-muted-foreground text-sm hover:underline"
-                                    >
-                                        Batal
+                                    <Link href={route('k3l.index')} className="text-muted-foreground text-sm hover:underline">
+                                        Cancel
                                     </Link>
                                 </div>
                             </form>

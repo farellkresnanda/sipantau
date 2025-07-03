@@ -38,13 +38,7 @@ export const columns: ColumnDef<MasterK3l>[] = [
     {
         id: 'deskripsi',
         header: 'Deskripsi',
-        cell: ({ row }) => (
-            <ul className="list-disc pl-4">
-                {row.original.deskripsi?.map((d) => (
-                    <li key={d.id}>{d.deskripsi}</li>
-                ))}
-            </ul>
-        ),
+        cell: ({ row }) => <ul className="list-disc pl-4">{row.original.deskripsi?.map((d) => <li key={d.id}>{d.deskripsi}</li>)}</ul>,
     },
     {
         id: 'actions',

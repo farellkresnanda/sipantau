@@ -3,14 +3,7 @@
 import SectionHeader from '@/components/section-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem } from '@/types';
@@ -18,7 +11,7 @@ import type { BreadcrumbItem } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useEffect } from 'react';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useFieldArray, useForm } from 'react-hook-form';
 import * as z from 'zod';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -32,10 +25,7 @@ const formSchema = z.object({
     deskripsi: z
         .array(
             z.object({
-                deskripsi: z
-                    .string()
-                    .min(1, { message: 'Deskripsi is required' })
-                    .max(255),
+                deskripsi: z.string().min(1, { message: 'Deskripsi is required' }).max(255),
             }),
         )
         .min(1, { message: 'Minimal 1 deskripsi' }),
@@ -89,21 +79,15 @@ export default function CreateMasterK3l() {
             <Head title="Create Master K3l" />
             <div className="space-y-6 p-4">
                 <div className="flex items-center justify-between">
-                    <SectionHeader
-                        title="Buat Data Master K3l"
-                        subtitle="Buat data master K3L baru untuk pendataan inventaris yang dimiliki"
-                    />
+                    <SectionHeader title="Buat Data Master K3l" subtitle="Buat data master K3L baru untuk pendataan inventaris yang dimiliki" />
                 </div>
 
                 <Card className="w-full">
                     <CardContent className="p-6">
                         <Form {...form}>
-                            <form
-                                onSubmit={form.handleSubmit(onSubmit)}
-                                className="space-y-6"
-                            >
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                                 {/* Input Tujuan */}
-                                <div className="grid grid-cols-1 gap-2 items-start">
+                                <div className="grid grid-cols-1 items-start gap-2">
                                     <div className="w-10" /> {/* Placeholder kiri */}
                                     <FormField
                                         control={form.control}
@@ -112,17 +96,9 @@ export default function CreateMasterK3l() {
                                             <FormItem className="w-full">
                                                 <FormLabel>Tujuan</FormLabel>
                                                 <FormControl>
-                                                    <Input
-                                                        placeholder="Enter Tujuan"
-                                                        {...field}
-                                                    />
+                                                    <Input placeholder="Enter Tujuan" {...field} />
                                                 </FormControl>
-                                                <FormMessage>
-                                                    {
-                                                        formState.errors?.tujuan
-                                                            ?.message
-                                                    }
-                                                </FormMessage>
+                                                <FormMessage>{formState.errors?.tujuan?.message}</FormMessage>
                                             </FormItem>
                                         )}
                                     />
@@ -147,7 +123,7 @@ export default function CreateMasterK3l() {
                                                     size="icon"
                                                     onClick={() => append({ deskripsi: '' })}
                                                     title="Tambah deskripsi"
-                                                    className="w-10 h-10 shrink-0"
+                                                    className="h-10 w-10 shrink-0"
                                                     disabled={!isLast} // aktif hanya di baris terakhir
                                                 >
                                                     ➕
@@ -163,9 +139,7 @@ export default function CreateMasterK3l() {
                                                                 <FormControl>
                                                                     <Input placeholder="Enter Deskripsi" {...field} />
                                                                 </FormControl>
-                                                                <FormMessage>
-                                                                    {formState.errors?.deskripsi?.[index]?.deskripsi?.message}
-                                                                </FormMessage>
+                                                                <FormMessage>{formState.errors?.deskripsi?.[index]?.deskripsi?.message}</FormMessage>
                                                             </FormItem>
                                                         );
                                                     }}
@@ -178,7 +152,7 @@ export default function CreateMasterK3l() {
                                                     size="icon"
                                                     onClick={() => remove(index)}
                                                     title="Hapus"
-                                                    className="w-10 h-10 shrink-0"
+                                                    className="h-10 w-10 shrink-0"
                                                     disabled={!showDelete} // disable jika hanya 1 baris
                                                 >
                                                     🗑️
@@ -186,28 +160,14 @@ export default function CreateMasterK3l() {
                                             </div>
                                         );
                                     })}
-
                                 </div>
-
-
-
-
-
 
                                 {/* Tombol Submit dan Cancel */}
                                 <div className="flex items-center gap-2">
-                                    <Button
-                                        type="submit"
-                                        disabled={form.formState.isSubmitting}
-                                    >
-                                        {form.formState.isSubmitting
-                                            ? 'Creating...'
-                                            : 'Submit Semua Data'}
+                                    <Button type="submit" disabled={form.formState.isSubmitting}>
+                                        {form.formState.isSubmitting ? 'Creating...' : 'Submit Data'}
                                     </Button>
-                                    <Link
-                                        href={route('k3l.index')}
-                                        className="text-muted-foreground text-sm hover:underline"
-                                    >
+                                    <Link href={route('k3l.index')} className="text-muted-foreground text-sm hover:underline">
                                         Cancel
                                     </Link>
                                 </div>

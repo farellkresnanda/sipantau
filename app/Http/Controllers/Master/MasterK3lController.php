@@ -18,7 +18,7 @@ class MasterK3LController extends Controller
     public function index()
     {
 
-        $k3List = MasterK3l::with('deskripsi')->get();
+        $k3List = MasterK3l::latest()->with('deskripsi')->get();
         return Inertia::render('master/k3l/page', compact('k3List'));
     }
 
