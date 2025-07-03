@@ -8,14 +8,14 @@ import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { useEffect } from 'react';
-import { columns, MasterApd } from './columns';
+import { columns, MasterP3k } from './columns';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Home', href: '/' },
-    { title: 'Master APD', href: '/master/apd' },
+    { title: 'Master P3K', href: '/master/p3k' },
 ];
 
-export default function PageMasterApd({ masterApd }: { masterApd: MasterApd[] }) {
+export default function PageMasterP3k({ masterP3k }: { masterP3k: MasterP3k[] }) {
     const { flash } = usePage().props as {
         flash?: { success?: string; error?: string; message?: string };
     };
@@ -28,19 +28,19 @@ export default function PageMasterApd({ masterApd }: { masterApd: MasterApd[] })
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Master APD" />
+            <Head title="Master P3K" />
             <div className="p-4">
                 <div className="mb-3 flex flex-col items-center justify-between gap-4 sm:flex-row">
                     <SectionHeader
-                        title="Master APD"
-                        subtitle="Kelola data master daftar APD. Anda dapat menambah, mengubah, dan menghapus data daftar APD."
+                        title="Master P3K"
+                        subtitle="Kelola data master lokasi kotak P3K. Anda dapat menambah, mengubah, dan menghapus data P3K."
                     />
                     <Button asChild className="w-full sm:w-auto">
-                        <Link href="/master/apd/create">Create Data</Link>
+                        <Link href="/master/p3k/create">Create Data</Link>
                     </Button>
                 </div>
                 <div className="w-full">
-                    <DataTable columns={columns} data={masterApd ?? []} />
+                    <DataTable columns={columns} data={masterP3k ?? []} />
                 </div>
             </div>
         </AppLayout>

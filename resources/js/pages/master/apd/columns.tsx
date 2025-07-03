@@ -22,7 +22,7 @@ export type MasterApd = {
 export const columns: ColumnDef<MasterApd, unknown>[] = [
     {
         id: 'index',
-        header: '#',
+        header: 'No',
         cell: ({ row }) => row.index + 1,
     },
     {
@@ -38,11 +38,16 @@ export const columns: ColumnDef<MasterApd, unknown>[] = [
     },
     {
         id: 'actions',
-        header: '',
+        header: '#',
         cell: ({ row }) => {
             const handleDelete = () => {
                 if (confirm('Are you sure you want to delete this APD?')) {
-                    router.delete(`/master/apd/${row.original.id}`);
+                    router.delete(`/master/apd/${row.original.id}`, {
+                        onSuccess: () => {
+                            // Refresh the page or fetch data again to update the table
+                            router.reload({ only: ['apds'] }); // adjust 'apds' to your actual prop/data key
+                        },
+                    });
                 }
             };
 

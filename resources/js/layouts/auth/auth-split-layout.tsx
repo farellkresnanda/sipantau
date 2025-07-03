@@ -15,7 +15,7 @@ export default function AuthSplitLayout({ children, title, description }: PropsW
         <div className="relative grid h-dvh flex-col items-center justify-center px-8 sm:px-0 lg:max-w-none lg:grid-cols-2 lg:px-0">
             <div className="bg-muted relative hidden h-full flex-col p-10 text-white lg:flex dark:border-r">
                 <div className="absolute inset-0 bg-zinc-900">
-                    <img src="https://img.freepik.com/free-photo/colleagues-with-safety-equipment-working-with-blueprints_23-2148908431.jpg?t=st=1747536604~exp=1747540204~hmac=a5bc8bb730e37f5b00bc996e95936f983d8e06e2011b90564ab3ac77ad71c62f&w=826" alt="K3 Background" className="h-full w-full object-cover opacity-10" />
+                    <img src="/images/p3k_merah.jpg" alt="K3 Background" className="h-full w-full object-cover opacity-10" />
                 </div>
                 <Link href={route('home')} className="relative z-20 flex items-center text-lg font-medium">
                     <AppLogoIcon className="mr-2 fill-current text-white" />

@@ -63,7 +63,7 @@ export default function CreateMasterApd() {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Create Master APD" />
+            <Head title="Create Data" />
 
             <div className="space-y-6 p-4">
                 <div className="flex items-center justify-between">
@@ -111,7 +111,7 @@ export default function CreateMasterApd() {
 
                                 <div className="flex items-center gap-2">
                                     <Button type="submit" disabled={form.formState.isSubmitting}>
-                                        {form.formState.isSubmitting ? 'Creating...' : 'Submit Data'}
+                                        {form.formState.isSubmitting ? 'Creating...' : 'Simpan Data'}
                                     </Button>
                                     <Link href={route('apd.index')} className="text-muted-foreground text-sm hover:underline">
                                         Cancel
