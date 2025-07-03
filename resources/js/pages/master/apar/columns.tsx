@@ -40,7 +40,7 @@ export const columns: ColumnDef<InspeksiApar>[] = [
     },
     {
         accessorKey: 'no_apar',
-        header: 'No APAR',
+        header: 'No APAR / No APAB',
     },
     {
         accessorKey: 'kode_ruang',
@@ -56,7 +56,7 @@ export const columns: ColumnDef<InspeksiApar>[] = [
     },
     {
         accessorKey: 'apar',
-        header: 'APAR',
+        header: 'Type',
     },
     {
         accessorKey: 'kode_inventaris',

@@ -133,9 +133,9 @@ export default function CreateMasterApar() {
                                             name="no_apar"
                                             render={({ field, formState }) => (
                                                 <FormItem className={formState.errors.no_apar ? 'error' : ''}>
-                                                    <FormLabel>No APAR</FormLabel>
+                                                    <FormLabel>No APAR / No APAB</FormLabel>
                                                     <FormControl>
-                                                        <Input placeholder="Enter no APAR" {...field} />
+                                                        <Input placeholder="Enter no APAR / no APAB" {...field} />
                                                     </FormControl>
                                                     <FormMessage>{formState.errors.no_apar?.message}</FormMessage>
                                                 </FormItem>
@@ -202,9 +202,16 @@ export default function CreateMasterApar() {
                                             name="apar"
                                             render={({ field, formState }) => (
                                                 <FormItem className={formState.errors.apar ? 'error' : ''}>
-                                                    <FormLabel>APAR</FormLabel>
+                                                    <FormLabel>Type</FormLabel>
                                                     <FormControl>
-                                                        <Input placeholder="Enter APAR" {...field} />
+                                                        <select
+                                                            {...field}
+                                                            className="input w-full rounded border px-3 py-2" // Sesuaikan dengan styling Anda
+                                                        >
+                                                            <option value="">Select Type</option>
+                                                            <option value="APAR">APAR</option>
+                                                            <option value="APAB">APAB</option>
+                                                        </select>
                                                     </FormControl>
                                                     <FormMessage>{formState.errors.apar?.message}</FormMessage>
                                                 </FormItem>

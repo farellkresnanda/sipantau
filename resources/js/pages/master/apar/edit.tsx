@@ -122,9 +122,9 @@ export default function EditMasterApar({
                                             name="no_apar"
                                             render={({ field }) => (
                                                 <FormItem>
-                                                    <FormLabel>No APAR</FormLabel>
+                                                    <FormLabel>No APAR / No APAB</FormLabel>
                                                     <FormControl>
-                                                        <Input placeholder="Enter no APAR" {...field} />
+                                                        <Input placeholder="Enter no APAR / No APAB" {...field} />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -183,18 +183,26 @@ export default function EditMasterApar({
                                             )}
                                         />
                                         <FormField
-                                            control={form.control}
-                                            name="apar"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>APAR</FormLabel>
-                                                    <FormControl>
-                                                        <Input placeholder="Enter APAR" {...field} />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
+    control={form.control}
+    name="apar"
+    render={({ field }) => (
+        <FormItem>
+            <FormLabel>Type</FormLabel>
+            <FormControl>
+                <select
+                    {...field}
+                    className="w-full rounded border px-3 py-2"
+                >
+                    <option value="">Select Type</option>
+                    <option value="APAR">APAR</option>
+                    <option value="APAB">APAB</option>
+                </select>
+            </FormControl>
+            <FormMessage />
+        </FormItem>
+    )}
+/>
+
                                         <FormField
                                             control={form.control}
                                             name="kode_inventaris"
