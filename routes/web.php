@@ -15,7 +15,7 @@ use App\Http\Controllers\Master\MasterKonsekuensiController;
 use App\Http\Controllers\Master\MasterLaporanUjiRiksaFasilitasController;
 use App\Http\Controllers\Master\MasterLaporanUjiRiksaPeralatanController;
 use App\Http\Controllers\Master\MasterLokasiController;
-use App\Http\Controllers\Master\MasterP3KController;
+use App\Http\Controllers\Master\MasterP3kController;
 use App\Http\Controllers\Master\MasterPlantController;
 use App\Http\Controllers\Master\MasterProbabilitasController;
 use App\Http\Controllers\Master\MasterRumusLtifrController;
@@ -60,7 +60,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::resource('gedung', MasterGedungController::class);
             Route::resource('genset', MasterGensetController::class);
             Route::resource('k3l', MasterK3lController::class);
-            Route::resource('p3k', MasterP3KController::class);
+            Route::resource('p3k', MasterP3kController::class);
             Route::resource('jenis-ketidaksesuaian', MasterJenisKetidaksesuaianController::class);
             Route::resource('jenis-ketidaksesuaian-sub', MasterJenisKetidaksesuaianSubController::class);
             Route::resource('konsekuensi', MasterKonsekuensiController::class);
