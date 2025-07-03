@@ -31,6 +31,7 @@ const formSchema = z.object({
     title: z.string().min(2, 'Title must be at least 2 characters').max(100, 'Title must not exceed 100 characters'),
     description: z.string().min(10, 'Description must be at least 10 characters'),
     image_path: z.instanceof(File).or(z.string().min(1, 'Image is required')),
+    status: z.string().min(1, 'Status is required'),
 });
 
 export default function CreateK3Info() {
@@ -43,6 +44,7 @@ export default function CreateK3Info() {
         defaultValues: {
             title: '',
             description: '',
+            status: '',
             image_path: '',
         },
     });
@@ -62,6 +64,7 @@ export default function CreateK3Info() {
         const formData = new FormData();
         formData.append('title', values.title);
         formData.append('description', values.description);
+        formData.append('status', values.status);
         if (values.image_path) {
             formData.append('image_path', values.image_path);
         }
@@ -124,7 +127,9 @@ export default function CreateK3Info() {
                                         name="image_path"
                                         render={({ field: { value, onChange, ...field } }) => (
                                             <FormItem>
-                                                <FormLabel>Image</FormLabel>
+                                                <FormLabel>
+                                                    Image <span className="text-muted-foreground text-sm">(ukuran harus A3)</span>
+                                                </FormLabel>
                                                 <FormControl>
                                                     <Input
                                                         type="file"
@@ -137,6 +142,27 @@ export default function CreateK3Info() {
                                                         }}
                                                         {...field}
                                                     />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+
+                                    <FormField
+                                        control={form.control}
+                                        name="status"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Status</FormLabel>
+                                                <FormControl>
+                                                    <select
+                                                        {...field}
+                                                        className="input w-full rounded border px-3 py-2" // sesuaikan dengan styling kamu
+                                                    >
+                                                        <option value="">-- Pilih Status --</option>
+                                                        <option value="On Display">On Display</option>
+                                                        <option value="Not Display">Not Display</option>
+                                                    </select>
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>

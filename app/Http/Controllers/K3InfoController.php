@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\K3Info;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Storage;
 
 class K3InfoController extends Controller
 {
@@ -33,6 +34,7 @@ class K3InfoController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
+            'status' => 'required|string',
             'image_path' => 'required|image|mimes:jpg,jpeg,png|max:2048'
         ]);
 
@@ -42,6 +44,7 @@ class K3InfoController extends Controller
         K3Info::create([
             'title' => $request->title,
             'description' => $request->description,
+            'status' => $request->status,
             'image_path' => $imagePath
         ]);
 
@@ -76,19 +79,21 @@ class K3InfoController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
+            'status' => 'required|string',
             'image_path' => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
         ]);
 
         $data = [
             'title' => $request->title,
-            'description' => $request->description
+            'description' => $request->description,
+            'status' => $request->status,
         ];
 
         $k3Info = $k3Info::findOrFail($id);
 
         if ($request->hasFile('image_path')) {
             if ($k3Info->image_path) {
-                \Storage::disk('public')->delete($k3Info->image_path);
+                Storage::disk('public')->delete($k3Info->image_path);
             }
             $image = $request->file('image_path');
             $data['image_path'] = $image->store('k3-images', 'public');

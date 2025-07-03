@@ -31,6 +31,7 @@ const formSchema = z.object({
     title: z.string().min(2, 'Title must be at least 2 characters').max(100, 'Title must not exceed 100 characters'),
     description: z.string().min(10, 'Description must be at least 10 characters'),
     image_path: z.instanceof(File).or(z.string().min(1, 'Image is required')),
+    status: z.string().min(1, 'Status is required'),
 });
 
 interface K3InfoProps {
@@ -38,6 +39,7 @@ interface K3InfoProps {
         id: number;
         title: string;
         description: string;
+        status: string;
         image_path: string;
     };
 }
@@ -52,6 +54,7 @@ export default function EditK3Info({ k3Info }: K3InfoProps) {
         defaultValues: {
             title: k3Info.title,
             description: k3Info.description,
+            status: k3Info.status,
             image_path: k3Info.image_path,
         },
     });
@@ -72,6 +75,7 @@ export default function EditK3Info({ k3Info }: K3InfoProps) {
         formData.append('_method', 'PUT');
         formData.append('title', values.title);
         formData.append('description', values.description);
+        formData.append('status', values.status);
         if (values.image_path instanceof File) {
             formData.append('image_path', values.image_path);
         }
@@ -128,7 +132,9 @@ export default function EditK3Info({ k3Info }: K3InfoProps) {
                                         name="image_path"
                                         render={({ field: { value, onChange, ...field } }) => (
                                             <FormItem>
-                                                <FormLabel>Image</FormLabel>
+                                                <FormLabel>
+                                                    Image <span className="text-muted-foreground text-sm">(Harus berukuran A3)</span>
+                                                </FormLabel>
                                                 <FormControl>
                                                     <div className="space-y-4">
                                                         {typeof value === 'string' && (
@@ -146,6 +152,31 @@ export default function EditK3Info({ k3Info }: K3InfoProps) {
                                                             {...field}
                                                         />
                                                     </div>
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+
+                                    <FormField
+                                        control={form.control}
+                                        name="status"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Status</FormLabel>
+                                                <FormControl>
+                                                    <select
+                                                        ref={field.ref}
+                                                        name={field.name}
+                                                        value={field.value}
+                                                        onChange={field.onChange}
+                                                        onBlur={field.onBlur}
+                                                        className="input w-full rounded border px-3 py-2"
+                                                    >
+                                                        <option value="">-- Select Status --</option>
+                                                        <option value="On Display">On Display</option>
+                                                        <option value="Not Display">Not Display</option>
+                                                    </select>
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
