@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\K3Temuan;
+use App\Models\Master\MasterJenisKetidakSesuaian;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -13,7 +14,7 @@ class K3TemuanController extends Controller
      */
     public function index()
     {
-        $k3Temuans = K3Temuan::latest()->get();
+        $k3Temuans = K3Temuan::latest()->with(['jenisKetidaksesuaian', 'statusApproval', 'statusTemuan'])->get();
         return Inertia::render('k3temuan/page', compact('k3Temuans'));
     }
 
@@ -22,7 +23,8 @@ class K3TemuanController extends Controller
      */
     public function create()
     {
-        //
+        $jenisKetidaksesuaian = MasterJenisKetidaksesuaian::all();
+        return Inertia::render('k3temuan/create', compact('jenisKetidaksesuaian'));
     }
 
     /**
@@ -30,7 +32,29 @@ class K3TemuanController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'tanggal' => 'required|date',
+            'jenis_ketidaksesuaian_id' => 'required|exists:master_jenis_ketidaksesuaian,id',
+            'deskripsi_temuan' => 'required|string',
+            'foto_temuan_sebelum' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+            'detail_lokasi_temuan' => 'required|string',
+            'akar_masalah' => 'required|string'
+        ]);
+
+        $data = $request->except(['foto_temuan_sebelum']);
+
+        if ($request->hasFile('foto_temuan_sebelum')) {
+            $data['foto_temuan_sebelum'] = $request->file('foto_temuan_sebelum')->store('temuan-images', 'public');
+        }
+
+        K3Temuan::create(array_merge($data, [
+            'kode_status_temuan' => 'SOP', // Open
+            'kode_status_approval' => 'MVT', // Menunggu Verifikasi Tindakan
+            'created_by' => auth()->id(),
+            'nomor_car_auto' => 'KFHO/' . sprintf('%03d', K3Temuan::count() + 1) . '/' . now()->format('d/m/Y')
+        ]));
+
+        return redirect()->route('k3temuan.index')->with('success', 'Temuan created successfully.');
     }
 
     /**
@@ -38,7 +62,8 @@ class K3TemuanController extends Controller
      */
     public function show(K3Temuan $k3Temuan)
     {
-        //
+        dd($k3Temuan);
+        return Inertia::render('k3temuan/show', compact('k3Temuan'));
     }
 
     /**
@@ -46,7 +71,7 @@ class K3TemuanController extends Controller
      */
     public function edit(K3Temuan $k3Temuan)
     {
-        //
+        return Inertia::render('k3temuan/edit', compact('k3Temuan'));
     }
 
     /**
@@ -54,7 +79,45 @@ class K3TemuanController extends Controller
      */
     public function update(Request $request, K3Temuan $k3Temuan)
     {
-        //
+        $request->validate([
+            'status_temuan' => 'required|string',
+            'status_approval' => 'required|string',
+            'nomor_car_auto' => 'required|string',
+            'tanggal' => 'required|date',
+            'jenis_ketidaksesuaian_id' => 'required|exists:jenis_ketidaksesuaians,id',
+            'deskripsi_temuan' => 'required|string',
+            'foto_temuan_sebelum' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'detail_lokasi_temuan' => 'required|string',
+            'akar_masalah' => 'required|string',
+            'nomor_car_manual' => 'required|string',
+            'rencana_perbaikan' => 'required|string',
+            'batas_waktu_perbaikan' => 'required|date',
+            'tindakan_perbaikan' => 'required|string',
+            'verifikasi_perbaikan' => 'required|string',
+            'tanggal_verifikasi' => 'required|date',
+            'catatan' => 'nullable|string',
+            'foto_temuan_sesudah' => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
+        ]);
+
+        $data = $request->except(['foto_temuan_sebelum', 'foto_temuan_sesudah']);
+
+        if ($request->hasFile('foto_temuan_sebelum')) {
+            if ($k3Temuan->foto_temuan_sebelum) {
+                \Storage::disk('public')->delete($k3Temuan->foto_temuan_sebelum);
+            }
+            $data['foto_temuan_sebelum'] = $request->file('foto_temuan_sebelum')->store('temuan-images', 'public');
+        }
+
+        if ($request->hasFile('foto_temuan_sesudah')) {
+            if ($k3Temuan->foto_temuan_sesudah) {
+                \Storage::disk('public')->delete($k3Temuan->foto_temuan_sesudah);
+            }
+            $data['foto_temuan_sesudah'] = $request->file('foto_temuan_sesudah')->store('temuan-images', 'public');
+        }
+
+        $k3Temuan->update($data);
+
+        return redirect()->route('k3temuan.index')->with('success', 'Temuan updated successfully.');
     }
 
     /**
@@ -62,6 +125,15 @@ class K3TemuanController extends Controller
      */
     public function destroy(K3Temuan $k3Temuan)
     {
-        //
+        if ($k3Temuan->foto_temuan_sebelum) {
+            \Storage::disk('public')->delete($k3Temuan->foto_temuan_sebelum);
+        }
+        if ($k3Temuan->foto_temuan_sesudah) {
+            \Storage::disk('public')->delete($k3Temuan->foto_temuan_sesudah);
+        }
+
+        $k3Temuan->delete();
+
+        return redirect()->route('k3temuan.index')->with('success', 'Temuan deleted successfully.');
     }
 }

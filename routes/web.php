@@ -40,7 +40,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('home');
     })->name('home');
 
-    // K3 Temuan routes
+    // Temuan routes
     Route::resource('k3temuan', K3TemuanController::class);
 
     // K3 Info routes
