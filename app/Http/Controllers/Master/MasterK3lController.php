@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
-class MasterK3LController extends Controller
+class MasterK3lController extends Controller
 {
     /**
      * Display a listing of the resource.
