@@ -27,7 +27,7 @@ const formSchema = z.object({
 
 type FormSchemaType = z.infer<typeof formSchema>;
 
-export default function EditInspeksiApar({
+export default function EditMasterAc({
     masterAc,
 }: {
     masterAc: {
