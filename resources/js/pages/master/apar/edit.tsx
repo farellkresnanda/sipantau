@@ -71,7 +71,6 @@ export default function EditMasterApar({
             });
         });
     }, [errors, form]);
-
     function onSubmit(values: FormSchemaType) {
         const formData = { ...values };
         router.put(route('apar.update', masterApar.id), formData);
@@ -166,7 +165,18 @@ export default function EditMasterApar({
                                                 <FormItem>
                                                     <FormLabel>Jenis</FormLabel>
                                                     <FormControl>
-                                                        <Input placeholder="Enter jenis" {...field} />
+                                                        <select
+                                                            ref={field.ref}
+                                                            name={field.name}
+                                                            value={field.value}
+                                                            onChange={field.onChange}
+                                                            onBlur={field.onBlur}
+                                                            className="input w-full rounded border px-3 py-2"
+                                                        >
+                                                            <option value="">-- Pilih Jenis --</option>
+                                                            <option value="Non Halon">Non Halon</option>
+                                                            <option value="Dry Powder">Dry Powder</option>
+                                                        </select>
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>

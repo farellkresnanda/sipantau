@@ -62,8 +62,9 @@ class MasterAparController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, MasterApar $masterInspeksiApar)
+    public function update(Request $request, MasterApar $masterInspeksiApar,$id)
     {
+
         $request->validate([
             'kode_entitas' => 'required|string|max:255',
             'entitas' => 'required|string|max:255',
@@ -75,7 +76,7 @@ class MasterAparController extends Controller
             'kode_inventaris' => 'required|string|max:255',
         ]);
 
-        $masterInspeksiApar = $masterInspeksiApar->findOrFail($request->id);
+        $masterInspeksiApar = $masterInspeksiApar->findOrFail($id);
         $masterInspeksiApar->update($request->all());
 
         activity()->log('User updated a master apar');
