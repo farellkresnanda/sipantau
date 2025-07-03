@@ -4,22 +4,26 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Link } from '@inertiajs/react';
 import { ColumnDef } from '@tanstack/react-table';
+import { CheckCircle, Info, XCircle } from 'lucide-react';
 
 export const columns: ColumnDef<{
     id: number;
-    status_temuan: string;
-    status_approval: string;
+    status_temuan: {
+        id: number;
+        nama: string;
+    } | null;
+    status_approval: {
+        id: number;
+        nama: string;
+    } | null;
     nomor_car_auto: string;
     tanggal: string;
-    jenis_ketidaksesuaian_id: string;
+    jenis_ketidaksesuaian: {
+        id: number;
+        nama: string;
+    } | null;
     deskripsi_temuan: string;
     detail_lokasi_temuan: string;
-    akar_masalah: string;
-    rencana_perbaikan: string;
-    batas_waktu_perbaikan: string;
-    tindakan_perbaikan: string;
-    verifikasi_perbaikan: string;
-    catatan: string;
 }>[] = [
     {
         accessorKey: 'index',
@@ -27,18 +31,104 @@ export const columns: ColumnDef<{
         cell: ({ row }) => row.index + 1,
     },
     {
-        accessorKey: 'status_temuan',
         header: 'Status Temuan',
-        cell: ({ row }) => (
-            <Link href={`/reports/k3temuan/${row.original.id}`} className="hover:underline">
-                {row.original.status_temuan}
-            </Link>
-        ),
+        accessorKey: 'status_temuan.nama',
+        cell: ({ row }) => {
+            const status = row.original.status_temuan;
+            const statusId = status?.id;
+            const statusNama = status?.nama || '-';
+
+            let icon = null;
+            let colorClasses = '';
+
+            switch (statusId) {
+                case 1:
+                    icon = <Info className="h-4 w-4" />;
+                    colorClasses = 'bg-blue-100 text-blue-700';
+                    break;
+                case 2:
+                    icon = <XCircle className="h-4 w-4" />;
+                    colorClasses = 'bg-red-100 text-red-700';
+                    break;
+                case 3:
+                    icon = <CheckCircle className="h-4 w-4" />;
+                    colorClasses = 'bg-green-100 text-green-700';
+                    break;
+                case 4:
+                    icon = <XCircle className="h-4 w-4" />;
+                    colorClasses = 'bg-orange-100 text-orange-700';
+                    break;
+                case 5:
+                    icon = <Info className="h-4 w-4" />;
+                    colorClasses = 'bg-yellow-100 text-yellow-700';
+                    break;
+                case 6:
+                    icon = <XCircle className="h-4 w-4" />;
+                    colorClasses = 'bg-purple-100 text-purple-700';
+                    break;
+                default:
+                    icon = null;
+                    colorClasses = 'bg-gray-100 text-gray-700';
+            }
+
+            return (
+                <Link href={`/k3temuan/${row.original.id}`} className="inline-flex items-center gap-2 hover:underline">
+                    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${colorClasses}`}>
+                        {icon}
+                        {statusNama}
+                    </span>
+                </Link>
+            );
+        },
     },
     {
         accessorKey: 'status_approval',
         header: 'Status Approval',
-        cell: ({ row }) => <div className="max-w-[150px] truncate">{row.getValue('status_approval')}</div>,
+        cell: ({ row }) => {
+            const status = row.original.status_approval;
+            const statusId = status?.id;
+            const statusNama = status?.nama || '-';
+
+            let icon = null;
+            let colorClasses = '';
+
+            switch (statusId) {
+                case 1:
+                    icon = <Info className="h-4 w-4" />;
+                    colorClasses = 'bg-yellow-100 text-yellow-700';
+                    break;
+                case 2:
+                    icon = <CheckCircle className="h-4 w-4" />;
+                    colorClasses = 'bg-green-100 text-green-700';
+                    break;
+                case 3:
+                    icon = <Info className="h-4 w-4" />;
+                    colorClasses = 'bg-blue-100 text-blue-700';
+                    break;
+                case 4:
+                    icon = <CheckCircle className="h-4 w-4" />;
+                    colorClasses = 'bg-purple-100 text-purple-700';
+                    break;
+                case 5:
+                    icon = <Info className="h-4 w-4" />;
+                    colorClasses = 'bg-orange-100 text-orange-700';
+                    break;
+                case 6:
+                    icon = <CheckCircle className="h-4 w-4" />;
+                    colorClasses = 'bg-teal-100 text-teal-700';
+                    break;
+                default:
+                    icon = null;
+                    colorClasses = 'bg-gray-100 text-gray-700';
+            }
+
+            return (
+                <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${colorClasses}`}>
+                    {icon}
+                    {statusNama}
+                </span>
+            );
+        },
     },
     {
         accessorKey: 'nomor_car_auto',
@@ -49,8 +139,11 @@ export const columns: ColumnDef<{
         header: 'Tanggal',
     },
     {
-        accessorKey: 'jenis_ketidaksesuaian_id',
-        header: 'Jenis',
+        accessorKey: 'jenis_ketidaksesuaian',
+        header: 'Jenis Ketidaksesuaian',
+        cell: ({ row }) => {
+            return row.original.jenis_ketidaksesuaian?.nama ?? '-';
+        },
     },
     {
         accessorKey: 'deskripsi_temuan',
