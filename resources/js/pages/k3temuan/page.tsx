@@ -19,7 +19,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function PageK3Temuan({ k3Temuans }: { k3Temuans: any[] }) {
+export default function PageK3Temuan({ k3temuans }: { k3temuans: any[] }) {
     const { flash } = usePage().props as {
         flash?: { success?: string; error?: string; message?: string };
     };
@@ -51,7 +51,7 @@ export default function PageK3Temuan({ k3Temuans }: { k3Temuans: any[] }) {
                 </div>
                 <div className="w-full overflow-x-auto">
                     <div className="min-w-[1000px]">
-                        <DataTable columns={columns} data={k3Temuans} />
+                        <DataTable columns={columns} data={k3temuans} />
                     </div>
                 </div>
             </div>
