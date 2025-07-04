@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -37,7 +37,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 const jenisOptions = ['01', '02', '03'];
 
 const formSchema = z.object({
-    kode_entitas: z.string().min(1, { message: 'Entitas wajib dipilih' }), // Pesan error untuk entitas
+    kode_entitas: z.string().min(1, { message: 'Entitas wajib dipilih' }),
     kode_plant: z.string().min(1, { message: 'Plant wajib dipilih' }),
     no_p3k: z.string().min(1, { message: 'No P3K wajib diisi' }),
     kode_ruang: z.string().min(1, { message: 'Kode Ruang wajib diisi' }),
@@ -50,10 +50,10 @@ type FormSchemaType = z.infer<typeof formSchema>;
 
 type Plant = {
     id: string;
-    nama_plant: string; // Sesuai dengan 'master_plant.nama as nama_plant'
+    nama_plant: string;
     kode_entitas: string;
     kode_plant: string;
-    entitas_nama: string; // Sesuai dengan 'master_entitas.nama as entitas_nama'
+    entitas_nama: string;
 };
 
 type GroupedPlants = Record<string, Plant[]>;
@@ -76,7 +76,7 @@ export default function CreateMasterP3k({ plants }: { plants: Plant[] }) {
         },
     });
 
-    const selectedEntitasKode = form.watch('kode_entitas'); // Watch `kode_entitas`
+    const selectedEntitasKode = form.watch('kode_entitas');
 
     useEffect(() => {
         Object.entries(errors).forEach(([key, message]) => {
@@ -87,25 +87,29 @@ export default function CreateMasterP3k({ plants }: { plants: Plant[] }) {
         });
     }, [errors, form]);
 
-    const groupedPlants: GroupedPlants = plants.reduce((acc, plant) => {
-        const alias = plant.entitas_nama;
-        if (!acc[alias]) acc[alias] = [];
-        acc[alias].push(plant);
-        return acc;
-    }, {} as GroupedPlants);
+    const groupedPlants: GroupedPlants = useMemo(() => {
+        return plants.reduce((acc, plant) => {
+            const alias = plant.entitas_nama;
+            if (!acc[alias]) acc[alias] = [];
+            acc[alias].push(plant);
+            return acc;
+        }, {} as GroupedPlants);
+    }, [plants]);
+
+    const filteredPlants = useMemo(() => {
+        return plants.filter(plant => plant.kode_entitas === selectedEntitasKode);
+    }, [plants, selectedEntitasKode]);
+
+    useEffect(() => {
+        if (filteredPlants.length === 1) {
+            form.setValue('kode_plant', filteredPlants[0].kode_plant);
+        } else {
+            form.setValue('kode_plant', '');
+        }
+    }, [filteredPlants, form]);
 
     function onSubmit(values: FormSchemaType) {
-        const payload = {
-            kode_entitas: values.kode_entitas,
-            kode_plant: values.kode_plant,
-            no_p3k: values.no_p3k,
-            kode_ruang: values.kode_ruang,
-            lokasi: values.lokasi,
-            jenis: values.jenis,
-            kode_inventaris: values.kode_inventaris,
-        };
-
-        router.post(route('p3k.store'), payload, {
+        router.post(route('p3k.store'), values, {
             onSuccess: () => form.reset(),
         });
     }
@@ -169,26 +173,17 @@ export default function CreateMasterP3k({ plants }: { plants: Plant[] }) {
                                                 <FormItem>
                                                     <FormLabel>Plant</FormLabel>
                                                     <FormControl>
-                                                        <Select
-                                                            value={field.value}
-                                                            onValueChange={(kodePlant) => {
-                                                                field.onChange(kodePlant);
-                                                                const selectedPlant = plants.find(
-                                                                    p => p.kode_entitas === selectedEntitasKode && p.kode_plant === kodePlant
-                                                                );
-                                                                if (selectedPlant) {
-                                                                    form.setValue('kode_entitas', selectedPlant.kode_entitas);
-                                                                }
-                                                            }}
-                                                            disabled={!selectedEntitasKode}
-                                                        >
-                                                            <SelectTrigger className="w-full">
-                                                                <SelectValue placeholder="Pilih plant" />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                {plants
-                                                                    .filter(plant => plant.kode_entitas === selectedEntitasKode)
-                                                                    .map(plant => (
+                                                        {filteredPlants.length > 1 ? (
+                                                            <Select
+                                                                value={field.value}
+                                                                onValueChange={field.onChange}
+                                                                disabled={!selectedEntitasKode}
+                                                            >
+                                                                <SelectTrigger className="w-full">
+                                                                    <SelectValue placeholder="Pilih plant" />
+                                                                </SelectTrigger>
+                                                                <SelectContent>
+                                                                    {filteredPlants.map(plant => (
                                                                         <SelectItem
                                                                             key={plant.kode_plant}
                                                                             value={plant.kode_plant}
@@ -196,8 +191,15 @@ export default function CreateMasterP3k({ plants }: { plants: Plant[] }) {
                                                                             {plant.nama_plant}
                                                                         </SelectItem>
                                                                     ))}
-                                                            </SelectContent>
-                                                        </Select>
+                                                                </SelectContent>
+                                                            </Select>
+                                                        ) : (
+                                                            <Input
+                                                                readOnly
+                                                                placeholder="Plant akan terisi otomatis atau pilih entitas"
+                                                                value={filteredPlants.length === 1 ? filteredPlants[0].nama_plant : ''}
+                                                            />
+                                                        )}
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -219,7 +221,7 @@ export default function CreateMasterP3k({ plants }: { plants: Plant[] }) {
                                             )}
                                         />
 
-                                        {/* Kode Ruang - Pindah ke kolom kiri */}
+                                        {/* Kode Ruang */}
                                         <FormField
                                             control={form.control}
                                             name="kode_ruang"
@@ -237,7 +239,7 @@ export default function CreateMasterP3k({ plants }: { plants: Plant[] }) {
 
                                     {/* KANAN */}
                                     <div className="space-y-4">
-                                        {/* Lokasi - Tetap di kolom kanan */}
+                                        {/* Lokasi */}
                                         <FormField
                                             control={form.control}
                                             name="lokasi"
@@ -252,7 +254,7 @@ export default function CreateMasterP3k({ plants }: { plants: Plant[] }) {
                                             )}
                                         />
 
-                                        {/* Kode Inventaris - Tetap di kolom kanan */}
+                                        {/* Kode Inventaris */}
                                         <FormField
                                             control={form.control}
                                             name="kode_inventaris"
@@ -267,7 +269,7 @@ export default function CreateMasterP3k({ plants }: { plants: Plant[] }) {
                                             )}
                                         />
 
-                                        {/* Jenis - Tetap di kolom kanan */}
+                                        {/* Jenis */}
                                         <FormField
                                             control={form.control}
                                             name="jenis"
