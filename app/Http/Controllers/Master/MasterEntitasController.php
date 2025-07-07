@@ -88,12 +88,20 @@ class MasterEntitasController extends Controller
      * Remove the specified resource from storage.
      */
     public function destroy(MasterEntitas $masterEntitas, $id)
-    {
-        $masterEntitas = $masterEntitas->findOrFail($id);
-        $masterEntitas->delete();
+{
+    $entitas = $masterEntitas->findOrFail($id);
 
-        activity()->log('User deleted a master entitas');
+    // Hapus semua plant yang berkaitan
+    $entitas->plants()->delete();
 
-        return redirect()->route('entitas.index')->with('success', 'Master entitas deleted successfully.');
-    }
+    // Hapus entitas-nya sendiri
+    $entitas->delete();
+
+    // Catat log
+    activity()->log('User deleted a master entitas beserta semua plants terkait.');
+
+    return redirect()->route('entitas.index')
+        ->with('success', 'Master entitas dan semua plant terkait berhasil dihapus.');
+}
+
 }
