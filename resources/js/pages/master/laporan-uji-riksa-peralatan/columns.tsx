@@ -54,7 +54,7 @@ export const columns: ColumnDef<UjiRiksaPeralatan>[] = [
       const peralatan = row.original;
 
       const handleDelete = () => {
-        if (confirm('Yakin ingin menghapus data ini?')) {
+        if (confirm('Are you sure you want to delete this Master Laporan Uji Riksa Peralatan?')) {
           router.delete(route('laporan-uji-riksa-peralatan.destroy', peralatan.id));
         }
       };
