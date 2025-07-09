@@ -303,7 +303,7 @@ export default function CreateMasterP3k({ plants }: { plants: Plant[] }) {
                                         {form.formState.isSubmitting ? 'Menyimpan...' : 'Submit Data'}
                                     </Button>
                                     <Link href={route('p3k.index')} className="text-sm text-muted-foreground hover:underline">
-                                        Batal
+                                        Cancel
                                     </Link>
                                 </div>
                             </form>

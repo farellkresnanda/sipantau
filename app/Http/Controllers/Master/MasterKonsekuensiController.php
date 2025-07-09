@@ -5,62 +5,67 @@ namespace App\Http\Controllers\Master;
 use App\Http\Controllers\Controller;
 use App\Models\Master\MasterKonsekuensi;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class MasterKonsekuensiController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $data = MasterKonsekuensi::latest()->get();
+
+        return Inertia::render('master/konsekuensi/page', ['data' => $data]);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Tampilkan form untuk membuat konsekuensi baru
      */
     public function create()
     {
-        //
+        return Inertia::render('master/konsekuensi/create');
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Simpan data konsekuensi baru
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'nama' => 'required|string|max:255',
+            'konsekuensi' => 'required|string|max:10',
+        ]);
+
+        MasterKonsekuensi::create($validated);
+
+        return redirect()->route('konsekuensi.index')->with('success', 'Data berhasil disimpan.');
+    }
+
+    public function edit($id)
+    {
+        $data = MasterKonsekuensi::findOrFail($id);
+
+        return Inertia::render('master/konsekuensi/edit', ['data' => $data]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'nama' => 'required|string|max:255',
+            'konsekuensi' => 'required|string|max:10',
+        ]);
+
+        MasterKonsekuensi::findOrFail($id)->update($validated);
+
+        return redirect()->route('konsekuensi.index')->with('success', 'Data berhasil diperbarui.');
     }
 
     /**
-     * Display the specified resource.
+     * Hapus data konsekuensi
      */
-    public function show(MasterKonsekuensi $masterKonsekuensi)
+    public function destroy($id)
     {
-        //
-    }
+        $item = MasterKonsekuensi::findOrFail($id);
+        $item->delete();
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(MasterKonsekuensi $masterKonsekuensi)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, MasterKonsekuensi $masterKonsekuensi)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(MasterKonsekuensi $masterKonsekuensi)
-    {
-        //
+        return redirect()->route('konsekuensi.index')->with('success', 'Data berhasil dihapus.');
     }
 }

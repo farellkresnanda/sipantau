@@ -6,7 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class MasterLaporanUjiRiksaPeralatan extends Model
 {
-    protected $table = 'master_lokasi';
+    protected $table = 'master_laporan_uji_riksa_peralatan';
 
-    protected $guarded = [];
+    protected $fillable = [
+        'nama_peralatan',
+        'referensi',
+    ];
+
+    public $timestamps = true;
 }

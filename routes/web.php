@@ -64,8 +64,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::resource('jenis-ketidaksesuaian', MasterJenisKetidaksesuaianController::class);
             Route::resource('jenis-ketidaksesuaian-sub', MasterJenisKetidaksesuaianSubController::class);
             Route::resource('konsekuensi', MasterKonsekuensiController::class);
-            Route::resource('uji-riksa-fasilitas', MasterLaporanUjiRiksaFasilitasController::class);
-            Route::resource('uji-riksa-peralatan', MasterLaporanUjiRiksaPeralatanController::class);
+            Route::resource('laporan-uji-riksa-fasilitas', MasterLaporanUjiRiksaFasilitasController::class);
+            Route::resource('laporan-uji-riksa-peralatan', MasterLaporanUjiRiksaPeralatanController::class);
             Route::resource('lokasi', MasterLokasiController::class);
             Route::resource('plant', MasterPlantController::class);
             Route::resource('probabilitas', MasterProbabilitasController::class);

@@ -8,5 +8,8 @@ class MasterKonsekuensi extends Model
 {
     protected $table = 'master_konsekuensi';
 
-    protected $guarded = [];
+    protected $fillable = [
+        'nama',
+        'konsekuensi',
+    ];
 }

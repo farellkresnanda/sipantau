@@ -5,62 +5,75 @@ namespace App\Http\Controllers\Master;
 use App\Http\Controllers\Controller;
 use App\Models\Master\MasterLaporanUjiRiksaPeralatan;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class MasterLaporanUjiRiksaPeralatanController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $data = MasterLaporanUjiRiksaPeralatan::latest()->get();
+
+        return Inertia::render('master/laporan-uji-riksa-peralatan/page', [
+            'data' => $data,
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        return Inertia::render('master/laporan-uji-riksa-peralatan/create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'nama_peralatan' => 'required|string|max:255',
+            'referensi' => 'nullable|string|max:255',
+        ]);
+
+        MasterLaporanUjiRiksaPeralatan::create([
+            'nama_peralatan' => $request->nama_peralatan,
+            'referensi' => $request->referensi,
+        ]);
+
+        return redirect()
+            ->route('laporan-uji-riksa-peralatan.index')
+            ->with('success', 'Berhasil menambahkan data');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(MasterLaporanUjiRiksaPeralatan $masterLaporanUjiRiksaPeralatan)
+    public function edit($id)
     {
-        //
+        $peralatan = MasterLaporanUjiRiksaPeralatan::findOrFail($id);
+
+        return Inertia::render('master/laporan-uji-riksa-peralatan/edit', [
+            'peralatan' => $peralatan,
+        ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(MasterLaporanUjiRiksaPeralatan $masterLaporanUjiRiksaPeralatan)
+    public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            'nama_peralatan' => 'required|string|max:255',
+            'referensi' => 'nullable|string|max:255',
+        ]);
+
+        $peralatan = MasterLaporanUjiRiksaPeralatan::findOrFail($id);
+        $peralatan->update([
+            'nama_peralatan' => $request->nama_peralatan,
+            'referensi' => $request->referensi,
+        ]);
+
+        return redirect()
+            ->route('laporan-uji-riksa-peralatan.index')
+            ->with('success', 'Berhasil memperbarui data');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, MasterLaporanUjiRiksaPeralatan $masterLaporanUjiRiksaPeralatan)
+    public function destroy($id)
     {
-        //
-    }
+        $peralatan = MasterLaporanUjiRiksaPeralatan::findOrFail($id);
+        $peralatan->delete();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(MasterLaporanUjiRiksaPeralatan $masterLaporanUjiRiksaPeralatan)
-    {
-        //
+        return redirect()
+            ->route('laporan-uji-riksa-peralatan.index')
+            ->with('success', 'Berhasil menghapus data');
     }
 }

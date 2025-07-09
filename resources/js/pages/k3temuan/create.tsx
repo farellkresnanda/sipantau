@@ -208,7 +208,7 @@ export default function CreateK3Temuan() {
                                 {form.formState.isSubmitting ? 'Creating...' : 'Submit Data'}
                             </Button>
                             <Link href={route('k3temuan.index')} className="text-muted-foreground text-sm hover:underline">
-                                Batal
+                                Cancel
                             </Link>
                         </div>
                     </form>

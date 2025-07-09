@@ -8,5 +8,10 @@ class MasterLaporanUjiRiksaFasilitas extends Model
 {
     protected $table = 'master_laporan_uji_riksa_fasilitas';
 
-    protected $guarded = [];
+    protected $fillable = [
+        'nama_fasilitas',
+        'referensi',
+    ];
+
+    public $timestamps = true;
 }

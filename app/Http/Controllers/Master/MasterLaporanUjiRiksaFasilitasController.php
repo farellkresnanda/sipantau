@@ -5,62 +5,69 @@ namespace App\Http\Controllers\Master;
 use App\Http\Controllers\Controller;
 use App\Models\Master\MasterLaporanUjiRiksaFasilitas;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class MasterLaporanUjiRiksaFasilitasController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $data = MasterLaporanUjiRiksaFasilitas::latest()->get();
+
+        return Inertia::render('master/laporan-uji-riksa-fasilitas/page', [
+            'data' => $data,
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        return Inertia::render('master/laporan-uji-riksa-fasilitas/create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'nama_fasilitas' => 'required|string|max:255',
+            'referensi' => 'required|string|max:255',
+        ]);
+
+        MasterLaporanUjiRiksaFasilitas::create($request->only('nama_fasilitas', 'referensi'));
+
+        return redirect()
+            ->route('laporan-uji-riksa-fasilitas.index')
+            ->with('success', 'Berhasil menambahkan data');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(MasterLaporanUjiRiksaFasilitas $masterLaporanUjiRiksaFasilitas)
+    public function edit($id)
     {
-        //
+        $fasilitas = MasterLaporanUjiRiksaFasilitas::findOrFail($id);
+
+        return Inertia::render('master/laporan-uji-riksa-fasilitas/edit', [
+            'fasilitas' => $fasilitas,
+        ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(MasterLaporanUjiRiksaFasilitas $masterLaporanUjiRiksaFasilitas)
+    public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            'nama_fasilitas' => 'required|string|max:255',
+            'referensi' => 'required|string|max:255',
+        ]);
+
+        $fasilitas = MasterLaporanUjiRiksaFasilitas::findOrFail($id);
+        $fasilitas->update($request->only('nama_fasilitas', 'referensi'));
+
+        return redirect()
+            ->route('laporan-uji-riksa-fasilitas.index')
+            ->with('success', 'Berhasil memperbarui data');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, MasterLaporanUjiRiksaFasilitas $masterLaporanUjiRiksaFasilitas)
+    public function destroy($id)
     {
-        //
-    }
+        $fasilitas = MasterLaporanUjiRiksaFasilitas::findOrFail($id);
+        $fasilitas->delete();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(MasterLaporanUjiRiksaFasilitas $masterLaporanUjiRiksaFasilitas)
-    {
-        //
+        return redirect()
+            ->route('laporan-uji-riksa-fasilitas.index')
+            ->with('success', 'Berhasil menghapus data');
     }
 }
