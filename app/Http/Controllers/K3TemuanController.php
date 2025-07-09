@@ -23,7 +23,16 @@ class K3TemuanController extends Controller
      */
     public function create()
     {
-        $jenisKetidaksesuaian = MasterJenisKetidaksesuaian::all();
+        $jenisKetidaksesuaian = MasterJenisKetidaksesuaian::select(
+            'master_jenis_ketidaksesuaian.id',
+            'master_jenis_ketidaksesuaian.nama as nama_ketidaksesuaian',
+            'master_jenis_ketidaksesuaian_sub.id as sub_id',
+            'master_jenis_ketidaksesuaian_sub.nama as sub_nama'
+        )
+            ->leftJoin('master_jenis_ketidaksesuaian_sub', 'master_jenis_ketidaksesuaian.id', '=', 'master_jenis_ketidaksesuaian_sub.jenis_ketidaksesuaian_id')
+            ->orderBy('master_jenis_ketidaksesuaian.nama')
+            ->get();
+
         return Inertia::render('k3temuan/create', compact('jenisKetidaksesuaian'));
     }
 
@@ -62,8 +71,7 @@ class K3TemuanController extends Controller
      */
     public function show($id)
     {
-        $k3temuan = K3Temuan::with(['jenisKetidaksesuaian', 'statusApproval', 'statusTemuan', 'CreatedBy'])->findOrFail($id);
-
+        $k3temuan = K3Temuan::with(['jenisKetidaksesuaian','jenisKetidaksesuaianSub', 'statusApproval', 'statusTemuan', 'CreatedBy'])->findOrFail($id);
         return Inertia::render('k3temuan/show', compact('k3temuan'));
     }
 

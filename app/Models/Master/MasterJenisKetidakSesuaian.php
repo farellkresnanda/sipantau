@@ -3,7 +3,7 @@
 namespace App\Models\Master;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MasterJenisKetidaksesuaian extends Model
 {
@@ -11,10 +11,11 @@ class MasterJenisKetidaksesuaian extends Model
 
     protected $table = 'master_jenis_ketidaksesuaian';
 
-    protected $fillable = ['nama'];
+    protected $guarded = [];
 
-    public function subJenis()
+    public function jenisKetidaksesuaianSub(): HasMany
     {
         return $this->hasMany(MasterJenisKetidaksesuaianSub::class, 'jenis_ketidaksesuaian_id');
     }
+
 }

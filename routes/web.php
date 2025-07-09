@@ -25,6 +25,7 @@ use App\Http\Controllers\Master\MasterStandarKerjaGedungController;
 use App\Http\Controllers\Master\MasterStandarKerjaGensetController;
 use App\Http\Controllers\Master\MasterStatistikK3Controller;
 use App\Http\Controllers\UserController;
+
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -75,6 +76,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::resource('standar-kerja-gedung', MasterStandarKerjaGedungController::class);
             Route::resource('standar-kerja-genset', MasterStandarKerjaGensetController::class);
             Route::resource('statistik-k3', MasterStatistikK3Controller::class);
+            Route::resource('probabilitas', MasterProbabilitasController::class);
         });
     });
 
