@@ -71,7 +71,7 @@ class K3TemuanController extends Controller
      */
     public function show($id)
     {
-        $k3temuan = K3Temuan::with(['jenisKetidaksesuaian.jenisKetidaksesuaianSub', 'statusApproval', 'statusTemuan', 'CreatedBy'])->findOrFail($id);
+        $k3temuan = K3Temuan::with(['jenisKetidaksesuaian','jenisKetidaksesuaianSub', 'statusApproval', 'statusTemuan', 'CreatedBy'])->findOrFail($id);
         return Inertia::render('k3temuan/show', compact('k3temuan'));
     }
 
