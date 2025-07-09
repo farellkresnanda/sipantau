@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Master;
 
 use App\Http\Controllers\Controller;
-use App\Models\Master\MasterJenisKetidakSesuaian;
-use App\Models\Master\MasterJenisKetidakSesuaianSub;
+use App\Models\Master\MasterJenisKetidaksesuaian;
+use App\Models\Master\MasterJenisKetidaksesuaianSub;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -12,7 +12,7 @@ class MasterJenisKetidaksesuaianController extends Controller
 {
     public function index()
     {
-        $data = MasterJenisKetidakSesuaian::with('subJenis')->latest()->get();
+        $data = MasterJenisKetidaksesuaian::with('subJenis')->latest()->get();
 
         return Inertia::render('master/jenis-ketidaksesuaian/page', [
             'data' => $data,
@@ -32,7 +32,7 @@ class MasterJenisKetidaksesuaianController extends Controller
             'sub_jenis.*.nama' => 'nullable|string|max:255',
         ]);
 
-        $jenis = MasterJenisKetidakSesuaian::create([
+        $jenis = MasterJenisKetidaksesuaian::create([
             'nama' => $validated['nama'],
         ]);
 
@@ -50,7 +50,7 @@ class MasterJenisKetidaksesuaianController extends Controller
 
     public function edit(string $id)
     {
-        $data = MasterJenisKetidakSesuaian::with('subJenis')->findOrFail($id);
+        $data = MasterJenisKetidaksesuaian::with('subJenis')->findOrFail($id);
 
         return Inertia::render('master/jenis-ketidaksesuaian/edit', [
             'data' => $data,
@@ -66,7 +66,7 @@ class MasterJenisKetidaksesuaianController extends Controller
             'sub_jenis.*.nama' => 'nullable|string|max:255',
         ]);
 
-        $jenis = MasterJenisKetidakSesuaian::findOrFail($id);
+        $jenis = MasterJenisKetidaksesuaian::findOrFail($id);
         $jenis->update(['nama' => $validated['nama']]);
 
         // Ambil semua ID sub yang dikirim agar yang tidak dikirim bisa dihapus
@@ -98,7 +98,7 @@ class MasterJenisKetidaksesuaianController extends Controller
 
     public function destroy(string $id)
     {
-        $jenis = MasterJenisKetidakSesuaian::findOrFail($id);
+        $jenis = MasterJenisKetidaksesuaian::findOrFail($id);
         $jenis->subJenis()->delete();
         $jenis->delete();
 

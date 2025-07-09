@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use App\Models\Master\MasterJenisKetidakSesuaian;
-use App\Models\Master\MasterJenisKetidakSesuaianSub;
+use App\Models\Master\MasterJenisKetidaksesuaian;
+use App\Models\Master\MasterJenisKetidaksesuaianSub;
 use App\Models\Master\MasterStatusApproval;
 use App\Models\Master\MasterStatusTemuan;
 use Illuminate\Database\Eloquent\Model;
@@ -21,7 +21,7 @@ class K3Temuan extends Model
 
     public function jenisKetidaksesuaianSub()
     {
-        return $this->belongsTo(MasterJenisKetidakSesuaianSub::class, 'jenis_ketidaksesuaian_sub_id');
+        return $this->belongsTo(MasterJenisKetidaksesuaianSub::class, 'jenis_ketidaksesuaian_sub_id');
     }
 
     public function statusApproval()

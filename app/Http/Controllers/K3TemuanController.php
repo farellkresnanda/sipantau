@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\K3Temuan;
-use App\Models\Master\MasterJenisKetidakSesuaian;
+use App\Models\Master\MasterJenisKetidaksesuaian;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
