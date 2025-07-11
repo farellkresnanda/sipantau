@@ -2,172 +2,136 @@
 
 namespace App\Http\Controllers\Master;
 
+use App\Exports\AcExport;
 use App\Http\Controllers\Controller;
+use App\Imports\AcImport;
 use App\Models\Master\MasterAc;
+use App\Models\Master\MasterEntitas;
 use App\Models\Master\MasterPlant;
-use App\Exports\MasterAcExport;
-use App\Imports\MasterAcImport;
-use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Maatwebsite\Excel\Facades\Excel;
 
 class MasterAcController extends Controller
 {
     /**
-     * Tampilkan daftar data Master AC.
+     * Display a listing of the resource.
      */
     public function index()
     {
-        $data = MasterAc::with([
-                'entitasData:kode_entitas,nama',
-                'plantData:kode_plant,nama',
-            ])
-            ->latest()
-            ->get()
-            ->map(function ($ac) {
-                return [
-                    'id' => $ac->id,
-                    'kode_entitas' => $ac->kode_entitas,
-                    'kode_plant' => $ac->kode_plant,
-                    'ruang' => $ac->ruang,
-                    'kode_inventaris' => $ac->kode_inventaris,
-                    'merk' => $ac->merk,
-                    'entitas' => $ac->entitasData ? ['nama' => $ac->entitasData->nama] : null,
-                    'plant_nama' => $ac->plantData ? $ac->plantData->nama : null,
-                ];
-            });
-
-        return Inertia::render('master/ac/page', [
-            'acList' => $data,
-        ]);
+        $masterAc = MasterAc::latest()->with(['entitas','plants'])->get();
+        return Inertia::render('master/ac/page', compact('masterAc'));
     }
 
     /**
-     * Tampilkan form tambah data Master AC.
+     * Show the form for creating a new resource.
      */
     public function create()
     {
-        $plants = MasterPlant::select(
-                'master_plant.id',
-                'master_plant.nama as nama_plant',
-                'master_plant.kode_entitas',
-                'master_plant.kode_plant',
-                'master_entitas.nama as entitas_nama'
-            )
-            ->leftJoin('master_entitas', 'master_plant.kode_entitas', '=', 'master_entitas.kode_entitas')
-            ->orderBy('master_entitas.nama')
-            ->get();
-
-        return Inertia::render('master/ac/create', [
-            'plants' => $plants,
-        ]);
+        $entitasList = MasterEntitas::latest()->get(['id', 'nama', 'kode_entitas']);
+        $plantList = MasterPlant::latest()->get(['id', 'nama', 'kode_entitas', 'kode_plant']);
+        return Inertia::render('master/ac/create', compact('entitasList', 'plantList'));
     }
 
     /**
-     * Simpan data Master AC baru.
+     * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'kode_entitas' => 'required|string|max:10',
-            'kode_plant' => 'required|string|max:10',
-            'ruang' => 'required|string|max:100',
-            'kode_inventaris' => 'required|string|max:100',
-            'merk' => 'required|string|max:100',
+        $request->validate([
+            'kode_entitas' => 'required|string|max:255',
+            'kode_plant' => 'required|string|max:255',
+            'ruang' => 'required|string|max:255',
+            'kode_inventaris' => 'required|string|max:255',
+            'merk' => 'required|string|max:255',
         ]);
 
-        MasterAc::create($validated);
-        activity()->log('User created a new Master AC');
+        MasterAc::create($request->all());
 
-        return redirect()->route('ac.index')->with('success', 'Data Master AC berhasil ditambahkan.');
+        activity()->log('User created a new master AC');
+
+        return redirect()->route('ac.index')
+            ->with('success', 'Master AC created successfully.');
     }
 
     /**
-     * Tampilkan form edit data Master AC.
+     * Show the form for editing the specified resource.
      */
-    public function edit($id)
+    public function edit(MasterAc $masterAc, $id)
     {
-        $ac = MasterAc::with([
-                'entitasData:kode_entitas,nama',
-                'plantData:kode_plant,nama',
-            ])
-            ->findOrFail($id);
-
-        $plants = MasterPlant::select(
-                'master_plant.id',
-                'master_plant.nama as nama_plant',
-                'master_plant.kode_entitas',
-                'master_plant.kode_plant',
-                'master_entitas.nama as entitas_nama'
-            )
-            ->leftJoin('master_entitas', 'master_plant.kode_entitas', '=', 'master_entitas.kode_entitas')
-            ->orderBy('master_entitas.nama')
-            ->get();
-
-        return Inertia::render('master/ac/edit', [
-            'masterAc' => $ac,
-            'plants' => $plants,
-        ]);
+        $masterAc = $masterAc->findOrFail($id);
+        $entitasList = MasterEntitas::latest()->get(['id', 'nama', 'kode_entitas']);
+        $plantList = MasterPlant::latest()->get(['id', 'nama', 'kode_entitas', 'kode_plant']);
+        return Inertia::render('master/ac/edit', compact('masterAc', 'entitasList', 'plantList'));
     }
 
     /**
-     * Perbarui data Master AC.
+     * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, MasterAc $masterAc, $id)
     {
-        $validated = $request->validate([
-            'kode_entitas' => 'required|string|max:10',
-            'kode_plant' => 'required|string|max:10',
-            'ruang' => 'required|string|max:100',
-            'kode_inventaris' => 'required|string|max:100',
-            'merk' => 'required|string|max:100',
+        $request->validate([
+            'kode_entitas' => 'required|string|max:255',
+            'kode_plant' => 'required|string|max:255',
+            'ruang' => 'required|string|max:255',
+            'kode_inventaris' => 'required|string|max:255',
+            'merk' => 'required|string|max:255',
         ]);
 
-        $ac = MasterAc::findOrFail($id);
-        $ac->update($validated);
+        $masterAc = $masterAc->findOrFail($id);
+        $masterAc->update($request->all());
 
-        activity()->log('User updated Master AC');
+        activity()->log('User updated master AC');
 
-        return redirect()->route('ac.index')->with('success', 'Data Master AC berhasil diperbarui.');
+        return redirect()->route('ac.index')
+            ->with('success', 'Master AC updated successfully.');
     }
 
     /**
-     * Hapus data Master AC.
+     * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy(MasterAc $masterAc, $id)
     {
-        $ac = MasterAc::findOrFail($id);
-        $ac->delete();
+        $masterAc = $masterAc->findOrFail($id);
+        $masterAc->delete();
 
-        activity()->log('User deleted Master AC');
+        activity()->log('User deleted master AC');
 
-        return redirect()->route('ac.index')->with('success', 'Data Master AC berhasil dihapus.');
+        return redirect()->route('ac.index')
+            ->with('success', 'Master AC deleted successfully.');
     }
 
     /**
-     * Export data ke file Excel.
+     * Show import page.
+     */
+    public function import()
+    {
+        return Inertia::render('master/ac/import');
+    }
+
+    /**
+     * Handle the Excel import.
+     */
+    public function action_import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls',
+        ]);
+
+        Excel::import(new AcImport, $request->file('file'));
+
+        activity()->log('User imported master AC');
+
+        return redirect()->route('ac.index')
+            ->with('success', 'Master AC imported successfully.');
+    }
+
+    /**
+     * Export data to Excel.
      */
     public function export()
     {
-        activity()->log('User exported Master AC to Excel');
-        return Excel::download(new MasterAcExport, 'master_ac.xlsx');
-    }
-
-    /**
-     * Import data dari file Excel.
-     */
-    public function import(Request $request)
-    {
-        $request->validate([
-            'file' => 'required|file|mimes:xlsx,xls,csv',
-        ]);
-
-        try {
-            Excel::import(new MasterAcImport, $request->file('file'));
-            activity()->log('User imported Master AC from Excel');
-            return redirect()->route('ac.index')->with('success', 'Data Master AC berhasil diimpor.');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal impor: ' . $e->getMessage());
-        }
+        activity()->log('User exported master AC');
+        return Excel::download(new AcExport, 'master_ac.xlsx');
     }
 }

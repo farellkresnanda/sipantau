@@ -10,19 +10,13 @@ class MasterAc extends Model
 
     protected $guarded = [];
 
-    /**
-     * Relasi ke entitas (master_entitas)
-     */
-    public function entitasData()
+    public function entitas()
     {
-        return $this->belongsTo(MasterEntitas::class, 'kode_entitas', 'kode_entitas');
+        return $this->hasMany(MasterEntitas::class, 'kode_entitas', 'kode_entitas');
     }
 
-    /**
-     * Relasi ke plant (master_plant)
-     */
-    public function plantData()
+    public function plants()
     {
-        return $this->belongsTo(MasterPlant::class, 'kode_plant', 'kode_plant');
+        return $this->hasMany(MasterPlant::class, 'kode_plant', 'kode_plant');
     }
-}
+}   

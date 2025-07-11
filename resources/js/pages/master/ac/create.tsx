@@ -1,63 +1,44 @@
-'use client';
-
-import { useEffect, useMemo } from 'react';
-import { useForm } from 'react-hook-form';
+// CreateMasterAc.tsx
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import { useForm } from 'react-hook-form';
 import * as z from 'zod';
+import { useEffect, useState } from 'react';
 
-import SectionHeader from '@/components/section-header';
+import AppLayout from '@/layouts/app-layout';
+import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import AppLayout from '@/layouts/app-layout';
-import type { BreadcrumbItem } from '@/types';
-import { Head, Link, router, usePage } from '@inertiajs/react';
-
-const breadcrumbs: BreadcrumbItem[] = [
-  { title: 'Home', href: '/' },
-  { title: 'Master AC', href: '/master/ac' },
-  { title: 'Create Master AC', href: '/master/ac/create' },
-];
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import SectionHeader from '@/components/section-header';
 
 const formSchema = z.object({
-  kode_entitas: z.string().min(1, 'Entitas wajib dipilih'),
-  kode_plant: z.string().min(1, 'Plant wajib dipilih'),
-  ruang: z.string().min(1, 'Ruang wajib diisi'),
-  kode_inventaris: z.string().min(1, 'Kode inventaris wajib diisi'),
-  merk: z.string().min(1, 'Merk wajib diisi'),
+  kode_entitas: z.string().min(1, 'Entitas harus dipilih'),
+  kode_plant: z.string().min(1, 'Plant harus dipilih'),
+  ruang: z.string().min(1, 'Ruang harus diisi'),
+  kode_inventaris: z.string().min(1, 'Kode Inventaris harus diisi'),
+  merk: z.string().min(1, 'Merk harus diisi'),
 });
 
 type FormSchemaType = z.infer<typeof formSchema>;
 
-type Plant = {
-  id: string;
-  nama_plant: string;
+type Entitas = {
+  id: number;
+  nama: string;
   kode_entitas: string;
-  kode_plant: string;
-  entitas_nama: string;
 };
 
-type GroupedPlants = Record<string, Plant[]>;
+type Plant = {
+  id: number;
+  nama: string;
+  kode_plant: string;
+  kode_entitas: string;
+};
 
-export default function CreateMasterAc({ plants = [] }: { plants?: Plant[] }) {
-  const { errors } = usePage().props as {
-    errors: Record<string, string>;
-  };
+export default function CreateMasterAc({ entitasList = [], plantList = [] }: { entitasList?: Entitas[]; plantList?: Plant[] }) {
+  const { errors } = usePage().props as { errors: Record<string, string> };
+  const [filteredPlants, setFilteredPlants] = useState<Plant[]>([]);
 
   const form = useForm<FormSchemaType>({
     resolver: zodResolver(formSchema),
@@ -70,9 +51,6 @@ export default function CreateMasterAc({ plants = [] }: { plants?: Plant[] }) {
     },
   });
 
-  const selectedEntitasKode = form.watch('kode_entitas');
-
-  // Tangani error dari server
   useEffect(() => {
     Object.entries(errors).forEach(([key, message]) => {
       form.setError(key as keyof FormSchemaType, {
@@ -82,50 +60,32 @@ export default function CreateMasterAc({ plants = [] }: { plants?: Plant[] }) {
     });
   }, [errors, form]);
 
-  const groupedPlants: GroupedPlants = useMemo(() => {
-    return plants.reduce((acc, plant) => {
-      const alias = plant.entitas_nama;
-      if (!acc[alias]) acc[alias] = [];
-      acc[alias].push(plant);
-      return acc;
-    }, {} as GroupedPlants);
-  }, [plants]);
-
-  const filteredPlants = useMemo(() => {
-    return plants.filter((p) => p.kode_entitas === selectedEntitasKode);
-  }, [plants, selectedEntitasKode]);
-
   useEffect(() => {
-    if (filteredPlants.length === 1) {
-      form.setValue('kode_plant', filteredPlants[0].kode_plant);
-    } else {
-      form.setValue('kode_plant', '');
-    }
-  }, [filteredPlants, form]);
+    const kodeEntitas = form.watch('kode_entitas');
+    const filtered = plantList.filter((plant) => plant.kode_entitas === kodeEntitas);
+    setFilteredPlants(filtered);
+  }, [form.watch('kode_entitas')]);
 
   function onSubmit(values: FormSchemaType) {
     router.post(route('ac.store'), values, {
-      onSuccess: () => form.reset(),
+      onSuccess: () => {
+        form.reset();
+        setFilteredPlants([]);
+      },
     });
   }
 
   return (
-    <AppLayout breadcrumbs={breadcrumbs}>
+    <AppLayout breadcrumbs={[{ title: 'Master AC', href: route('ac.index') }, { title: 'Create', href: '' }]}> 
       <Head title="Create Master AC" />
       <div className="space-y-6 p-4">
-        <SectionHeader
-          title="Buat Data Master AC"
-          subtitle="Masukkan data AC sesuai entitas dan inventaris"
-        />
-
+        <SectionHeader title="Buat Data Master AC" subtitle="Masukkan data AC sesuai entitas dan inventaris" />
         <Card>
           <CardContent className="p-6">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* KIRI */}
                   <div className="space-y-4">
-                    {/* Entitas */}
                     <FormField
                       control={form.control}
                       name="kode_entitas"
@@ -134,22 +94,19 @@ export default function CreateMasterAc({ plants = [] }: { plants?: Plant[] }) {
                           <FormLabel>Entitas</FormLabel>
                           <FormControl>
                             <Select
-                              value={field.value}
                               onValueChange={(value) => {
                                 field.onChange(value);
                                 form.setValue('kode_plant', '');
                               }}
+                              value={field.value}
                             >
                               <SelectTrigger className="w-full">
                                 <SelectValue placeholder="Pilih entitas" />
                               </SelectTrigger>
                               <SelectContent>
-                                {Object.keys(groupedPlants).map((entitasNama) => (
-                                  <SelectItem
-                                    key={groupedPlants[entitasNama][0].kode_entitas}
-                                    value={groupedPlants[entitasNama][0].kode_entitas}
-                                  >
-                                    {entitasNama}
+                                {entitasList.map((entitas) => (
+                                  <SelectItem key={entitas.id} value={entitas.kode_entitas}>
+                                    {entitas.nama}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
@@ -160,7 +117,6 @@ export default function CreateMasterAc({ plants = [] }: { plants?: Plant[] }) {
                       )}
                     />
 
-                    {/* Plant */}
                     <FormField
                       control={form.control}
                       name="kode_plant"
@@ -168,40 +124,28 @@ export default function CreateMasterAc({ plants = [] }: { plants?: Plant[] }) {
                         <FormItem>
                           <FormLabel>Plant</FormLabel>
                           <FormControl>
-                            {filteredPlants.length > 1 ? (
-                              <Select
-                                value={field.value}
-                                onValueChange={field.onChange}
-                                disabled={!selectedEntitasKode}
-                              >
-                                <SelectTrigger className="w-full">
-                                  <SelectValue placeholder="Pilih plant" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {filteredPlants.map((plant) => (
-                                    <SelectItem
-                                      key={plant.kode_plant}
-                                      value={plant.kode_plant}
-                                    >
-                                      {plant.nama_plant}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            ) : (
-                              <Input
-                                readOnly
-                                placeholder="Plant akan terisi otomatis"
-                                value={filteredPlants.length === 1 ? filteredPlants[0].nama_plant : ''}
-                              />
-                            )}
+                            <Select
+                              disabled={filteredPlants.length === 0}
+                              onValueChange={field.onChange}
+                              value={field.value}
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Pilih plant" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {filteredPlants.map((plant) => (
+                                  <SelectItem key={plant.kode_plant} value={plant.kode_plant}>
+                                    {plant.nama}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
 
-                    {/* Ruang */}
                     <FormField
                       control={form.control}
                       name="ruang"
@@ -217,9 +161,7 @@ export default function CreateMasterAc({ plants = [] }: { plants?: Plant[] }) {
                     />
                   </div>
 
-                  {/* KANAN */}
                   <div className="space-y-4">
-                    {/* Kode Inventaris */}
                     <FormField
                       control={form.control}
                       name="kode_inventaris"
@@ -234,7 +176,6 @@ export default function CreateMasterAc({ plants = [] }: { plants?: Plant[] }) {
                       )}
                     />
 
-                    {/* Merk */}
                     <FormField
                       control={form.control}
                       name="merk"
@@ -251,15 +192,11 @@ export default function CreateMasterAc({ plants = [] }: { plants?: Plant[] }) {
                   </div>
                 </div>
 
-                {/* Tombol */}
                 <div className="flex items-center gap-2">
                   <Button type="submit" disabled={form.formState.isSubmitting}>
                     {form.formState.isSubmitting ? 'Menyimpan...' : 'Submit Data'}
                   </Button>
-                  <Link
-                    href={route('ac.index')}
-                    className="text-sm text-muted-foreground hover:underline"
-                  >
+                  <Link href={route('ac.index')} className="text-sm text-muted-foreground hover:underline">
                     Cancel
                   </Link>
                 </div>

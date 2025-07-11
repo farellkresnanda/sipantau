@@ -55,6 +55,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('users', UserController::class);
         Route::prefix('master')->group(function () {
             Route::resource('entitas', MasterEntitasController::class);
+             Route::get('ac/export', [MasterAcController::class, 'export'])->name('ac.export');          
+            Route::get('ac/import', [MasterAcController::class, 'import'])->name('ac.import');
             Route::resource('ac', MasterAcController::class);
             Route::get('apar/export', [MasterAparController::class, 'export'])->name('apar.export');          
             Route::get('apar/import', [MasterAparController::class, 'import'])->name('apar.import');
