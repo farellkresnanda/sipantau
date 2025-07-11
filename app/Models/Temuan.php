@@ -4,13 +4,11 @@ namespace App\Models;
 
 use App\Models\Master\MasterJenisKetidaksesuaian;
 use App\Models\Master\MasterJenisKetidaksesuaianSub;
-use App\Models\Master\MasterStatusApproval;
-use App\Models\Master\MasterStatusTemuan;
 use Illuminate\Database\Eloquent\Model;
 
-class K3Temuan extends Model
+class Temuan extends Model
 {
-    protected $table = 'k3_temuan';
+    protected $table = 'temuan';
 
     protected $guarded = [];
 
@@ -24,17 +22,10 @@ class K3Temuan extends Model
         return $this->belongsTo(MasterJenisKetidaksesuaianSub::class, 'jenis_ketidaksesuaian_sub_id');
     }
 
-    public function statusApproval()
+    public function temuanStatus()
     {
-        return $this->belongsTo(MasterStatusApproval::class, 'kode_status_approval', 'kode');
+        return $this->belongsTo(TemuanStatus::class, 'kode_temuan_status', 'kode');
     }
-
-    public function statusTemuan()
-    {
-        return $this->belongsTo(MasterStatusTemuan::class, 'kode_status_temuan', 'kode');
-    }
-
-
 
     public function createdBy()
     {

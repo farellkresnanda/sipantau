@@ -15,8 +15,8 @@ import * as z from 'zod';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Home', href: '/' },
-    { title: 'Temuan', href: '/k3temuan' },
-    { title: 'Create Temuan', href: '/k3temuan/create' },
+    { title: 'Temuan', href: '/temuan' },
+    { title: 'Create Temuan', href: '/temuan/create' },
 ];
 
 const formSchema = z.object({
@@ -126,7 +126,7 @@ export default function CreateK3Temuan() {
             }
         });
 
-        router.post(route('k3temuan.store'), formData);
+        router.post(route('temuan.store'), formData);
     }
 
     return (
@@ -311,7 +311,7 @@ export default function CreateK3Temuan() {
                             <Button type="submit" disabled={form.formState.isSubmitting}>
                                 {form.formState.isSubmitting ? 'Creating...' : 'Submit Data'}
                             </Button>
-                            <Link href={route('k3temuan.index')} className="text-muted-foreground text-sm hover:underline">
+                            <Link href={route('temuan.index')} className="text-muted-foreground text-sm hover:underline">
                                 Cancel
                             </Link>
                         </div>

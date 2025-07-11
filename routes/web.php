@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\K3InfoController;
-use App\Http\Controllers\K3TemuanController;
+use App\Http\Controllers\TemuanController;
 use App\Http\Controllers\Master\MasterAcController;
 use App\Http\Controllers\Master\MasterAparController;
 use App\Http\Controllers\Master\MasterApdController;
@@ -41,7 +41,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('home');
 
     // Temuan routes
-    Route::resource('k3temuan', K3TemuanController::class);
+    Route::resource('temuan', TemuanController::class);
 
     // K3 Info routes
     Route::prefix('reports')->group(function () {
