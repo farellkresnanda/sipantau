@@ -2,28 +2,27 @@
 
 namespace App\Imports;
 
-use App\Models\Master\MasterApar;
+use App\Models\Master\MasterP3k;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithStartRow;
 
-class AparImport implements ToModel, WithStartRow
+class P3kImport implements ToModel, WithStartRow
 {
     public function startRow(): int
     {
-        return 2; // Mulai dari baris kedua, jadi baris pertama dilewati
+        return 2; // Melewati baris pertama (biasanya heading)
     }
 
     public function model(array $row)
     {
-        return new MasterApar([
+        return new MasterP3k([
             'kode_entitas'     => $row[0],
             'kode_plant'       => $row[1],
-            'no_apar'          => $row[2],
+            'no_p3k'           => $row[2],
             'kode_ruang'       => $row[3],
             'lokasi'           => $row[4],
             'jenis'            => $row[5],
-            'apar'             => $row[6],
-            'kode_inventaris'  => $row[7],
+            'kode_inventaris'  => $row[6],
         ]);
     }
 }
