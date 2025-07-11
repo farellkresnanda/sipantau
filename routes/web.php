@@ -56,6 +56,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::prefix('master')->group(function () {
             Route::resource('entitas', MasterEntitasController::class);
             Route::resource('ac', MasterAcController::class);
+            Route::get('apar/export', [MasterAparController::class, 'export'])->name('apar.export');          
+            Route::get('apar/import', [MasterAparController::class, 'import'])->name('apar.import');
+            Route::post('apar/import', [MasterAparController::class, 'action_import'])->name('apar.action_import');
             Route::resource('apar', MasterAparController::class);
             Route::resource('apd', MasterApdController::class);
             Route::resource('gedung', MasterGedungController::class);
@@ -83,12 +86,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('about-us', function () {
         return Inertia::render('about-us');
     })->name('about-us');
-
 });
 
 Route::get('/test-error', function () {
     abort(500);
 });
 
-require __DIR__.'/settings.php';
-require __DIR__.'/auth.php';
+
+// apar
+// Route::prefix('master')->group(function () {
+//     Route::resource('apar', MasterAparController::class);
+//     Route::get('apar/import', [MasterAparController::class, 'import'])->name('apar.import');
+//     Route::post('apar/import', [MasterAparController::class, 'action_import'])->name('apar.action_import');
+// });
+
+
+require __DIR__ . '/settings.php';
+require __DIR__ . '/auth.php';
