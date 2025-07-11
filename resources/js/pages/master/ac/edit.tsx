@@ -44,37 +44,36 @@ const formSchema = z.object({
 
 type FormSchemaType = z.infer<typeof formSchema>;
 
-type Plant = {
-    id: string;
-    nama_plant: string;
+type Entitas = {
+    id: number;
+    nama: string;
     kode_entitas: string;
-    kode_plant: string;
-    entitas_nama: string;
 };
 
-type MasterAcProp = {
+type Plant = {
+    id: number;
+    nama: string;
+    kode_entitas: string;
+    kode_plant: string;
+};
+
+type MasterAcProps = {
     id: number;
     kode_entitas: string;
     kode_plant: string;
     ruang: string;
     kode_inventaris: string;
     merk: string;
-    entitasData: {
-        kode_entitas: string;
-        nama: string;
-    } | null;
-    plantData: {
-        kode_plant: string;
-        nama: string;
-    } | null;
 };
 
 export default function EditMasterAc({
     masterAc,
-    plants,
+    entitasList,
+    plantList,
 }: {
-    masterAc: MasterAcProp;
-    plants: Plant[];
+    masterAc: MasterAcProps;
+    entitasList: Entitas[];
+    plantList: Plant[];
 }) {
     const { errors } = usePage().props as {
         errors: Record<string, string>;
@@ -83,39 +82,19 @@ export default function EditMasterAc({
     const form = useForm<FormSchemaType>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            kode_entitas: masterAc.kode_entitas || '',
-            kode_plant: masterAc.kode_plant || '',
-            ruang: masterAc.ruang || '',
-            kode_inventaris: masterAc.kode_inventaris || '',
-            merk: masterAc.merk || '',
+            kode_entitas: masterAc.kode_entitas,
+            kode_plant: masterAc.kode_plant,
+            ruang: masterAc.ruang,
+            kode_inventaris: masterAc.kode_inventaris,
+            merk: masterAc.merk,
         },
     });
 
     const currentKodeEntitas = form.watch('kode_entitas');
-    const currentKodePlant = form.watch('kode_plant');
 
-    const groupedPlants = useMemo(() => {
-        return plants.reduce((acc, plant) => {
-            const alias = plant.entitas_nama;
-            if (!acc[alias]) acc[alias] = [];
-            acc[alias].push(plant);
-            return acc;
-        }, {} as Record<string, Plant[]>);
-    }, [plants]);
-
-    const selectedEntitasName = useMemo(() => {
-        const found = Object.values(groupedPlants).flat().find(
-            (plant) => plant.kode_entitas === currentKodeEntitas
-        );
-        return found ? found.entitas_nama : 'Pilih entitas';
-    }, [groupedPlants, currentKodeEntitas]);
-
-    const selectedPlantName = useMemo(() => {
-        const found = plants.find(
-            (plant) => plant.kode_plant === currentKodePlant && plant.kode_entitas === currentKodeEntitas
-        );
-        return found ? found.nama_plant : 'Pilih plant';
-    }, [plants, currentKodePlant, currentKodeEntitas]);
+    const filteredPlants = useMemo(() => {
+        return plantList.filter((plant) => plant.kode_entitas === currentKodeEntitas);
+    }, [currentKodeEntitas, plantList]);
 
     useEffect(() => {
         Object.entries(errors).forEach(([key, message]) => {
@@ -136,89 +115,81 @@ export default function EditMasterAc({
             <div className="space-y-6 p-4">
                 <SectionHeader
                     title="Edit Master AC"
-                    subtitle="Perbarui informasi perangkat AC beserta lokasi dan identitasnya."
+                    subtitle="Perbarui data AC berdasarkan entitas dan lokasi penempatan."
                 />
 
                 <Card>
                     <CardContent className="p-6">
                         <Form {...form}>
                             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     {/* Kolom Kiri */}
                                     <div className="space-y-4">
-                                        {/* Entitas */}
                                         <FormField
                                             control={form.control}
                                             name="kode_entitas"
                                             render={({ field }) => (
-                                                <FormItem>
+                                                <FormItem className="w-full">
                                                     <FormLabel>Entitas</FormLabel>
-                                                    <Select
-                                                        value={field.value}
-                                                        onValueChange={(value) => {
-                                                            field.onChange(value);
-                                                            form.setValue('kode_plant', '');
-                                                        }}
-                                                    >
-                                                        <SelectTrigger className="w-full">
-                                                            <SelectValue placeholder="Pilih entitas">
-                                                                {selectedEntitasName}
-                                                            </SelectValue>
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            {Object.keys(groupedPlants).map(entitasNama => (
-                                                                <SelectItem
-                                                                    key={groupedPlants[entitasNama][0].kode_entitas}
-                                                                    value={groupedPlants[entitasNama][0].kode_entitas}
-                                                                >
-                                                                    {entitasNama}
-                                                                </SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                    </Select>
+                                                    <FormControl>
+                                                        <Select
+                                                            value={field.value}
+                                                            onValueChange={(val) => {
+                                                                field.onChange(val);
+                                                                form.setValue('kode_plant', '');
+                                                            }}
+                                                        >
+                                                            <SelectTrigger className="w-full">
+                                                                <SelectValue placeholder="Pilih entitas" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                {entitasList.map((ent) => (
+                                                                    <SelectItem key={ent.kode_entitas} value={ent.kode_entitas}>
+                                                                        {ent.nama}
+                                                                    </SelectItem>
+                                                                ))}
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
                                             )}
                                         />
 
-                                        {/* Plant */}
                                         <FormField
                                             control={form.control}
                                             name="kode_plant"
                                             render={({ field }) => (
-                                                <FormItem>
+                                                <FormItem className="w-full">
                                                     <FormLabel>Plant</FormLabel>
-                                                    <Select
-                                                        value={field.value}
-                                                        onValueChange={field.onChange}
-                                                        disabled={!currentKodeEntitas}
-                                                    >
-                                                        <SelectTrigger className="w-full">
-                                                            <SelectValue placeholder="Pilih plant">
-                                                                {selectedPlantName}
-                                                            </SelectValue>
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            {plants
-                                                                .filter(plant => plant.kode_entitas === currentKodeEntitas)
-                                                                .map(plant => (
+                                                    <FormControl>
+                                                        <Select
+                                                            value={field.value}
+                                                            onValueChange={field.onChange}
+                                                            disabled={filteredPlants.length === 0}
+                                                        >
+                                                            <SelectTrigger className="w-full">
+                                                                <SelectValue placeholder="Pilih plant" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                {filteredPlants.map((plant) => (
                                                                     <SelectItem key={plant.kode_plant} value={plant.kode_plant}>
-                                                                        {plant.nama_plant}
+                                                                        {plant.nama}
                                                                     </SelectItem>
                                                                 ))}
-                                                        </SelectContent>
-                                                    </Select>
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
                                             )}
                                         />
 
-                                        {/* Ruang */}
                                         <FormField
                                             control={form.control}
                                             name="ruang"
                                             render={({ field }) => (
-                                                <FormItem>
+                                                <FormItem className="w-full">
                                                     <FormLabel>Ruang</FormLabel>
                                                     <FormControl>
                                                         <Input placeholder="Masukkan ruang" {...field} />
@@ -231,12 +202,11 @@ export default function EditMasterAc({
 
                                     {/* Kolom Kanan */}
                                     <div className="space-y-4">
-                                        {/* Kode Inventaris */}
                                         <FormField
                                             control={form.control}
                                             name="kode_inventaris"
                                             render={({ field }) => (
-                                                <FormItem>
+                                                <FormItem className="w-full">
                                                     <FormLabel>Kode Inventaris</FormLabel>
                                                     <FormControl>
                                                         <Input placeholder="Masukkan kode inventaris" {...field} />
@@ -246,12 +216,11 @@ export default function EditMasterAc({
                                             )}
                                         />
 
-                                        {/* Merk */}
                                         <FormField
                                             control={form.control}
                                             name="merk"
                                             render={({ field }) => (
-                                                <FormItem>
+                                                <FormItem className="w-full">
                                                     <FormLabel>Merk</FormLabel>
                                                     <FormControl>
                                                         <Input placeholder="Masukkan merk AC" {...field} />

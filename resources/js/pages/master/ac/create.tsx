@@ -1,4 +1,5 @@
-// CreateMasterAc.tsx
+'use client';
+
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useForm } from 'react-hook-form';
@@ -76,7 +77,10 @@ export default function CreateMasterAc({ entitasList = [], plantList = [] }: { e
   }
 
   return (
-    <AppLayout breadcrumbs={[{ title: 'Master AC', href: route('ac.index') }, { title: 'Create', href: '' }]}> 
+    <AppLayout breadcrumbs={[
+      { title: 'Home', href: '/'},
+      { title: 'Master AC', href: route('ac.index') },
+      { title: 'Create Master AC', href: route('ac.create') },]}> 
       <Head title="Create Master AC" />
       <div className="space-y-6 p-4">
         <SectionHeader title="Buat Data Master AC" subtitle="Masukkan data AC sesuai entitas dan inventaris" />

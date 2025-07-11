@@ -54,9 +54,8 @@ class MasterAcController extends Controller
             ->with('success', 'Master AC created successfully.');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
+    
+    public function show() {}
     public function edit(MasterAc $masterAc, $id)
     {
         $masterAc = $masterAc->findOrFail($id);
@@ -108,6 +107,8 @@ class MasterAcController extends Controller
     {
         return Inertia::render('master/ac/import');
     }
+
+
 
     /**
      * Handle the Excel import.

@@ -12,6 +12,7 @@ import {
 import { Link, router } from '@inertiajs/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
+import { showToast } from '@/components/ui/toast'; // ✅ import toast
 
 export type MasterEntitas = {
     nama: string;
@@ -38,11 +39,17 @@ export const columns: ColumnDef<MasterAc>[] = [
     },
     {
         header: 'Entitas',
-        accessorFn: (row) => row.entitas && row.entitas.length > 0 ? row.entitas.map(e => e.nama).join(', ') : '-',
+        accessorFn: (row) =>
+            row.entitas?.length > 0
+                ? row.entitas.map((e) => e.nama).join(', ')
+                : '-',
     },
     {
         header: 'Plant',
-        accessorFn: (row) => row.plants && row.plants.length > 0 ? row.plants.map(p => p.nama).join(', ') : '-',
+        accessorFn: (row) =>
+            row.plants?.length > 0
+                ? row.plants.map((p) => p.nama).join(', ')
+                : '-',
     },
     {
         accessorKey: 'ruang',
@@ -61,8 +68,24 @@ export const columns: ColumnDef<MasterAc>[] = [
         header: '#',
         cell: ({ row }) => {
             const handleDelete = () => {
-                if (confirm('Apakah Anda yakin ingin menghapus data Master AC ini?')) {
-                    router.delete(`/master/ac/${row.original.id}`);
+                const confirmed = confirm(
+                    `Yakin ingin menghapus AC dengan kode inventaris "${row.original.kode_inventaris}"?`
+                );
+                if (confirmed) {
+                    router.delete(`/master/ac/${row.original.id}`, {
+                        onSuccess: () => {
+                            showToast({
+                                type: 'success',
+                                message: 'Data AC berhasil dihapus.',
+                            });
+                        },
+                        onError: () => {
+                            showToast({
+                                type: 'error',
+                                message: 'Terjadi kesalahan saat menghapus data.',
+                            });
+                        },
+                    });
                 }
             };
 
@@ -80,7 +103,9 @@ export const columns: ColumnDef<MasterAc>[] = [
                         <DropdownMenuItem asChild>
                             <Link href={`/master/ac/${row.original.id}/edit`}>Edit</Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={handleDelete}>Delete</DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleDelete}>
+                            Delete
+                        </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             );
