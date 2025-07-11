@@ -19,7 +19,7 @@ class MasterAparController extends Controller
      */
     public function index()
     {
-        $masterApar = MasterApar::latest()->with(['entitas','plants'])->get();
+        $masterApar = MasterApar::latest()->with(['entitas', 'plants'])->get();
         return Inertia::render('master/apar/page', compact('masterApar'));
     }
 
@@ -28,9 +28,9 @@ class MasterAparController extends Controller
      */
     public function create()
     {
-                $entitasList = MasterEntitas::latest()->get(['id', 'nama', 'kode_entitas']);
+        $entitasList = MasterEntitas::latest()->get(['id', 'nama', 'kode_entitas']);
         $plantList = MasterPlant::latest()->get(['id', 'nama', 'kode_entitas', 'kode_plant']);
-        return Inertia::render('master/apar/create',compact('entitasList', 'plantList'));
+        return Inertia::render('master/apar/create', compact('entitasList', 'plantList'));
     }
 
     /**
@@ -61,9 +61,7 @@ class MasterAparController extends Controller
      * Show the form for editing the specified resource.
      */
 
-     public function show()
-    {
-    }
+    public function show() {}
     public function edit(MasterApar $masterInspeksiApar, $id)
     {
 
@@ -76,7 +74,7 @@ class MasterAparController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, MasterApar $masterInspeksiApar,$id)
+    public function update(Request $request, MasterApar $masterInspeksiApar, $id)
     {
 
         $request->validate([
@@ -113,32 +111,31 @@ class MasterAparController extends Controller
             ->with('success', 'Master  apar deleted successfully.');
     }
 
-      public function import()
+    public function import()
     {
         // dd('OKE')  ;
         return Inertia::render('master/apar/import');
     }
 
 
-       
 
-public function action_import(Request $request)
-{
-    $request->validate([
-        'file' => 'required|file|mimes:xlsx,xls'
-    ]);
 
-    Excel::import(new AparImport, $request->file('file'));
+    public function action_import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls'
+        ]);
 
-    activity()->log('User import master APAR');
+        Excel::import(new AparImport, $request->file('file'));
 
-    return redirect()->route('apar.index')
-        ->with('success', 'Master APAR imported successfully.');
-}
+        activity()->log('User import master APAR');
 
-   public function export() 
+        return redirect()->route('apar.index')
+            ->with('success', 'Master APAR imported successfully.');
+    }
+
+    public function export()
     {
         return Excel::download(new AparExport, 'master_data.xlsx');
     }
-
 }
