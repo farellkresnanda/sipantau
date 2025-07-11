@@ -15,11 +15,11 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
     {
         title: 'Temuan',
-        href: '/k3temuan',
+        href: '/temuan',
     },
 ];
 
-export default function PageK3Temuan({ k3temuans }: { k3temuans: any[] }) {
+export default function PageK3Temuan({ temuans }: { temuans: any[] }) {
     const { flash } = usePage().props as {
         flash?: { success?: string; error?: string; message?: string };
     };
@@ -46,12 +46,12 @@ export default function PageK3Temuan({ k3temuans }: { k3temuans: any[] }) {
                         subtitle="Kelola data temuan di sini. Anda dapat menambah, mengubah, dan menghapus temuan."
                     />
                     <Button asChild className="w-full sm:w-auto">
-                        <Link href="/k3temuan/create">Create Temuan</Link>
+                        <Link href="/temuan/create">Create Temuan</Link>
                     </Button>
                 </div>
                 <div className="w-full overflow-x-auto">
                     <div className="min-w-[1000px]">
-                        <DataTable columns={columns} data={k3temuans} />
+                        <DataTable columns={columns} data={temuans} />
                     </div>
                 </div>
             </div>

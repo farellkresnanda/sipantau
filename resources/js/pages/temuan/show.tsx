@@ -14,7 +14,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
     {
         title: 'Temuan',
-        href: '/k3temuan',
+        href: '/temuan',
     },
     {
         title: 'Lihat Detail Temuan',
@@ -22,15 +22,15 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function ShowK3Temuan({ k3temuan }: { k3temuan: any }) {
+export default function ShowK3Temuan({ temuan }: { temuan: any }) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Detail Temuan" />
             <div className="space-y-6 p-4">
                 <div className="flex flex-wrap items-center gap-2">
-                    <Badge title={`Nomor CAR: ${k3temuan.nomor_car_auto}`}>{k3temuan.nomor_car_auto}</Badge>
-                    <Badge title={`Status Temuan: ${k3temuan.status_temuan?.nama}`}>{k3temuan.status_temuan?.nama}</Badge>
-                    <Badge title={`Status Approval: ${k3temuan.status_approval?.nama}`}>{k3temuan.status_approval?.nama}</Badge>
+                    <Badge title={`Nomor CAR: ${temuan.nomor_car_auto}`}>{temuan.nomor_car_auto}</Badge>
+                    <Badge title={`Status Temuan: ${temuan.status_temuan?.nama}`}>{temuan.status_temuan?.nama}</Badge>
+                    <Badge title={`Status Approval: ${temuan.status_approval?.nama}`}>{temuan.status_approval?.nama}</Badge>
                 </div>
 
                 <Card>
@@ -47,7 +47,7 @@ export default function ShowK3Temuan({ k3temuan }: { k3temuan: any }) {
                                         <Calendar className="h-4 w-4" />
                                         Tanggal Temuan
                                     </Label>
-                                    <div className="mt-1 text-sm font-medium">{format(new Date(k3temuan.tanggal), 'dd MMMM yyyy')}</div>
+                                    <div className="mt-1 text-sm font-medium">{format(new Date(temuan.tanggal), 'dd MMMM yyyy')}</div>
                                 </div>
                                 {/* Lokasi */}
                                 <div>
@@ -55,7 +55,7 @@ export default function ShowK3Temuan({ k3temuan }: { k3temuan: any }) {
                                         <MapPin className="h-4 w-4" />
                                         Detail Lokasi
                                     </Label>
-                                    <p className="mt-1 text-sm whitespace-pre-wrap">{k3temuan.detail_lokasi_temuan}</p>
+                                    <p className="mt-1 text-sm whitespace-pre-wrap">{temuan.detail_lokasi_temuan}</p>
                                 </div>
                             </div>
                             {/* Jenis dan Sub Jenis */}
@@ -66,7 +66,7 @@ export default function ShowK3Temuan({ k3temuan }: { k3temuan: any }) {
                                         <AlertCircle className="h-4 w-4" />
                                         Jenis Ketidaksesuaian
                                     </Label>
-                                    <div className="mt-1 text-sm font-medium">{k3temuan.jenis_ketidaksesuaian?.nama}</div>
+                                    <div className="mt-1 text-sm font-medium">{temuan.jenis_ketidaksesuaian?.nama}</div>
                                 </div>
                                 {/* Sub Jenis Ketidaksesuaian */}
                                 <div>
@@ -74,7 +74,7 @@ export default function ShowK3Temuan({ k3temuan }: { k3temuan: any }) {
                                         <ListTree className="h-4 w-4" />
                                         Sub Jenis Ketidaksesuaian
                                     </Label>
-                                    <div className="mt-1 text-sm font-medium">{k3temuan.jenis_ketidaksesuaian_sub?.nama}</div>
+                                    <div className="mt-1 text-sm font-medium">{temuan.jenis_ketidaksesuaian_sub?.nama}</div>
                                 </div>
                             </div>
                         </div>
@@ -85,7 +85,7 @@ export default function ShowK3Temuan({ k3temuan }: { k3temuan: any }) {
                                 <FileText className="h-4 w-4" />
                                 Deskripsi Temuan
                             </Label>
-                            <p className="mt-1 text-sm whitespace-pre-wrap">{k3temuan.deskripsi_temuan}</p>
+                            <p className="mt-1 text-sm whitespace-pre-wrap">{temuan.deskripsi_temuan}</p>
                         </div>
 
                         {/* Akar Masalah */}
@@ -94,18 +94,18 @@ export default function ShowK3Temuan({ k3temuan }: { k3temuan: any }) {
                                 <GitCommit className="h-4 w-4" />
                                 Tulis Akar Masalah
                             </Label>
-                            <p className="mt-1 text-sm whitespace-pre-wrap">{k3temuan.akar_masalah}</p>
+                            <p className="mt-1 text-sm whitespace-pre-wrap">{temuan.akar_masalah}</p>
                         </div>
 
                         {/* Foto */}
-                        {k3temuan.foto_temuan_sebelum && (
+                        {temuan.foto_temuan_sebelum && (
                             <div>
                                 <Label className="text-muted-foreground flex items-center gap-1 text-sm">
                                     <Camera className="h-4 w-4" />
                                     Foto Temuan (Sebelum Perbaikan)
                                 </Label>
                                 <a
-                                    href={`/storage/${k3temuan.foto_temuan_sebelum}`}
+                                    href={`/storage/${temuan.foto_temuan_sebelum}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="mt-1 inline-block text-sm text-blue-600 hover:underline"
@@ -127,7 +127,7 @@ export default function ShowK3Temuan({ k3temuan }: { k3temuan: any }) {
                                 <FileText className="h-4 w-4" />
                                 Rencana Perbaikan
                             </Label>
-                            <p className="mt-1 whitespace-pre-wrap">{k3temuan.rencana_perbaikan}</p>
+                            <p className="mt-1 whitespace-pre-wrap">{temuan.rencana_perbaikan}</p>
                         </div>
                         {/* Batas Waktu Perbaikan */}
                         <div>
@@ -135,7 +135,7 @@ export default function ShowK3Temuan({ k3temuan }: { k3temuan: any }) {
                                 <Calendar className="h-4 w-4" />
                                 Batas Waktu Perbaikan
                             </Label>
-                            <div className="mt-1 font-medium">{format(new Date(k3temuan.batas_waktu_perbaikan), 'dd MMMM yyyy')}</div>
+                            <div className="mt-1 font-medium">{format(new Date(temuan.batas_waktu_perbaikan), 'dd MMMM yyyy')}</div>
                         </div>
                     </CardContent>
                 </Card>
@@ -150,28 +150,28 @@ export default function ShowK3Temuan({ k3temuan }: { k3temuan: any }) {
                                     <FileText className="h-4 w-4" />
                                     Nomor CAR (Entitas/Plant)
                                 </Label>
-                                <div className="mt-1 font-medium">{k3temuan.nomor_car_manual}</div>
+                                <div className="mt-1 font-medium">{temuan.nomor_car_manual}</div>
                             </div>
                             <div>
                                 <Label className="text-muted-foreground flex items-center gap-1 text-sm">
                                     <GitCommit className="h-4 w-4" />
                                     Verifikasi Rencana Perbaikan
                                 </Label>
-                                <p className="mt-1">{k3temuan.admin_verifikasi_rencana ? 'Ya' : 'Belum'}</p>
+                                <p className="mt-1">{temuan.admin_verifikasi_rencana ? 'Ya' : 'Belum'}</p>
                             </div>
                             <div>
                                 <Label className="text-muted-foreground flex items-center gap-1 text-sm">
                                     <AlertCircle className="h-4 w-4" />
                                     Sudah Diverifikasi
                                 </Label>
-                                <p className="mt-1">{k3temuan.admin_diverifikasi ? 'Ya' : 'Belum'}</p>
+                                <p className="mt-1">{temuan.admin_diverifikasi ? 'Ya' : 'Belum'}</p>
                             </div>
                             <div>
                                 <Label className="text-muted-foreground flex items-center gap-1 text-sm">
                                     <GitCommit className="h-4 w-4" />
                                     Verifikasi Pengerjaan Perbaikan
                                 </Label>
-                                <p className="mt-1">{k3temuan.verifikasi_pengerjaan ? 'Sudah' : 'Belum'}</p>
+                                <p className="mt-1">{temuan.verifikasi_pengerjaan ? 'Sudah' : 'Belum'}</p>
                             </div>
                         </div>
                         <div>
@@ -179,23 +179,23 @@ export default function ShowK3Temuan({ k3temuan }: { k3temuan: any }) {
                                 <ListTree className="h-4 w-4" />
                                 Tindakan Perbaikan yang Dilakukan
                             </Label>
-                            <p className="mt-1 whitespace-pre-wrap">{k3temuan.tindakan_perbaikan || '-'}</p>
+                            <p className="mt-1 whitespace-pre-wrap">{temuan.tindakan_perbaikan || '-'}</p>
                         </div>
                         <div>
                             <Label className="text-muted-foreground flex items-center gap-1 text-sm">
                                 <FileText className="h-4 w-4" />
                                 Catatan
                             </Label>
-                            <p className="mt-1 whitespace-pre-wrap">{k3temuan.catatan_admin || '-'}</p>
+                            <p className="mt-1 whitespace-pre-wrap">{temuan.catatan_admin || '-'}</p>
                         </div>
-                        {k3temuan.foto_temuan_sesudah && (
+                        {temuan.foto_temuan_sesudah && (
                             <div>
                                 <Label className="text-muted-foreground flex items-center gap-1 text-sm">
                                     <Camera className="h-4 w-4" />
                                     Foto Temuan (Setelah Perbaikan)
                                 </Label>
                                 <a
-                                    href={`/storage/${k3temuan.foto_temuan_sesudah}`}
+                                    href={`/storage/${temuan.foto_temuan_sesudah}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="mt-2 block text-blue-600 hover:underline"
@@ -216,7 +216,7 @@ export default function ShowK3Temuan({ k3temuan }: { k3temuan: any }) {
                                 <AlertCircle className="h-4 w-4" />
                                 Verifikasi Akhir Hasil Perbaikan
                             </Label>
-                            <p className="mt-1">{k3temuan.verifikasi_akhir ? 'Sudah' : 'Belum'}</p>
+                            <p className="mt-1">{temuan.verifikasi_akhir ? 'Sudah' : 'Belum'}</p>
                         </div>
                         {/* Komentar Validator */}
                         <div>
@@ -224,7 +224,7 @@ export default function ShowK3Temuan({ k3temuan }: { k3temuan: any }) {
                                 <FileText className="h-4 w-4" />
                                 Komentar Validator
                             </Label>
-                            <p className="mt-1 whitespace-pre-wrap">{k3temuan.komentar_validator || '-'}</p>
+                            <p className="mt-1 whitespace-pre-wrap">{temuan.komentar_validator || '-'}</p>
                         </div>
                     </CardContent>
                 </Card>
@@ -241,7 +241,7 @@ export default function ShowK3Temuan({ k3temuan }: { k3temuan: any }) {
                                     <GitCommit className="h-4 w-4" />
                                     Dibuat Oleh
                                 </Label>
-                                <p className="mt-1">{k3temuan.created_by?.name}</p>
+                                <p className="mt-1">{temuan.created_by?.name}</p>
                             </div>
                             {/* Created At */}
                             <div>
@@ -249,7 +249,7 @@ export default function ShowK3Temuan({ k3temuan }: { k3temuan: any }) {
                                     <Calendar className="h-4 w-4" />
                                     Dibuat Pada
                                 </Label>
-                                <p className="mt-1">{format(new Date(k3temuan.created_at), 'dd MMMM yyyy HH:mm')}</p>
+                                <p className="mt-1">{format(new Date(temuan.created_at), 'dd MMMM yyyy HH:mm')}</p>
                             </div>
                             {/* Last Updated */}
                             <div>
@@ -257,7 +257,7 @@ export default function ShowK3Temuan({ k3temuan }: { k3temuan: any }) {
                                     <FileText className="h-4 w-4" />
                                     Terakhir Diperbarui
                                 </Label>
-                                <p className="mt-1">{format(new Date(k3temuan.updated_at), 'dd MMMM yyyy HH:mm')}</p>
+                                <p className="mt-1">{format(new Date(temuan.updated_at), 'dd MMMM yyyy HH:mm')}</p>
                             </div>
                         </div>
                     </CardContent>
