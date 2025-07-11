@@ -13,10 +13,18 @@ import { Link, router } from '@inertiajs/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
 
+export type MasterEntitas = {
+    nama: string;
+};
+
+export type MasterPlant = {
+    nama: string;
+};
+
 export type InspeksiApar = {
     id: string;
-    kode_entitas: string;
-    entitas: string;
+    entitas: MasterEntitas[];
+    plants: MasterPlant[];
     no_apar: string;
     kode_ruang: string;
     lokasi: string;
@@ -31,12 +39,12 @@ export const columns: ColumnDef<InspeksiApar>[] = [
         header: 'No',
     },
     {
-        accessorKey: 'kode_entitas',
-        header: 'Kode Entitas',
+        header: 'Entitas',
+        accessorFn: (row) => (row.entitas && row.entitas.length > 0 ? row.entitas.map((e) => e.nama).join(', ') : '-'), // tergantung struktur datamu
     },
     {
-        accessorKey: 'entitas',
-        header: 'Entitas',
+        header: 'Plant',
+        accessorFn: (row) => (row.plants && row.plants.length > 0 ? row.plants.map((p) => p.nama).join(', ') : '-'), // tergantung struktur datamu
     },
     {
         accessorKey: 'no_apar',

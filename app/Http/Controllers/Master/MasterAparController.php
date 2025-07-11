@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Master;
 
 use App\Http\Controllers\Controller;
 use App\Models\Master\MasterApar;
+use App\Models\Master\MasterEntitas;
+use App\Models\Master\MasterPlant;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -14,7 +16,7 @@ class MasterAparController extends Controller
      */
     public function index()
     {
-        $masterApar = MasterApar::latest()->get();
+        $masterApar = MasterApar::latest()->with(['entitas','plants'])->get();
         return Inertia::render('master/apar/page', compact('masterApar'));
     }
 
@@ -23,7 +25,9 @@ class MasterAparController extends Controller
      */
     public function create()
     {
-        return Inertia::render('master/apar/create');
+                $entitasList = MasterEntitas::latest()->get(['id', 'nama', 'kode_entitas']);
+        $plantList = MasterPlant::latest()->get(['id', 'nama', 'kode_entitas', 'kode_plant']);
+        return Inertia::render('master/apar/create',compact('entitasList', 'plantList'));
     }
 
     /**
@@ -33,7 +37,7 @@ class MasterAparController extends Controller
     {
         $request->validate([
             'kode_entitas' => 'required|string|max:255',
-            'entitas' => 'required|string|max:255',
+            'kode_plant' => 'required|string|max:255',
             'no_apar' => 'required|string|max:255',
             'kode_ruang' => 'required|string|max:255',
             'lokasi' => 'required|string|max:255',
@@ -55,8 +59,11 @@ class MasterAparController extends Controller
      */
     public function edit(MasterApar $masterInspeksiApar, $id)
     {
+
         $masterApar = $masterInspeksiApar->findOrFail($id);
-        return Inertia::render('master/apar/edit', compact('masterApar'));
+        $entitasList = MasterEntitas::latest()->get(['id', 'nama', 'kode_entitas']);
+        $plantList = MasterPlant::latest()->get(['id', 'nama', 'kode_entitas', 'kode_plant']);
+        return Inertia::render('master/apar/edit', compact('masterApar', 'entitasList', 'plantList'));
     }
 
     /**
@@ -67,7 +74,7 @@ class MasterAparController extends Controller
 
         $request->validate([
             'kode_entitas' => 'required|string|max:255',
-            'entitas' => 'required|string|max:255',
+            'kode_plant' => 'required|string|max:255',
             'no_apar' => 'required|string|max:255',
             'kode_ruang' => 'required|string|max:255',
             'lokasi' => 'required|string|max:255',
