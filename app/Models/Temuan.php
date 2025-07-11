@@ -27,9 +27,9 @@ class Temuan extends Model
         return $this->belongsTo(TemuanStatus::class, 'kode_temuan_status', 'kode');
     }
 
-    public function temuanStatusApproval()
+    public function temuanApprovalRiwayat()
     {
-        return $this->belongsTo(TemuanStatus::class, 'kode_temuan_status_approval', 'kode');
+        return $this->hasMany(TemuanApprovalRiwayat::class, 'temuan_id');
     }
 
     public function createdBy()
