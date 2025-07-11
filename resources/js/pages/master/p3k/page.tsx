@@ -8,6 +8,7 @@ import { Head, Link, usePage } from '@inertiajs/react';
 import { Download, FileText, Plus, Upload } from 'lucide-react';
 import { useEffect } from 'react';
 import { columns, MasterP3k } from './columns';
+import SectionHeader from '@/components/section-header';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Home', href: '/' },
@@ -29,6 +30,10 @@ export default function PageMasterP3k({ masterP3k }: { masterP3k: MasterP3k[] })
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Master P3K" />
             <div className="p-4">
+                  <SectionHeader
+                        title="Master P3K"
+                        subtitle="Kelola data master inspeksi P3K. Anda dapat menambah, mengubah, dan menghapus data inspeksi P3K."
+                    />
                 {/* Tombol Aksi */}
                 <div className="flex flex-wrap items-center justify-start gap-2 sm:justify-end">
                     {/* Tombol Create (utama - biru/primary) */}
