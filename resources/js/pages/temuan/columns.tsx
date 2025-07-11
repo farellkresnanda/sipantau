@@ -8,11 +8,7 @@ import { CheckCircle, Info, XCircle } from 'lucide-react';
 
 export const columns: ColumnDef<{
     id: number;
-    status_temuan: {
-        id: number;
-        nama: string;
-    } | null;
-    status_approval: {
+    temuan_status: {
         id: number;
         nama: string;
     } | null;
@@ -32,9 +28,9 @@ export const columns: ColumnDef<{
     },
     {
         header: 'Status Temuan',
-        accessorKey: 'status_temuan.nama',
+        accessorKey: 'temuan_status.nama',
         cell: ({ row }) => {
-            const status = row.original.status_temuan;
+            const status = row.original.temuan_status;
             const statusId = status?.id;
             const statusNama = status?.nama || '-';
 
@@ -78,55 +74,6 @@ export const columns: ColumnDef<{
                         {statusNama}
                     </span>
                 </Link>
-            );
-        },
-    },
-    {
-        accessorKey: 'status_approval',
-        header: 'Status Approval',
-        cell: ({ row }) => {
-            const status = row.original.status_approval;
-            const statusId = status?.id;
-            const statusNama = status?.nama || '-';
-
-            let icon = null;
-            let colorClasses = '';
-
-            switch (statusId) {
-                case 1:
-                    icon = <Info className="h-4 w-4" />;
-                    colorClasses = 'bg-yellow-100 text-yellow-700';
-                    break;
-                case 2:
-                    icon = <CheckCircle className="h-4 w-4" />;
-                    colorClasses = 'bg-green-100 text-green-700';
-                    break;
-                case 3:
-                    icon = <Info className="h-4 w-4" />;
-                    colorClasses = 'bg-blue-100 text-blue-700';
-                    break;
-                case 4:
-                    icon = <CheckCircle className="h-4 w-4" />;
-                    colorClasses = 'bg-purple-100 text-purple-700';
-                    break;
-                case 5:
-                    icon = <Info className="h-4 w-4" />;
-                    colorClasses = 'bg-orange-100 text-orange-700';
-                    break;
-                case 6:
-                    icon = <CheckCircle className="h-4 w-4" />;
-                    colorClasses = 'bg-teal-100 text-teal-700';
-                    break;
-                default:
-                    icon = null;
-                    colorClasses = 'bg-gray-100 text-gray-700';
-            }
-
-            return (
-                <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${colorClasses}`}>
-                    {icon}
-                    {statusNama}
-                </span>
             );
         },
     },
