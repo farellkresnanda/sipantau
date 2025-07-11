@@ -66,6 +66,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::resource('gedung', MasterGedungController::class);
             Route::resource('genset', MasterGensetController::class);
             Route::resource('k3l', MasterK3lController::class);
+             Route::get('p3k/export', [MasterP3kController::class, 'export'])->name('p3k.export');          
+            Route::get('p3k/import', [MasterP3kController::class, 'import'])->name('p3k.import');
+            Route::post('p3k/import', [MasterP3kController::class, 'action_import'])->name('p3k.action_import');
             Route::resource('p3k', MasterP3kController::class);
             Route::resource('jenis-ketidaksesuaian', MasterJenisKetidaksesuaianController::class);
             Route::resource('jenis-ketidaksesuaian-sub', MasterJenisKetidaksesuaianSubController::class);
@@ -95,12 +98,7 @@ Route::get('/test-error', function () {
 });
 
 
-// apar
-// Route::prefix('master')->group(function () {
-//     Route::resource('apar', MasterAparController::class);
-//     Route::get('apar/import', [MasterAparController::class, 'import'])->name('apar.import');
-//     Route::post('apar/import', [MasterAparController::class, 'action_import'])->name('apar.action_import');
-// });
+
 
 
 require __DIR__ . '/settings.php';

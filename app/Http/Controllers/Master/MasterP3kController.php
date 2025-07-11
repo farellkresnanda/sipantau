@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers\Master;
 
+use App\Exports\P3kExport;
 use App\Http\Controllers\Controller;
+use App\Imports\P3kImport;
 use App\Models\Master\MasterP3k;
 use App\Models\Master\MasterPlant;
 use App\Models\Master\MasterEntitas;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Maatwebsite\Excel\Facades\Excel;
 
 class MasterP3kController extends Controller
 {
@@ -140,5 +143,34 @@ class MasterP3kController extends Controller
         $p3k->delete();
 
         return redirect()->route('p3k.index')->with('success', 'Data P3K berhasil dihapus.');
+    }
+
+
+       public function import()
+    {
+        // dd('OKE')  ;
+        return Inertia::render('master/p3k/import');
+    }
+
+
+       
+
+public function action_import(Request $request)
+{
+    $request->validate([
+        'file' => 'required|file|mimes:xlsx,xls'
+    ]);
+
+    Excel::import(new P3kImport, $request->file('file'));
+
+    activity()->log('User import master P3K');
+
+    return redirect()->route('p3k.index')
+        ->with('success', 'Master P3K imported successfully.');
+}
+
+   public function export() 
+    {
+        return Excel::download(new P3kExport, 'master_data_p3k.xlsx');
     }
 }

@@ -12,7 +12,7 @@ class MasterJenisKetidaksesuaianController extends Controller
 {
     public function index()
     {
-        $data = MasterJenisKetidaksesuaian::with('subJenis')->latest()->get();
+        $data = MasterJenisKetidaksesuaian::with('jenisKetidaksesuaianSub')->latest()->get();
 
         return Inertia::render('master/jenis-ketidaksesuaian/page', [
             'data' => $data,

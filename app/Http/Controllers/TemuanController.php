@@ -17,7 +17,7 @@ class TemuanController extends Controller
      */
     public function index()
     {
-        $temuans = Temuan::latest()->with(['jenisKetidaksesuaian', 'temuanStatusApproval', 'temuanStatus'])->get();
+        $temuans = Temuan::latest()->with(['jenisKetidaksesuaian', 'temuanStatus'])->get();
         return Inertia::render('temuan/page', compact('temuans'));
     }
 
@@ -94,7 +94,7 @@ class TemuanController extends Controller
      */
     public function show($id)
     {
-        $temuan = Temuan::with(['jenisKetidaksesuaian','jenisKetidaksesuaianSub', 'temuanStatusApproval', 'temuanStatus', 'CreatedBy'])->findOrFail($id);
+        $temuan = Temuan::with(['jenisKetidaksesuaian','jenisKetidaksesuaianSub', 'temuanApprovalRiwayat', 'temuanStatus', 'createdBy'])->findOrFail($id);
         return Inertia::render('temuan/show', compact('temuan'));
     }
 

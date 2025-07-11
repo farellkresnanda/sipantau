@@ -200,11 +200,6 @@ const mainNavItems: NavItemWithChildren[] = [
                 icon: DoorClosedIcon,
             },
             {
-                title: 'Master Jenis Ketidaksesuaian Sub',
-                href: '/master/jenis-ketidaksesuaian-sub',
-                icon: DoorOpenIcon,
-            },
-            {
                 title: 'Master Konsekuensi',
                 href: '/master/konsekuensi',
                 icon: TargetIcon,
@@ -233,11 +228,6 @@ const mainNavItems: NavItemWithChildren[] = [
                 title: 'Master Probabilitas',
                 href: '/master/probabilitas',
                 icon: ChartBarIcon,
-            },
-            {
-                title: 'Master Rumus LTIFR',
-                href: '/master/rumus-ltifr',
-                icon: LucideBadgeInfo,
             },
             {
                 title: 'Master Sertifikasi K3',

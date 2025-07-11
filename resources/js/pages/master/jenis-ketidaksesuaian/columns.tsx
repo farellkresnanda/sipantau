@@ -21,7 +21,7 @@ export interface SubJenis {
 export interface JenisKetidaksesuaian {
   id: number;
   nama: string;
-  sub_jenis: SubJenis[];
+  jenis_ketidaksesuaian_sub: SubJenis[];
 }
 
 export const columns: ColumnDef<JenisKetidaksesuaian>[] = [
@@ -34,10 +34,10 @@ export const columns: ColumnDef<JenisKetidaksesuaian>[] = [
     header: 'Jenis Ketidaksesuaian',
   },
   {
-    id: 'sub_jenis',
+    id: 'jenis_ketidaksesuaian_sub',
     header: 'Sub Jenis',
     cell: ({ row }) => {
-      const subJenis = row.original.sub_jenis;
+      const subJenis = row.original.jenis_ketidaksesuaian_sub;
       return subJenis.length > 0 ? (
         <ul className="list-disc pl-4">
           {subJenis.map((sub) => (

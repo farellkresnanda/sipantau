@@ -3,24 +3,24 @@
 namespace App\Exports;
 
 use App\Models\Master\MasterApar;
+use App\Models\Master\MasterP3k;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
 
-class AparExport implements FromCollection, WithHeadings, ShouldAutoSize, WithEvents
+class P3kExport implements FromCollection, WithHeadings, ShouldAutoSize, WithEvents
 {
     public function collection()
     {
-        return MasterApar::select(
+        return MasterP3k::select(
             'kode_entitas',
             'kode_plant',
-            'no_apar',
+            'no_p3k',
             'kode_ruang',
             'lokasi',
             'jenis',
-            'apar',
             'kode_inventaris'
         )->get();
     }
@@ -30,11 +30,10 @@ class AparExport implements FromCollection, WithHeadings, ShouldAutoSize, WithEv
         return [
             'Kode Entitas',
             'Kode Plant',
-            'Nomor APAR/APAB',
+            'Nomor P3k',
             'Kode Ruang',
             'Lokasi',
             'Jenis',
-            'Type',
             'Kode Inventaris'
         ];
     }
