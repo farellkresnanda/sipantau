@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers\Master;
 
+use App\Exports\AparExport;
 use App\Http\Controllers\Controller;
+use App\Imports\AparImport;
 use App\Models\Master\MasterApar;
 use App\Models\Master\MasterEntitas;
 use App\Models\Master\MasterPlant;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Maatwebsite\Excel\Facades\Excel;
 
 class MasterAparController extends Controller
 {
@@ -57,6 +60,10 @@ class MasterAparController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
+
+     public function show()
+    {
+    }
     public function edit(MasterApar $masterInspeksiApar, $id)
     {
 
@@ -105,4 +112,33 @@ class MasterAparController extends Controller
         return redirect()->route('apar.index')
             ->with('success', 'Master  apar deleted successfully.');
     }
+
+      public function import()
+    {
+        // dd('OKE')  ;
+        return Inertia::render('master/apar/import');
+    }
+
+
+       
+
+public function action_import(Request $request)
+{
+    $request->validate([
+        'file' => 'required|file|mimes:xlsx,xls'
+    ]);
+
+    Excel::import(new AparImport, $request->file('file'));
+
+    activity()->log('User import master APAR');
+
+    return redirect()->route('apar.index')
+        ->with('success', 'Master APAR imported successfully.');
+}
+
+   public function export() 
+    {
+        return Excel::download(new AparExport, 'master_data.xlsx');
+    }
+
 }

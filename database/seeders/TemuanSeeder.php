@@ -16,7 +16,7 @@ class TemuanSeeder extends Seeder
     public function run(): void
     {
         foreach (range(1, 10) as $i) {
-            DB::table('k3_temuan')->insert([
+            DB::table('temuan')->insert([
                 'status_temuan'           => fake()->randomElement(['Open', 'In Progress', 'Closed']),
                 'status_approval'         => fake()->randomElement(['Approved', 'Pending', 'Rejected']),
                 'nomor_car_auto'          => 'CAR-' . str_pad($i, 4, '0', STR_PAD_LEFT),

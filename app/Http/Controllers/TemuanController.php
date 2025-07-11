@@ -2,20 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\K3Temuan;
+use App\Models\Temuan;
 use App\Models\Master\MasterJenisKetidaksesuaian;
+use App\Models\TemuanApprovalRiwayat;
+use App\Models\TemuanApprovalTahapan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
-class K3TemuanController extends Controller
+class TemuanController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $k3temuans = K3Temuan::latest()->with(['jenisKetidaksesuaian', 'statusApproval', 'statusTemuan'])->get();
-        return Inertia::render('k3temuan/page', compact('k3temuans'));
+        $temuans = Temuan::latest()->with(['jenisKetidaksesuaian', 'temuanStatusApproval', 'temuanStatus'])->get();
+        return Inertia::render('temuan/page', compact('temuans'));
     }
 
     /**
@@ -33,7 +36,7 @@ class K3TemuanController extends Controller
             ->orderBy('master_jenis_ketidaksesuaian.nama')
             ->get();
 
-        return Inertia::render('k3temuan/create', compact('jenisKetidaksesuaian'));
+        return Inertia::render('temuan/create', compact('jenisKetidaksesuaian'));
     }
 
     /**
@@ -50,43 +53,63 @@ class K3TemuanController extends Controller
             'akar_masalah' => 'required|string'
         ]);
 
-        $data = $request->except(['foto_temuan_sebelum']);
+        DB::transaction(function () use ($request) {
+            $data = $request->except(['foto_temuan_sebelum']);
 
-        if ($request->hasFile('foto_temuan_sebelum')) {
-            $data['foto_temuan_sebelum'] = $request->file('foto_temuan_sebelum')->store('temuan-images', 'public');
-        }
+            if ($request->hasFile('foto_temuan_sebelum')) {
+                $data['foto_temuan_sebelum'] = $request->file('foto_temuan_sebelum')->store('temuan-images', 'public');
+            }
 
-        K3Temuan::create(array_merge($data, [
-            'kode_status_temuan' => 'SOP', // Open
-            'kode_status_approval' => 'MVT', // Menunggu Verifikasi Tindakan
-            'created_by' => auth()->id(),
-            'nomor_car_auto' => 'KFHO/' . sprintf('%03d', K3Temuan::count() + 1) . '/' . now()->format('d/m/Y')
-        ]));
+            // Generate CAR number (you may want to extract this logic into a service later)
+            $carNumber = 'KFHO/' . sprintf('%03d', Temuan::count() + 1) . '/' . now()->format('d/m/Y');
 
-        return redirect()->route('k3temuan.index')->with('success', 'Temuan created successfully.');
+            // Create the temuan
+            $temuan = Temuan::create(array_merge($data, [
+                'kode_temuan_status' => 'SOP', // Status Open
+                'created_by' => auth()->id(),
+                'nomor_car_auto' => $carNumber
+            ]));
+
+            // Get all approval stages, ordered
+            $tahapan = TemuanApprovalTahapan::orderBy('urutan')->get();
+
+            foreach ($tahapan as $row) {
+                TemuanApprovalRiwayat::create([
+                    'temuan_id' => $temuan->id,
+                    'tahap' => $row->tahap,
+                    'status_approval' => 'PENDING',
+                    'verified_by' => null,
+                    'verified_at' => null,
+                    'catatan' => null,
+                ]);
+            }
+        });
+
+        return redirect()->route('temuan.index')->with('success', 'Temuan created successfully and approval flow initialized.');
     }
+
 
     /**
      * Display the specified resource.
      */
     public function show($id)
     {
-        $k3temuan = K3Temuan::with(['jenisKetidaksesuaian','jenisKetidaksesuaianSub', 'statusApproval', 'statusTemuan', 'CreatedBy'])->findOrFail($id);
-        return Inertia::render('k3temuan/show', compact('k3temuan'));
+        $temuan = Temuan::with(['jenisKetidaksesuaian','jenisKetidaksesuaianSub', 'temuanStatusApproval', 'temuanStatus', 'CreatedBy'])->findOrFail($id);
+        return Inertia::render('temuan/show', compact('temuan'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(K3Temuan $k3temuan)
+    public function edit(Temuan $temuan)
     {
-        return Inertia::render('k3temuan/edit', compact('k3temuan'));
+        return Inertia::render('temuan/edit', compact('temuan'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, K3Temuan $k3temuan)
+    public function update(Request $request, Temuan $temuan)
     {
         $request->validate([
             'status_temuan' => 'required|string',
@@ -111,38 +134,38 @@ class K3TemuanController extends Controller
         $data = $request->except(['foto_temuan_sebelum', 'foto_temuan_sesudah']);
 
         if ($request->hasFile('foto_temuan_sebelum')) {
-            if ($k3temuan->foto_temuan_sebelum) {
-                \Storage::disk('public')->delete($k3temuan->foto_temuan_sebelum);
+            if ($temuan->foto_temuan_sebelum) {
+                \Storage::disk('public')->delete($temuan->foto_temuan_sebelum);
             }
             $data['foto_temuan_sebelum'] = $request->file('foto_temuan_sebelum')->store('temuan-images', 'public');
         }
 
         if ($request->hasFile('foto_temuan_sesudah')) {
-            if ($k3temuan->foto_temuan_sesudah) {
-                \Storage::disk('public')->delete($k3temuan->foto_temuan_sesudah);
+            if ($temuan->foto_temuan_sesudah) {
+                \Storage::disk('public')->delete($temuan->foto_temuan_sesudah);
             }
             $data['foto_temuan_sesudah'] = $request->file('foto_temuan_sesudah')->store('temuan-images', 'public');
         }
 
-        $k3temuan->update($data);
+        $temuan->update($data);
 
-        return redirect()->route('k3temuan.index')->with('success', 'Temuan updated successfully.');
+        return redirect()->route('temuan.index')->with('success', 'Temuan updated successfully.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(K3Temuan $k3temuan)
+    public function destroy(Temuan $temuan)
     {
-        if ($k3temuan->foto_temuan_sebelum) {
-            \Storage::disk('public')->delete($k3temuan->foto_temuan_sebelum);
+        if ($temuan->foto_temuan_sebelum) {
+            \Storage::disk('public')->delete($temuan->foto_temuan_sebelum);
         }
-        if ($k3temuan->foto_temuan_sesudah) {
-            \Storage::disk('public')->delete($k3temuan->foto_temuan_sesudah);
+        if ($temuan->foto_temuan_sesudah) {
+            \Storage::disk('public')->delete($temuan->foto_temuan_sesudah);
         }
 
-        $k3temuan->delete();
+        $temuan->delete();
 
-        return redirect()->route('k3temuan.index')->with('success', 'Temuan deleted successfully.');
+        return redirect()->route('temuan.index')->with('success', 'Temuan deleted successfully.');
     }
 }

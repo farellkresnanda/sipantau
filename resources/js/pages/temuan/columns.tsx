@@ -72,7 +72,7 @@ export const columns: ColumnDef<{
             }
 
             return (
-                <Link href={`/k3temuan/${row.original.id}`} className="inline-flex items-center gap-2 hover:underline">
+                <Link href={`/temuan/${row.original.id}`} className="inline-flex items-center gap-2 hover:underline">
                     <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${colorClasses}`}>
                         {icon}
                         {statusNama}
@@ -157,7 +157,7 @@ export const columns: ColumnDef<{
     {
         id: 'actions',
         cell: ({ row }) => {
-            const k3temuan = row.original;
+            const temuan = row.original;
             return (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -181,11 +181,11 @@ export const columns: ColumnDef<{
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                         <DropdownMenuItem asChild>
-                            <Link href={`/reports/k3temuan/${k3temuan.id}/edit`}>Edit</Link>
+                            <Link href={`/reports/temuan/${temuan.id}/edit`}>Edit</Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                             <Link
-                                href={`/reports/k3temuan/${k3temuan.id}`}
+                                href={`/reports/temuan/${temuan.id}`}
                                 method="delete"
                                 as="button"
                                 className="w-full text-left text-red-600 hover:text-red-700"

@@ -36,7 +36,7 @@ const mainNavItems: NavItemWithChildren[] = [
 
     {
         title: 'Temuan',
-        href: '/k3temuan',
+        href: '/temuan',
         icon: DoorClosedIcon,
     },
 
