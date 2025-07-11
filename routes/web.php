@@ -49,9 +49,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // Role Admin and Super Admin routes
-    Route::group(['middleware' => ['role:Admin|Super Admin']], function () {
-
-        // Master Data routes
+    Route::group(['middleware' => ['role:Admin|Super Admin']], function () {   
+    
+    // Master Data routes
         Route::resource('users', UserController::class);
         Route::prefix('master')->group(function () {
             Route::resource('entitas', MasterEntitasController::class);

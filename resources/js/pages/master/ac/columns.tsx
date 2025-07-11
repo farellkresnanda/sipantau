@@ -15,25 +15,37 @@ import { MoreHorizontal } from 'lucide-react';
 
 export type MasterAc = {
     id: string;
-    kode_entitas: string;
-    entitas: string;
+    kode_plant: string;
     ruang: string;
     kode_inventaris: string;
     merk: string;
+    entitas: {
+        nama: string;
+    } | null;
+    plant_nama: string | null;
 };
 
 export const columns: ColumnDef<MasterAc>[] = [
     {
-        accessorKey: 'no',
+        id: 'index',
         header: 'No',
+        cell: ({ row }) => row.index + 1,
     },
     {
-        accessorKey: 'kode_entitas',
-        header: 'Kode Entitas',
+        accessorKey: 'entitas.nama',
+        header: 'Nama Entitas',
+        cell: ({ row }) => {
+            const entitasNama = row.original.entitas?.nama;
+            return entitasNama ?? '-';
+        },
     },
     {
-        accessorKey: 'entitas',
-        header: 'Entitas',
+        accessorKey: 'plant_nama',
+        header: 'Plant',
+        cell: ({ row }) => {
+            const plantNama = row.original.plant_nama;
+            return plantNama ?? row.original.kode_plant ?? '-';
+        },
     },
     {
         accessorKey: 'ruang',
@@ -52,7 +64,7 @@ export const columns: ColumnDef<MasterAc>[] = [
         header: '#',
         cell: ({ row }) => {
             const handleDelete = () => {
-                if (confirm('Are you sure you want to delete this Master AC?')) {
+                if (confirm('Apakah Anda yakin ingin menghapus data Master AC ini?')) {
                     router.delete(`/master/ac/${row.original.id}`);
                 }
             };
@@ -66,7 +78,7 @@ export const columns: ColumnDef<MasterAc>[] = [
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuLabel>Action</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild>
                             <Link href={`/master/ac/${row.original.id}/edit`}>Edit</Link>
