@@ -22,7 +22,7 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/users',
     },
     {
-        title: 'Create User',
+        title: 'Tambah User',
         href: '/users/create',
     },
 ];
@@ -34,7 +34,29 @@ const formSchema = z
         email: z.string().email(),
         password: z.string().min(8),
         password_confirmation: z.string().min(8),
-        role: z.enum(['Super Admin', 'Admin', 'Officer', 'Technician', 'Validator', 'Viewer']).default('Viewer'),
+        role: z.enum(['SuperAdmin', 'Admin', 'Officer', 'Technician', 'Validator', 'Viewer']).default('Viewer'),
+        npp: z.string(),
+        npp_sap: z.string(),
+        position_code: z.string(),
+        position_name: z.string(),
+        position_level: z.string(),
+        position_level_name: z.string(),
+        entity_group_code: z.string(),
+        entity_code: z.string(),
+        entity_name: z.string(),
+        entity_alias_name: z.string(),
+        directorate_code: z.string(),
+        directorate_name: z.string(),
+        division_code: z.string(),
+        division_name: z.string(),
+        unit_code: z.string(),
+        unit_name: z.string(),
+        sub_unit_code: z.string(),
+        sub_unit_name: z.string(),
+        department_code: z.string(),
+        department_name: z.string(),
+        branch_manager_code: z.string(),
+        branch_manager_name: z.string(),
     })
     .refine((data) => data.password === data.password_confirmation, {
         message: 'Passwords do not match',
@@ -54,6 +76,28 @@ export default function CreateUser({ roles }: { roles: { id: string; name: strin
             password: '',
             password_confirmation: '',
             role: 'Viewer',
+            npp: '',
+            npp_sap: '',
+            position_code: '',
+            position_name: '',
+            position_level: '',
+            position_level_name: '',
+            entity_group_code: '',
+            entity_code: '',
+            entity_name: '',
+            entity_alias_name: '',
+            directorate_code: '',
+            directorate_name: '',
+            division_code: '',
+            division_name: '',
+            unit_code: '',
+            unit_name: '',
+            sub_unit_code: '',
+            sub_unit_name: '',
+            department_code: '',
+            department_name: '',
+            branch_manager_code: '',
+            branch_manager_name: '',
         },
     });
 
@@ -77,11 +121,11 @@ export default function CreateUser({ roles }: { roles: { id: string; name: strin
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Create User" />
+            <Head title="Tambah User" />
 
             <div className="space-y-6 p-4">
                 <div className="flex items-center justify-between">
-                    <SectionHeader title="Create User" subtitle="Fill in the form below to create a new user." />
+                    <SectionHeader title="Tambah User" subtitle="Lengkapi formulir di bawah ini untuk membuat pengguna baru." />
                 </div>
 
                 <Card className="w-full">
@@ -90,22 +134,330 @@ export default function CreateUser({ roles }: { roles: { id: string; name: strin
                             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                     <div className="space-y-4">
-                                        {/* Name Field */}
                                         <FormField
                                             control={form.control}
                                             name="name"
                                             render={({ field }) => (
                                                 <FormItem>
-                                                    <FormLabel>Name</FormLabel>
+                                                    <FormLabel>Nama</FormLabel>
                                                     <FormControl>
-                                                        <Input placeholder="Enter name" {...field} />
+                                                        <Input placeholder="Masukkan nama" {...field} />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
                                             )}
                                         />
 
-                                        {/* Email Field */}
+                                        <FormField
+                                            control={form.control}
+                                            name="npp"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>NPP</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="Masukkan NPP" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name="npp_sap"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>NPP SAP</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="Masukkan NPP SAP" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name="position_code"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Kode Jabatan</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="Masukkan Kode Jabatan" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name="position_name"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Nama Jabatan</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="Masukkan Nama Jabatan" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name="position_level"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Level Jabatan</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="Masukkan Level Jabatan" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name="position_level_name"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Nama Level Jabatan</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="Masukkan Nama Level Jabatan" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name="entity_group_code"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Kode Grup Entitas</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="Masukkan Kode Grup Entitas" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name="entity_code"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Kode Entitas</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="Masukkan Kode Entitas" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name="entity_name"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Nama Entitas</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="Masukkan Nama Entitas" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name="entity_alias_name"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Alias Entitas</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="Masukkan Alias Entitas" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name="directorate_code"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Kode Direktorat</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="Masukkan Kode Direktorat" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name="directorate_name"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Nama Direktorat</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="Masukkan Nama Direktorat" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <FormField
+                                            control={form.control}
+                                            name="division_code"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Kode Divisi</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="Masukkan Kode Divisi" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name="division_name"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Nama Divisi</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="Masukkan Nama Divisi" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name="unit_code"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Kode Unit</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="Masukkan Kode Unit" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name="unit_name"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Nama Unit</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="Masukkan Nama Unit" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name="sub_unit_code"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Kode Sub Unit</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="Masukkan Kode Sub Unit" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name="sub_unit_name"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Nama Sub Unit</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="Masukkan Nama Sub Unit" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name="department_code"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Kode Departemen</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="Masukkan Kode Departemen" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name="department_name"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Nama Departemen</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="Masukkan Nama Departemen" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name="branch_manager_code"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Kode Branch Manager</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="Masukkan Kode Branch Manager" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name="branch_manager_name"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Nama Branch Manager</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="Masukkan Nama Branch Manager" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
                                         <FormField
                                             control={form.control}
                                             name="email"
@@ -113,14 +465,42 @@ export default function CreateUser({ roles }: { roles: { id: string; name: strin
                                                 <FormItem>
                                                     <FormLabel>Email</FormLabel>
                                                     <FormControl>
-                                                        <Input type="email" placeholder="Enter email" {...field} />
+                                                        <Input type="email" placeholder="Masukkan Email" {...field} />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
                                             )}
                                         />
 
-                                        {/* Role Field */}
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <FormField
+                                                control={form.control}
+                                                name="password"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>Kata Sandi</FormLabel>
+                                                        <FormControl>
+                                                            <Input type="password" placeholder="Masukkan Kata Sandi" {...field} />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                            <FormField
+                                                control={form.control}
+                                                name="password_confirmation"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>Konfirmasi Kata Sandi</FormLabel>
+                                                        <FormControl>
+                                                            <Input type="password" placeholder="Ulangi Kata Sandi" {...field} />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+
                                         <FormField
                                             control={form.control}
                                             name="role"
@@ -130,7 +510,7 @@ export default function CreateUser({ roles }: { roles: { id: string; name: strin
                                                     <FormControl>
                                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                             <SelectTrigger className="w-full">
-                                                                <SelectValue placeholder="Select role" />
+                                                                <SelectValue placeholder="Pilih Role" />
                                                             </SelectTrigger>
                                                             <SelectContent>
                                                                 {roles.map((role) => (
@@ -146,49 +526,12 @@ export default function CreateUser({ roles }: { roles: { id: string; name: strin
                                             )}
                                         />
                                     </div>
-
-                                    <div className="space-y-4">
-                                        {/* Password Field */}
-                                        <FormField
-                                            control={form.control}
-                                            name="password"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>Password</FormLabel>
-                                                    <FormControl>
-                                                        <Input type="password" placeholder="Enter password" {...field} />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                        {/* Confirm Password Field */}
-                                        <FormField
-                                            control={form.control}
-                                            name="password_confirmation"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>Confirm Password</FormLabel>
-                                                    <FormControl>
-                                                        <Input
-                                                            type="password"
-                                                            placeholder="Confirm password"
-                                                            {...field}
-                                                            name="password_confirmation"
-                                                        />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                    </div>
                                 </div>
 
                                 {/* Submit & Cancel */}
                                 <div className="flex items-center gap-2">
                                     <Button type="submit" disabled={form.formState.isSubmitting}>
-                                        {form.formState.isSubmitting ? 'Creating...' : 'Create User'}
+                                        {form.formState.isSubmitting ? 'Creating...' : 'Tambah User'}
                                     </Button>
                                     <Link href={route('users.index')} className="text-muted-foreground text-sm hover:underline">
                                         Cancel

@@ -51,6 +51,7 @@ class MasterGensetWorkStandardController extends Controller
     public function edit(MasterGensetWorkStandard $masterGensetWorkStandard, $id)
     {
         $masterGensetWorkStandard = $masterGensetWorkStandard->findOrFail($id);
+
         return Inertia::render('master/genset-work-standard/edit', compact('masterGensetWorkStandard'));
     }
 

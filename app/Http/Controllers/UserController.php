@@ -42,9 +42,31 @@ class UserController extends Controller
         ]);
 
         $user = User::create([
-            'name' => $request->name,
+            'name' => strtoupper($request->name),
             'email' => $request->email,
             'password' => bcrypt($request->password),
+            'npp' => $request->npp,
+            'npp_sap' => $request->npp_sap,
+            'position_code' => $request->position_code,
+            'position_name' => $request->position_name,
+            'position_level' => $request->position_level,
+            'position_level_name' => $request->position_level_name,
+            'entity_group_code' => $request->entity_group_code,
+            'entity_code' => $request->entity_code,
+            'entity_name' => $request->entity_name,
+            'entity_alias_name' => $request->entity_alias_name,
+            'directorate_code' => $request->directorate_code,
+            'directorate_name' => $request->directorate_name,
+            'division_code' => $request->division_code,
+            'division_name' => $request->division_name,
+            'unit_code' => $request->unit_code,
+            'unit_name' => $request->unit_name,
+            'sub_unit_code' => $request->sub_unit_code,
+            'sub_unit_name' => $request->sub_unit_name,
+            'department_code' => $request->department_code,
+            'department_name' => $request->department_name,
+            'branch_manager_code' => $request->branch_manager_code,
+            'branch_manager_name' => $request->branch_manager_name,
         ]);
 
         $user->assignRole($request->role);
@@ -78,8 +100,30 @@ class UserController extends Controller
         ]);
 
         $user = User::findOrFail($id);
-        $user->name = $request->name;
+        $user->name = strtoupper($request->name);
         $user->email = $request->email;
+        $user->npp = $request->npp;
+        $user->npp_sap = $request->npp_sap;
+        $user->position_code = $request->position_code;
+        $user->position_name = $request->position_name;
+        $user->position_level = $request->position_level;
+        $user->position_level_name = $request->position_level_name;
+        $user->entity_group_code = $request->entity_group_code;
+        $user->entity_code = $request->entity_code;
+        $user->entity_name = $request->entity_name;
+        $user->entity_alias_name = $request->entity_alias_name;
+        $user->directorate_code = $request->directorate_code;
+        $user->directorate_name = $request->directorate_name;
+        $user->division_code = $request->division_code;
+        $user->division_name = $request->division_name;
+        $user->unit_code = $request->unit_code;
+        $user->unit_name = $request->unit_name;
+        $user->sub_unit_code = $request->sub_unit_code;
+        $user->sub_unit_name = $request->sub_unit_name;
+        $user->department_code = $request->department_code;
+        $user->department_name = $request->department_name;
+        $user->branch_manager_code = $request->branch_manager_code;
+        $user->branch_manager_name = $request->branch_manager_name;
 
         if ($request->filled('password')) {
             $user->password = bcrypt($request->password);
@@ -104,6 +148,9 @@ class UserController extends Controller
         if ($user->id === auth()->user()->id) {
             return redirect()->route('users.index')->with('error', 'You cannot delete your own account.');
         }
+
+        // Remove all roles first
+        $user->roles()->detach();
 
         $user->delete();
 

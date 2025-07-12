@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Finding extends Model
 {
-
     protected $guarded = [];
 
     public function nonconformityType()

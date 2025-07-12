@@ -1,27 +1,27 @@
 <?php
 
+use App\Http\Controllers\FindingController;
 use App\Http\Controllers\HseInformationController;
 use App\Http\Controllers\Master\MasterAcController;
 use App\Http\Controllers\Master\MasterAparController;
 use App\Http\Controllers\Master\MasterApdController;
 use App\Http\Controllers\Master\MasterBuildingController;
+use App\Http\Controllers\Master\MasterBuildingWorkStandardController;
 use App\Http\Controllers\Master\MasterConsequenceController;
 use App\Http\Controllers\Master\MasterEntityController;
 use App\Http\Controllers\Master\MasterGensetController;
+use App\Http\Controllers\Master\MasterGensetWorkStandardController;
+use App\Http\Controllers\Master\MasterHseCertificationController;
+use App\Http\Controllers\Master\MasterHseStatisticController;
 use App\Http\Controllers\Master\MasterK3lController;
 use App\Http\Controllers\Master\MasterLokasiController;
 use App\Http\Controllers\Master\MasterNonconformityTypeController;
 use App\Http\Controllers\Master\MasterP3kController;
 use App\Http\Controllers\Master\MasterPlantController;
-use App\Http\Controllers\Master\MasterProbabilityController;
-use App\Http\Controllers\Master\MasterHseCertificationController;
 use App\Http\Controllers\Master\MasterPriorityScaleController;
-use App\Http\Controllers\Master\MasterBuildingWorkStandardController;
-use App\Http\Controllers\Master\MasterGensetWorkStandardController;
-use App\Http\Controllers\Master\MasterHseStatisticController;
+use App\Http\Controllers\Master\MasterProbabilityController;
 use App\Http\Controllers\Master\MasterTestEquipmentReportController;
 use App\Http\Controllers\Master\MasterTestFacilityReportController;
-use App\Http\Controllers\FindingController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -45,8 +45,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('hse-information', HseInformationController::class);
     });
 
-    // Role Admin and Super Admin routes
-    Route::group(['middleware' => ['role:Admin|Super Admin']], function () {
+    // Role Admin and SuperAdmin routes
+    Route::group(['middleware' => ['role:Admin|SuperAdmin']], function () {
 
         // Master Data routes
         Route::resource('users', UserController::class);

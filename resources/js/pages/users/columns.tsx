@@ -21,6 +21,7 @@ export type User = {
     }>;
     id: string;
     name: string;
+    npp: string;
     email: string;
 };
 
@@ -34,6 +35,10 @@ export const columns: ColumnDef<User>[] = [
         header: 'Name',
     },
     {
+        accessorKey: 'npp',
+        header: 'NPP',
+    },
+    {
         accessorKey: 'email',
         header: 'Email',
     },
@@ -41,7 +46,33 @@ export const columns: ColumnDef<User>[] = [
         accessorKey: 'roles',
         header: 'Role',
         cell: ({ row }) => {
-            return row.original.roles[0]?.name ?? '-';
+            const role = row.original.roles[0]?.name;
+            const badgeStyles = {
+                SuperAdmin: 'bg-purple-100 text-purple-800',
+                Admin: 'bg-blue-100 text-blue-800',
+                Officer: 'bg-green-100 text-green-800',
+                Technician: 'bg-orange-100 text-orange-800',
+                Validator: 'bg-pink-100 text-pink-800',
+                Viewer: 'bg-gray-100 text-gray-800',
+            };
+            const icons = {
+                SuperAdmin: '👑',
+                Admin: '⚡',
+                Officer: '👮',
+                Technician: '🔧',
+                Validator: '✓',
+                Viewer: '👁️',
+            };
+            return role ? (
+                <span
+                    className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold ${badgeStyles[role as keyof typeof badgeStyles] || 'bg-gray-100 text-gray-800'}`}
+                >
+                    <span>{icons[role as keyof typeof icons]}</span>
+                    {role}
+                </span>
+            ) : (
+                '-'
+            );
         },
     },
     {

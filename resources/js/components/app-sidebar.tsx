@@ -2,8 +2,8 @@ import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/react';
+import {type NavItem, SharedData} from '@/types';
+import {Link, usePage} from '@inertiajs/react';
 import {
     BackpackIcon,
     BookOpen, BookUpIcon, BriefcaseMedical,
@@ -44,6 +44,7 @@ const mainNavItems: NavItemWithChildren[] = [
         title: 'Inspeksi',
         href: '#',
         icon: ComputerIcon,
+        roles: ['SuperAdmin', 'Admin'],
         children: [
             {
                 title: 'Inspeksi APAR',
@@ -87,6 +88,7 @@ const mainNavItems: NavItemWithChildren[] = [
         title: 'Analisis',
         href: '#',
         icon: ChartBarIcon,
+        roles: ['SuperAdmin', 'Admin'],
         children: [
             {
                 title: 'JSA',
@@ -125,6 +127,7 @@ const mainNavItems: NavItemWithChildren[] = [
         title: 'Laporan',
         href: '#',
         icon: BookUpIcon,
+        roles: ['SuperAdmin', 'Admin'],
         children: [
             {
                 title: 'Laporan P2K3',
@@ -148,6 +151,7 @@ const mainNavItems: NavItemWithChildren[] = [
         title: 'Manage',
         href: '#',
         icon: UsersIcon,
+        roles: ['SuperAdmin', 'Admin'],
         children: [
             {
                 title: 'Master Users',
@@ -271,7 +275,27 @@ const footerNavItems: NavItem[] = [
     },
 ];
 
+function filterNavItemsByRole(items: NavItemWithChildren[], role: string): NavItemWithChildren[] {
+    return items
+        .filter(item => {
+            // Jika item tidak punya role, berarti tersedia untuk semua
+            return !item.roles || item.roles.includes(role);
+        })
+        .map(item => ({
+            ...item,
+            // Jika ada children, filter juga berdasarkan role
+            children: item.children?.filter(child => {
+                return !child.roles || child.roles.includes(role);
+            }),
+        }));
+}
+
 export function AppSidebar() {
+    const { auth } = usePage<SharedData>().props;
+    const role = auth.role;
+
+    const filteredNavItems = filterNavItemsByRole(mainNavItems, role);
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
@@ -287,7 +311,7 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                <NavMain items={filteredNavItems} />
             </SidebarContent>
 
             <SidebarFooter>

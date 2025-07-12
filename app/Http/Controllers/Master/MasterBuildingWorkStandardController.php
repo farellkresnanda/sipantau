@@ -52,6 +52,7 @@ class MasterBuildingWorkStandardController extends Controller
     public function edit(MasterBuildingWorkStandard $masterBuildingWorkStandard, $id)
     {
         $masterBuildingWorkStandard = $masterBuildingWorkStandard->findOrFail($id);
+
         return Inertia::render('master/building-work-standard/edit', compact('masterBuildingWorkStandard'));
     }
 

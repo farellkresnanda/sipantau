@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Master\MasterNonconformityType;
 use App\Models\Finding;
 use App\Models\FindingApprovalHistory;
 use App\Models\FindingApprovalStage;
+use App\Models\Master\MasterNonconformityType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -95,6 +95,7 @@ class FindingController extends Controller
     public function show($id)
     {
         $finding = Finding::with(['nonconformityType', 'nonconformitySubType', 'findingApprovalHistories', 'findingStatus', 'createdBy'])->findOrFail($id);
+
         return Inertia::render('finding/show', compact('finding'));
     }
 
