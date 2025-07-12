@@ -79,11 +79,7 @@ export default function ImportMasterApar() {
                 <Card>
                     <CardContent className="p-6">
                         <Form {...form}>
-                            <form
-                                onSubmit={form.handleSubmit(onSubmit)}
-                                className="space-y-4"
-                                enonconformityType="multipart/form-data"
-                            >
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" encType="multipart/form-data">
                                 <FormField
                                     control={form.control}
                                     name="file"
@@ -91,11 +87,7 @@ export default function ImportMasterApar() {
                                         <FormItem>
                                             <FormLabel>Upload File Excel</FormLabel>
                                             <FormControl>
-                                                <Input
-                                                    type="file"
-                                                    accept=".xlsx,.csv"
-                                                    onChange={(e) => field.onChange(e.target.files?.[0])}
-                                                />
+                                                <Input type="file" accept=".xlsx,.csv" onChange={(e) => field.onChange(e.target.files?.[0])} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>

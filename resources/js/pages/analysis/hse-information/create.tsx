@@ -45,7 +45,7 @@ export default function CreateK3Info() {
             title: '',
             description: '',
             status: '',
-            image_path: '',
+            image_path: undefined, // Use undefined for file input
         },
     });
 
@@ -125,7 +125,7 @@ export default function CreateK3Info() {
                                     <FormField
                                         control={form.control}
                                         name="image_path"
-                                        render={({ field: { value, onChange, ...field } }) => (
+                                        render={({ field: { onChange, ...field } }) => (
                                             <FormItem>
                                                 <FormLabel>
                                                     Upload Gambar <span className="text-muted-foreground text-sm">(Ukuran berukuran A3)</span>
@@ -141,6 +141,7 @@ export default function CreateK3Info() {
                                                             }
                                                         }}
                                                         {...field}
+                                                        value={undefined}
                                                     />
                                                 </FormControl>
                                                 <FormMessage />

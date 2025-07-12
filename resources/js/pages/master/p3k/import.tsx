@@ -72,18 +72,11 @@ export default function ImportMasterApar() {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Import Master P3K" />
             <div className="space-y-6 p-4">
-                <SectionHeader
-                    title="Import Data Master P3K"
-                    subtitle="Unggah file Excel (.xlsx, .csv) berisi data P3K untuk diimport ke sistem."
-                />
+                <SectionHeader title="Import Data Master P3K" subtitle="Unggah file Excel (.xlsx, .csv) berisi data P3K untuk diimport ke sistem." />
                 <Card>
                     <CardContent className="p-6">
                         <Form {...form}>
-                            <form
-                                onSubmit={form.handleSubmit(onSubmit)}
-                                className="space-y-4"
-                                enonconformityType="multipart/form-data"
-                            >
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" encType="multipart/form-data">
                                 <FormField
                                     control={form.control}
                                     name="file"
@@ -91,11 +84,7 @@ export default function ImportMasterApar() {
                                         <FormItem>
                                             <FormLabel>Upload File Excel</FormLabel>
                                             <FormControl>
-                                                <Input
-                                                    type="file"
-                                                    accept=".xlsx,.csv"
-                                                    onChange={(e) => field.onChange(e.target.files?.[0])}
-                                                />
+                                                <Input type="file" accept=".xlsx,.csv" onChange={(e) => field.onChange(e.target.files?.[0])} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>

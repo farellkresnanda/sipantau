@@ -65,52 +65,41 @@ export default function ImportMasterAc() {
   }
 
   return (
-    <AppLayout breadcrumbs={breadcrumbs}>
-      <Head title="Import Master AC" />
-      <div className="space-y-6 p-4">
-        <SectionHeader
-          title="Import Data Master AC"
-          subtitle="Unggah file Excel (.xlsx, .csv) berisi data AC untuk diimport ke sistem."
-        />
-        <Card>
-          <CardContent className="p-6">
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-4"
-                enonconformityType="multipart/form-data"
-              >
-                <FormField
-                  control={form.control}
-                  name="file"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Upload File Excel</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="file"
-                          accept=".xlsx,.csv"
-                          onChange={(e) => field.onChange(e.target.files?.[0])}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+      <AppLayout breadcrumbs={breadcrumbs}>
+          <Head title="Import Master AC" />
+          <div className="space-y-6 p-4">
+              <SectionHeader title="Import Data Master AC" subtitle="Unggah file Excel (.xlsx, .csv) berisi data AC untuk diimport ke sistem." />
+              <Card>
+                  <CardContent className="p-6">
+                      <Form {...form}>
+                          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" encType="multipart/form-data">
+                              <FormField
+                                  control={form.control}
+                                  name="file"
+                                  render={({ field }) => (
+                                      <FormItem>
+                                          <FormLabel>Upload File Excel</FormLabel>
+                                          <FormControl>
+                                              <Input type="file" accept=".xlsx,.csv" onChange={(e) => field.onChange(e.target.files?.[0])} />
+                                          </FormControl>
+                                          <FormMessage />
+                                      </FormItem>
+                                  )}
+                              />
 
-                <div className="flex items-center gap-2">
-                  <Button type="submit" disabled={form.formState.isSubmitting}>
-                    {form.formState.isSubmitting ? 'Uploading...' : 'Upload'}
-                  </Button>
-                  <Link href={route('ac.index')} className="text-muted-foreground text-sm hover:underline">
-                    Cancel
-                  </Link>
-                </div>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
-      </div>
-    </AppLayout>
+                              <div className="flex items-center gap-2">
+                                  <Button type="submit" disabled={form.formState.isSubmitting}>
+                                      {form.formState.isSubmitting ? 'Uploading...' : 'Upload'}
+                                  </Button>
+                                  <Link href={route('ac.index')} className="text-muted-foreground text-sm hover:underline">
+                                      Cancel
+                                  </Link>
+                              </div>
+                          </form>
+                      </Form>
+                  </CardContent>
+              </Card>
+          </div>
+      </AppLayout>
   );
 }
