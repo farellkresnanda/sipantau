@@ -1,0 +1,148 @@
+'use client';
+
+import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Link } from '@inertiajs/react';
+import { ColumnDef } from '@tanstack/react-table';
+import { CheckCircle, Info, XCircle } from 'lucide-react';
+
+export const columns: ColumnDef<{
+    id: number;
+    finding_status: {
+        id: number;
+        name: string;
+    } | null;
+    car_number_auto: string;
+    date: string;
+    nonconformity_type: {
+        id: number;
+        name: string;
+    } | null;
+    finding_description: string;
+    location_details: string;
+}>[] = [
+    {
+        accessorKey: 'index',
+        header: 'No',
+        cell: ({ row }) => row.index + 1,
+    },
+    {
+        header: 'Status Temuan',
+        accessorKey: 'finding_status.name',
+        cell: ({ row }) => {
+            const status = row.original.finding_status;
+            const statusId = status?.id;
+            const statusName = status?.name || '-';
+
+            let icon = null;
+            let colorClasses = '';
+
+            switch (statusId) {
+                case 1:
+                    icon = <Info className="h-4 w-4" />;
+                    colorClasses = 'bg-blue-100 text-blue-700';
+                    break;
+                case 2:
+                    icon = <XCircle className="h-4 w-4" />;
+                    colorClasses = 'bg-red-100 text-red-700';
+                    break;
+                case 3:
+                    icon = <CheckCircle className="h-4 w-4" />;
+                    colorClasses = 'bg-green-100 text-green-700';
+                    break;
+                case 4:
+                    icon = <XCircle className="h-4 w-4" />;
+                    colorClasses = 'bg-orange-100 text-orange-700';
+                    break;
+                case 5:
+                    icon = <Info className="h-4 w-4" />;
+                    colorClasses = 'bg-yellow-100 text-yellow-700';
+                    break;
+                case 6:
+                    icon = <XCircle className="h-4 w-4" />;
+                    colorClasses = 'bg-purple-100 text-purple-700';
+                    break;
+                default:
+                    icon = null;
+                    colorClasses = 'bg-gray-100 text-gray-700';
+            }
+
+            return (
+                <Link href={`/finding/${row.original.id}`} className="inline-flex items-center gap-2 hover:underline">
+                    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${colorClasses}`}>
+                        {icon}
+                        {statusName}
+                    </span>
+                </Link>
+            );
+        },
+    },
+    {
+        accessorKey: 'car_number_auto',
+        header: 'Nomor CAR (Auto)',
+    },
+    {
+        accessorKey: 'date',
+        header: 'Tanggal',
+    },
+    {
+        accessorKey: 'nonconformity_type',
+        header: 'Ketidaksesuaian',
+        cell: ({ row }) => {
+            return row.original.nonconformity_type?.name ?? '-';
+        },
+    },
+    {
+        accessorKey: 'finding_description',
+        header: 'Deskripsi',
+        cell: ({ row }) => <div className="max-w-[200px] truncate">{row.getValue('finding_description')}</div>,
+    },
+    {
+        accessorKey: 'location_details',
+        header: 'Detail Lokasi Temuan',
+    },
+    {
+        id: 'actions',
+        cell: ({ row }) => {
+            const finding = row.original;
+            return (
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">Open menu</span>
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                className="h-4 w-4"
+                            >
+                                <circle cx="12" cy="12" r="1" />
+                                <circle cx="12" cy="5" r="1" />
+                                <circle cx="12" cy="19" r="1" />
+                            </svg>
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem asChild>
+                            <Link href={`/reports/finding/${finding.id}/edit`}>Edit</Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                            <Link
+                                href={`/reports/finding/${finding.id}`}
+                                method="delete"
+                                as="button"
+                                className="w-full text-left text-red-600 hover:text-red-700"
+                            >
+                                Delete
+                            </Link>
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            );
+        },
+    },
+];

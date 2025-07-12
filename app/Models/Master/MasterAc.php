@@ -6,17 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class MasterAc extends Model
 {
-    protected $table = 'master_ac';
-
     protected $guarded = [];
 
-    public function entitas()
+    public function entity()
     {
-        return $this->hasMany(MasterEntitas::class, 'kode_entitas', 'kode_entitas');
+        return $this->hasMany(MasterEntity::class, 'entity_code', 'entity_code');
     }
 
     public function plants()
     {
-        return $this->hasMany(MasterPlant::class, 'kode_plant', 'kode_plant');
+        return $this->hasMany(MasterPlant::class, 'plant_code', 'plant_code');
     }
-}   
+}

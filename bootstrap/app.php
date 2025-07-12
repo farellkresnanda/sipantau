@@ -37,15 +37,16 @@ return Application::configure(basePath: dirname(__DIR__))
             if ($request->expectsJson() || $request->is('api/*')) {
                 return response()->json([
                     'message' => $e->getMessage(),
-                    'status' => $e instanceof HttpExceptionInterface ? $e->getStatusCode() : 500
+                    'status' => $e instanceof HttpExceptionInterface ? $e->getStatusCode() : 500,
                 ], $e instanceof HttpExceptionInterface ? $e->getStatusCode() : 500);
             }
 
             if ($e instanceof HttpExceptionInterface) {
                 $status = $e->getStatusCode();
+
                 return Inertia::render('error', [
                     'status' => $status,
-                    'message' => $e->getMessage()
+                    'message' => $e->getMessage(),
                 ])->toResponse($request)->setStatusCode($status);
             }
 

@@ -8,14 +8,14 @@ import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { useEffect } from 'react';
-import { columns, MasterApd } from './columns';
+import { columns, masterApd } from './columns';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Home', href: '/' },
     { title: 'Master APD', href: '/master/apd' },
 ];
 
-export default function PageMasterApd({ masterApd }: { masterApd: MasterApd[] }) {
+export default function PagemasterApd({ masterApd }: { masterApd: masterApd[] }) {
     const { flash } = usePage().props as {
         flash?: { success?: string; error?: string; message?: string };
     };

@@ -35,10 +35,10 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 const formSchema = z.object({
-    kode_entitas: z.string().min(1, { message: 'Entitas wajib dipilih' }),
-    kode_plant: z.string().min(1, { message: 'Plant wajib dipilih' }),
-    ruang: z.string().min(1, { message: 'Ruang wajib diisi' }),
-    kode_inventaris: z.string().min(1, { message: 'Kode Inventaris wajib diisi' }),
+    entity_code: z.string().min(1, { message: 'Entitas wajib dipilih' }),
+    plant_code: z.string().min(1, { message: 'Plant wajib dipilih' }),
+    room: z.string().min(1, { message: 'Ruang wajib diisi' }),
+    inventory_code: z.string().min(1, { message: 'Kode Inventaris wajib diisi' }),
     merk: z.string().min(1, { message: 'Merk wajib diisi' }),
 });
 
@@ -46,33 +46,33 @@ type FormSchemaType = z.infer<typeof formSchema>;
 
 type Entitas = {
     id: number;
-    nama: string;
-    kode_entitas: string;
+    name: string;
+    entity_code: string;
 };
 
 type Plant = {
     id: number;
-    nama: string;
-    kode_entitas: string;
-    kode_plant: string;
+    name: string;
+    entity_code: string;
+    plant_code: string;
 };
 
 type MasterAcProps = {
     id: number;
-    kode_entitas: string;
-    kode_plant: string;
-    ruang: string;
-    kode_inventaris: string;
+    entity_code: string;
+    plant_code: string;
+    room: string;
+    inventory_code: string;
     merk: string;
 };
 
 export default function EditMasterAc({
     masterAc,
-    entitasList,
+    entityList,
     plantList,
 }: {
     masterAc: MasterAcProps;
-    entitasList: Entitas[];
+    entityList: Entitas[];
     plantList: Plant[];
 }) {
     const { errors } = usePage().props as {
@@ -82,18 +82,18 @@ export default function EditMasterAc({
     const form = useForm<FormSchemaType>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            kode_entitas: masterAc.kode_entitas,
-            kode_plant: masterAc.kode_plant,
-            ruang: masterAc.ruang,
-            kode_inventaris: masterAc.kode_inventaris,
+            entity_code: masterAc.entity_code,
+            plant_code: masterAc.plant_code,
+            room: masterAc.room,
+            inventory_code: masterAc.inventory_code,
             merk: masterAc.merk,
         },
     });
 
-    const currentKodeEntitas = form.watch('kode_entitas');
+    const currentKodeEntitas = form.watch('entity_code');
 
     const filteredPlants = useMemo(() => {
-        return plantList.filter((plant) => plant.kode_entitas === currentKodeEntitas);
+        return plantList.filter((plant) => plant.entity_code === currentKodeEntitas);
     }, [currentKodeEntitas, plantList]);
 
     useEffect(() => {
@@ -115,7 +115,7 @@ export default function EditMasterAc({
             <div className="space-y-6 p-4">
                 <SectionHeader
                     title="Edit Master AC"
-                    subtitle="Perbarui data AC berdasarkan entitas dan lokasi penempatan."
+                    subtitle="Perbarui data AC berdasarkan entity dan location penempatan."
                 />
 
                 <Card>
@@ -127,7 +127,7 @@ export default function EditMasterAc({
                                     <div className="space-y-4">
                                         <FormField
                                             control={form.control}
-                                            name="kode_entitas"
+                                            name="entity_code"
                                             render={({ field }) => (
                                                 <FormItem className="w-full">
                                                     <FormLabel>Entitas</FormLabel>
@@ -136,16 +136,16 @@ export default function EditMasterAc({
                                                             value={field.value}
                                                             onValueChange={(val) => {
                                                                 field.onChange(val);
-                                                                form.setValue('kode_plant', '');
+                                                                form.setValue('plant_code', '');
                                                             }}
                                                         >
                                                             <SelectTrigger className="w-full">
-                                                                <SelectValue placeholder="Pilih entitas" />
+                                                                <SelectValue placeholder="Pilih entity" />
                                                             </SelectTrigger>
                                                             <SelectContent>
-                                                                {entitasList.map((ent) => (
-                                                                    <SelectItem key={ent.kode_entitas} value={ent.kode_entitas}>
-                                                                        {ent.nama}
+                                                                {entityList.map((ent) => (
+                                                                    <SelectItem key={ent.entity_code} value={ent.entity_code}>
+                                                                        {ent.name}
                                                                     </SelectItem>
                                                                 ))}
                                                             </SelectContent>
@@ -158,7 +158,7 @@ export default function EditMasterAc({
 
                                         <FormField
                                             control={form.control}
-                                            name="kode_plant"
+                                            name="plant_code"
                                             render={({ field }) => (
                                                 <FormItem className="w-full">
                                                     <FormLabel>Plant</FormLabel>
@@ -173,8 +173,8 @@ export default function EditMasterAc({
                                                             </SelectTrigger>
                                                             <SelectContent>
                                                                 {filteredPlants.map((plant) => (
-                                                                    <SelectItem key={plant.kode_plant} value={plant.kode_plant}>
-                                                                        {plant.nama}
+                                                                    <SelectItem key={plant.plant_code} value={plant.plant_code}>
+                                                                        {plant.name}
                                                                     </SelectItem>
                                                                 ))}
                                                             </SelectContent>
@@ -187,12 +187,12 @@ export default function EditMasterAc({
 
                                         <FormField
                                             control={form.control}
-                                            name="ruang"
+                                            name="room"
                                             render={({ field }) => (
                                                 <FormItem className="w-full">
                                                     <FormLabel>Ruang</FormLabel>
                                                     <FormControl>
-                                                        <Input placeholder="Masukkan ruang" {...field} />
+                                                        <Input placeholder="Masukkan room" {...field} />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -204,7 +204,7 @@ export default function EditMasterAc({
                                     <div className="space-y-4">
                                         <FormField
                                             control={form.control}
-                                            name="kode_inventaris"
+                                            name="inventory_code"
                                             render={({ field }) => (
                                                 <FormItem className="w-full">
                                                     <FormLabel>Kode Inventaris</FormLabel>

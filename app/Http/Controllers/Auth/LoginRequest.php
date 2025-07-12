@@ -2,14 +2,14 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Rules\Recaptcha;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
-use Illuminate\Validation\ValidationException;
-use App\Rules\Recaptcha;
-use Illuminate\Support\Facades\Log; // Pastikan ini ada
+use Illuminate\Validation\ValidationException; // Pastikan ini ada
 
 class LoginRequest extends FormRequest
 {
@@ -29,7 +29,7 @@ class LoginRequest extends FormRequest
             'password' => ['required', 'string'],
             // ✅ Aturan 'required' ini harus MENANGKAP jika field dihapus total
             // ✅ new Recaptcha() ini harus MENANGKAP jika field ada tapi kosong/invalid
-            'g-recaptcha-response' => ['required', new Recaptcha()],
+            'g-recaptcha-response' => ['required', new Recaptcha],
         ];
     }
 
@@ -49,28 +49,27 @@ class LoginRequest extends FormRequest
     {
         Log::warning('LoginRequest: Validation failed for login attempt.', $validator->errors()->toArray());
         throw (new ValidationException($validator))
-                    ->errorBag($this->errorBag)
-                    ->redirectTo($this->getRedirectUrl());
+            ->errorBag($this->errorBag)
+            ->redirectTo($this->getRedirectUrl());
     }
-
 
     public function authenticate(): void
     {
         $this->ensureIsNotRateLimited();
 
         // ✅ Log sebelum mencoba otentikasi
-        Log::debug('LoginRequest: Attempting authentication for email: ' . $this->input('email'));
+        Log::debug('LoginRequest: Attempting authentication for email: '.$this->input('email'));
 
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
-            Log::warning('LoginRequest: Authentication failed (credentials) for email: ' . $this->input('email'));
+            Log::warning('LoginRequest: Authentication failed (credentials) for email: '.$this->input('email'));
             throw ValidationException::withMessages([
                 'email' => trans('auth.failed'),
             ]);
         }
 
-        Log::info('LoginRequest: User authenticated successfully: ' . $this->input('email'));
+        Log::info('LoginRequest: User authenticated successfully: '.$this->input('email'));
         RateLimiter::clear($this->throttleKey());
     }
 

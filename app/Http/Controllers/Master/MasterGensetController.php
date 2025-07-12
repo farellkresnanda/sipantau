@@ -36,13 +36,13 @@ class MasterGensetController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'jenis_mesin'            => 'required|string|max:100',
-            'merk'                   => 'required|string|max:100',
-            'model'                  => 'required|string|max:100',
-            'negara_thn_pembuatan'  => 'required|string|max:100',
-            'pabrik_pembuat'        => 'required|string|max:150',
-            'no_seri'                => 'required|string|max:100',
-            'kapasitas'             => 'required|string|max:50',
+            'machine_type' => 'required|string|max:100',
+            'merk' => 'required|string|max:100',
+            'model' => 'required|string|max:100',
+            'country_year_of_manufacture' => 'required|string|max:100',
+            'manufacturer' => 'required|string|max:150',
+            'serial_number' => 'required|string|max:100',
+            'capacity' => 'required|string|max:50',
         ]);
 
         MasterGenset::create($validated);
@@ -67,13 +67,13 @@ class MasterGensetController extends Controller
     public function update(Request $request, MasterGenset $genset)
     {
         $validated = $request->validate([
-            'jenis_mesin'            => 'required|string|max:100',
-            'merk'                   => 'required|string|max:100',
-            'model'                  => 'required|string|max:100',
-            'negara_thn_pembuatan'  => 'required|string|max:100',
-            'pabrik_pembuat'        => 'required|string|max:150',
-            'no_seri'                => 'required|string|max:100',
-            'kapasitas'             => 'required|string|max:50',
+            'machine_type' => 'required|string|max:100',
+            'merk' => 'required|string|max:100',
+            'model' => 'required|string|max:100',
+            'country_year_of_manufacture' => 'required|string|max:100',
+            'manufacturer' => 'required|string|max:150',
+            'serial_number' => 'required|string|max:100',
+            'capacity' => 'required|string|max:50',
         ]);
 
         $genset->update($validated);

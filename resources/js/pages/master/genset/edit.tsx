@@ -27,39 +27,39 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 const formSchema = z.object({
-  jenis_mesin: z.string().min(1, 'Jenis mesin wajib diisi'),
+  machine_type: z.string().min(1, 'Jenis mesin wajib diisi'),
   merk: z.string().min(1, 'Merk wajib diisi'),
   model: z.string().min(1, 'Model wajib diisi'),
-  negara_thn_pembuatan: z.string().min(1, 'Negara & tahun pembuatan wajib diisi'),
-  pabrik_pembuat: z.string().min(1, 'Pabrik pembuat wajib diisi'),
-  no_seri: z.string().min(1, 'No seri wajib diisi'),
-  kapasitas: z.string().min(1, 'Kapasitas wajib diisi'),
+  country_year_of_manufacture: z.string().min(1, 'Negara & tahun pembuatan wajib diisi'),
+  manufacturer: z.string().min(1, 'Pabrik pembuat wajib diisi'),
+  serial_number: z.string().min(1, 'No seri wajib diisi'),
+  capacity: z.string().min(1, 'Kapasitas wajib diisi'),
 });
 
 type FormSchemaType = z.infer<typeof formSchema>;
 
 type MasterGenset = {
   id: number;
-  jenis_mesin: string;
+  machine_type: string;
   merk: string;
   model: string;
-  negara_thn_pembuatan: string;
-  pabrik_pembuat: string;
-  no_seri: string;
-  kapasitas: string;
+  country_year_of_manufacture: string;
+  manufacturer: string;
+  serial_number: string;
+  capacity: string;
 };
 
 export default function EditMasterGenset({ masterGenset }: { masterGenset: MasterGenset }) {
   const form = useForm<FormSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      jenis_mesin: masterGenset.jenis_mesin || '',
+      machine_type: masterGenset.machine_type || '',
       merk: masterGenset.merk || '',
       model: masterGenset.model || '',
-      negara_thn_pembuatan: masterGenset.negara_thn_pembuatan || '',
-      pabrik_pembuat: masterGenset.pabrik_pembuat || '',
-      no_seri: masterGenset.no_seri || '',
-      kapasitas: masterGenset.kapasitas || '',
+      country_year_of_manufacture: masterGenset.country_year_of_manufacture || '',
+      manufacturer: masterGenset.manufacturer || '',
+      serial_number: masterGenset.serial_number || '',
+      capacity: masterGenset.capacity || '',
     },
   });
 
@@ -85,7 +85,7 @@ export default function EditMasterGenset({ masterGenset }: { masterGenset: Maste
                   <div className="space-y-4">
                     <FormField
                       control={form.control}
-                      name="jenis_mesin"
+                      name="machine_type"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Jenis Mesin</FormLabel>
@@ -124,7 +124,7 @@ export default function EditMasterGenset({ masterGenset }: { masterGenset: Maste
                     />
                     <FormField
                       control={form.control}
-                      name="negara_thn_pembuatan"
+                      name="country_year_of_manufacture"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Negara & Tahun Pembuatan</FormLabel>
@@ -141,7 +141,7 @@ export default function EditMasterGenset({ masterGenset }: { masterGenset: Maste
                   <div className="space-y-4">
                     <FormField
                       control={form.control}
-                      name="pabrik_pembuat"
+                      name="manufacturer"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Pabrik Pembuat</FormLabel>
@@ -154,7 +154,7 @@ export default function EditMasterGenset({ masterGenset }: { masterGenset: Maste
                     />
                     <FormField
                       control={form.control}
-                      name="no_seri"
+                      name="serial_number"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>No Seri</FormLabel>
@@ -167,7 +167,7 @@ export default function EditMasterGenset({ masterGenset }: { masterGenset: Maste
                     />
                     <FormField
                       control={form.control}
-                      name="kapasitas"
+                      name="capacity"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Kapasitas</FormLabel>

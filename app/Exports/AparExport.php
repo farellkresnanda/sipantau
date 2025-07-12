@@ -4,24 +4,24 @@ namespace App\Exports;
 
 use App\Models\Master\MasterApar;
 use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Events\AfterSheet;
 
-class AparExport implements FromCollection, WithHeadings, ShouldAutoSize, WithEvents
+class AparExport implements FromCollection, ShouldAutoSize, WithEvents, WithHeadings
 {
     public function collection()
     {
         return MasterApar::select(
-            'kode_entitas',
-            'kode_plant',
-            'no_apar',
-            'kode_ruang',
-            'lokasi',
-            'jenis',
+            'entity_code',
+            'plant_code',
+            'apar_no',
+            'room_code',
+            'location',
+            'type',
             'apar',
-            'kode_inventaris'
+            'inventory_code'
         )->get();
     }
 
@@ -35,7 +35,7 @@ class AparExport implements FromCollection, WithHeadings, ShouldAutoSize, WithEv
             'Lokasi',
             'Jenis',
             'Type',
-            'Kode Inventaris'
+            'Kode Inventaris',
         ];
     }
 
@@ -66,7 +66,7 @@ class AparExport implements FromCollection, WithHeadings, ShouldAutoSize, WithEv
                 $sheet->getStyle($cellRange)->getAlignment()->setVertical('center');
 
                 // Style khusus untuk heading (baris pertama)
-                $sheet->getStyle('A1:' . $columnCount . '1')->applyFromArray([
+                $sheet->getStyle('A1:'.$columnCount.'1')->applyFromArray([
                     'fill' => [
                         'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
                         'startColor' => ['argb' => 'D9D9D9'], // abu-abu terang

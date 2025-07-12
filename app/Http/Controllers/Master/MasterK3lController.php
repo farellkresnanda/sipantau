@@ -4,10 +4,9 @@ namespace App\Http\Controllers\Master;
 
 use App\Http\Controllers\Controller;
 use App\Models\Master\MasterK3l;
-use App\Models\Master\MasterK3lDeskripsi;
-use Illuminate\Support\Facades\DB;
-
+use App\Models\Master\MasterK3lDescription;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class MasterK3lController extends Controller
@@ -18,7 +17,8 @@ class MasterK3lController extends Controller
     public function index()
     {
 
-        $k3List = MasterK3l::latest()->with('deskripsi')->get();
+        $k3List = MasterK3l::latest()->with('description')->get();
+
         return Inertia::render('master/k3l/page', compact('k3List'));
     }
 
@@ -36,28 +36,27 @@ class MasterK3lController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'tujuan' => 'required|string|max:255',
-            'deskripsi' => 'required|array|min:1',
-            'deskripsi.*.deskripsi' => 'required|string|max:255',
+            'objective' => 'required|string|max:255',
+            'description' => 'required|array|min:1',
+            'description.*.description' => 'required|string|max:255',
         ]);
 
         DB::transaction(function () use ($validated) {
-            // Simpan tujuan ke master_k3l
+            // Simpan objective ke master_k3l
             $masterK3l = MasterK3l::create([
-                'tujuan' => $validated['tujuan'],
+                'objective' => $validated['objective'],
             ]);
 
-            // Simpan deskripsi ke master_k3l_deskripsi
-            foreach ($validated['deskripsi'] as $item) {
-                $masterK3l->deskripsi()->create([
-                    'deskripsi' => $item['deskripsi'],
+            // Simpan description ke master_k3l_description
+            foreach ($validated['description'] as $item) {
+                $masterK3l->description()->create([
+                    'description' => $item['description'],
                 ]);
             }
         });
 
         return redirect()->route('k3l.index')->with('success', 'Data berhasil ditambahkan');
     }
-
 
     /**
      * Display the specified resource.
@@ -72,52 +71,50 @@ class MasterK3lController extends Controller
      */
     public function edit($id)
     {
-        $k3l = MasterK3l::with('deskripsi')->findOrFail($id);
+        $k3l = MasterK3l::with('description')->findOrFail($id);
 
         return Inertia::render('master/k3l/edit', [
             'data' => [
                 'id' => $k3l->id,
-                'tujuan' => $k3l->tujuan,
-                'deskripsi' => $k3l->deskripsi->map(fn($d) => [
+                'objective' => $k3l->objective,
+                'description' => $k3l->description->map(fn ($d) => [
                     'id' => $d->id,
-                    'deskripsi' => $d->deskripsi
+                    'description' => $d->description,
                 ]),
-            ]
+            ],
         ]);
     }
-
-
 
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'tujuan' => 'required|string|max:255',
-            'deskripsi' => 'required|array|min:1',
-            'deskripsi.*.id' => 'nullable|exists:master_k3l_deskripsi,id',
-            'deskripsi.*.deskripsi' => 'required|string|max:255',
+            'objective' => 'required|string|max:255',
+            'description' => 'required|array|min:1',
+            'description.*.id' => 'nullable|exists:master_k3l_description,id',
+            'description.*.description' => 'required|string|max:255',
         ]);
 
         DB::transaction(function () use ($validated, $id) {
             $k3l = MasterK3l::findOrFail($id);
-            $k3l->update(['tujuan' => $validated['tujuan']]);
+            $k3l->update(['objective' => $validated['objective']]);
 
             // ID yang dikirim dari form
-            $incomingIds = collect($validated['deskripsi'])->pluck('id')->filter()->toArray();
+            $incomingIds = collect($validated['description'])->pluck('id')->filter()->toArray();
 
-            // Hapus deskripsi lama yang tidak dikirim lagi
-            $existingIds = $k3l->deskripsi()->pluck('id')->toArray();
+            // Hapus description lama yang tidak dikirim lagi
+            $existingIds = $k3l->description()->pluck('id')->toArray();
             $toDelete = array_diff($existingIds, $incomingIds);
-            MasterK3lDeskripsi::destroy($toDelete);
+            MasterK3lDescription::destroy($toDelete);
 
-            // Tambah atau update deskripsi
-            foreach ($validated['deskripsi'] as $desc) {
+            // Tambah atau update description
+            foreach ($validated['description'] as $desc) {
                 if (isset($desc['id'])) {
-                    MasterK3lDeskripsi::where('id', $desc['id'])->update([
-                        'deskripsi' => $desc['deskripsi']
+                    MasterK3lDescription::where('id', $desc['id'])->update([
+                        'description' => $desc['description'],
                     ]);
                 } else {
-                    $k3l->deskripsi()->create([
-                        'deskripsi' => $desc['deskripsi']
+                    $k3l->description()->create([
+                        'description' => $desc['description'],
                     ]);
                 }
             }
@@ -132,9 +129,8 @@ class MasterK3lController extends Controller
     public function destroy(MasterK3l $masterK3l, $id)
     {
         $masterK3l = $masterK3l->findOrFail($id);
-        MasterK3lDeskripsi::where('master_k3l_id', $id)->delete();
+        MasterK3lDescription::where('master_k3l_id', $id)->delete();
         $masterK3l->delete();
-
 
         activity()->log('User deleted a master K3l');
 

@@ -32,7 +32,7 @@ export default function AboutUs() {
                         <ul className="ml-4 list-none space-y-2 text-sm">
                             <li className="flex items-center">
                                 <span className="mr-2">✅</span>
-                                <p className="text-sm">Melaporkan temuan K3 secara real-time</p>
+                                <p className="text-sm">Melaporkan finding K3 secara real-time</p>
                             </li>
                             <li className="flex items-center">
                                 <span className="mr-2">✅</span>

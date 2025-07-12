@@ -29,11 +29,11 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 // Validasi zod
 const formSchema = z.object({
-    nama_apd: z.string().min(1, { message: 'Nama APD wajib diisi' }).max(255),
-    kriteria_inspeksi: z.string().min(1, { message: 'Kriteria inspeksi wajib diisi' }),
+    apd_name: z.string().min(1, { message: 'Nama APD wajib diisi' }).max(255),
+    inspection_criteria: z.string().min(1, { message: 'Kriteria inspeksi wajib diisi' }),
 });
 
-export default function CreateMasterApd() {
+export default function CreatemasterApd() {
     const { errors } = usePage().props as {
         errors: Record<string, string>;
     };
@@ -41,8 +41,8 @@ export default function CreateMasterApd() {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            nama_apd: '',
-            kriteria_inspeksi: '',
+            apd_name: '',
+            inspection_criteria: '',
         },
     });
 
@@ -69,7 +69,7 @@ export default function CreateMasterApd() {
                 <div className="flex items-center justify-between">
                     <SectionHeader
                         title="Buat Master APD"
-                        subtitle="Masukkan data nama APD dan kriteria inspeksi yang sesuai."
+                        subtitle="Masukkan data name APD dan kriteria inspeksi yang sesuai."
                     />
                 </div>
 
@@ -79,7 +79,7 @@ export default function CreateMasterApd() {
                             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                                 <FormField
                                     control={form.control}
-                                    name="nama_apd"
+                                    name="apd_name"
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Nama APD</FormLabel>
@@ -93,7 +93,7 @@ export default function CreateMasterApd() {
 
                                 <FormField
                                     control={form.control}
-                                    name="kriteria_inspeksi"
+                                    name="inspection_criteria"
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Kriteria Inspeksi</FormLabel>

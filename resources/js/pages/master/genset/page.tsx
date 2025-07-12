@@ -20,13 +20,13 @@ const breadcrumbs = [
 // Tipe data langsung di sini
 type MasterGenset = {
   id: number;
-  jenis_mesin: string;
+  machine_type: string;
   merk: string;
   model: string;
-  negara_thn_pembuatan: string;
-  pabrik_pembuat: string;
-  no_seri: string;
-  kapasitas: string;
+  country_year_of_manufacture: string;
+  manufacturer: string;
+  serial_number: string;
+  capacity: string;
 };
 
 export default function PageGenset({ gensets }: { gensets: MasterGenset[] }) {

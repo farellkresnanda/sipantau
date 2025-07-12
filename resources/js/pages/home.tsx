@@ -33,35 +33,35 @@ const data = [
     { name: "Dec", total: 1700 },
 ]
 
-const temuan = [
+const finding = [
     {
         name: 'Fajar Rizky',
         email: 'fajar.rizky@kimiafarma.co.id',
-        temuan: 'Kebocoran Gas',
+        finding: 'Kebocoran Gas',
         created_at: '2024-01-20 09:30:00',
     },
     {
         name: 'Siti Aminah',
         email: 'siti.aminah@kimiafarma.co.id',
-        temuan: 'Alat Safety Rusak',
+        finding: 'Alat Safety Rusak',
         created_at: '2024-01-19 14:15:00',
     },
     {
         name: 'Budi Santoso',
         email: 'budi.santoso@kimiafarma.co.id',
-        temuan: 'Pencahayaan Kurang',
+        finding: 'Pencahayaan Kurang',
         created_at: '2024-01-18 11:45:00',
     },
     {
         name: 'Dewi Putri',
         email: 'dewi.putri@kimiafarma.co.id',
-        temuan: 'Lantai Licin',
+        finding: 'Lantai Licin',
         created_at: '2024-01-17 16:20:00',
     },
     {
         name: 'Ahmad Rahman',
         email: 'ahmad.rahman@kimiafarma.co.id',
-        temuan: 'APD Tidak Lengkap',
+        finding: 'APD Tidak Lengkap',
         created_at: '2024-01-16 10:00:00',
     },
 ];
@@ -144,7 +144,7 @@ export default function Dashboard() {
                             <p className="text-muted-foreground text-sm">Temuan terbaru yang dilaporkan oleh user</p>
                         </CardHeader>
                         <CardContent className="grid gap-6">
-                            {temuan.map((item, index) => (
+                            {finding.map((item, index) => (
                                 <div key={index} className="flex items-center gap-4">
                                     <Avatar className="h-9 w-9">
                                         <AvatarImage src={`https://api.dicebear.com/7.x/micah/svg?seed=${item.name}`} />
@@ -153,7 +153,7 @@ export default function Dashboard() {
                                     <div className="flex flex-1 items-start justify-between gap-4">
                                         <div className="space-y-1">
                                             <p className="text-sm leading-none font-medium">{item.name}</p>
-                                            <p className="text-muted-foreground text-sm">{item.temuan}</p>
+                                            <p className="text-muted-foreground text-sm">{item.finding}</p>
                                         </div>
                                         <div className="text-muted-foreground ml-auto text-right text-sm whitespace-nowrap">
                                             {new Date(item.created_at)

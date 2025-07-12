@@ -17,13 +17,13 @@ import { MoreHorizontal } from 'lucide-react';
 
 export type MasterPlant = {
     id: string;
-    kode_entitas: string;
-    kode_plant: string;
-    nama: string;
+    entity_code: string;
+    plant_code: string;
+    name: string;
     created_at?: string;
     updated_at?: string;
-    join_entitas?: {
-        nama: string;
+    join_entity?: {
+        name: string;
     };
 };
 
@@ -34,15 +34,15 @@ export const columns: ColumnDef<MasterPlant>[] = [
     },
     {
         header: 'Entitas',
-        id: 'entitas',
+        id: 'entity',
         cell: ({ row }) => {
-            return row.original.join_entitas?.nama ?? '-'; // PAKAI UNDERSCORE
+            return row.original.join_entity?.name ?? '-'; // PAKAI UNDERSCORE
         },
     },
 
     {
-        accessorKey: 'nama',
-        header: 'Nama',
+        accessorKey: 'name',
+        header: 'Plant',
     },
     {
         accessorKey: 'created_at',

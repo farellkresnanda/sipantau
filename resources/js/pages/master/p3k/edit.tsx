@@ -34,44 +34,44 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Edit Master P3K', href: '#' },
 ];
 
-const jenisOptions = ['01', '02', '03'];
+const typeOptions = ['01', '02', '03'];
 
 const formSchema = z.object({
-    kode_entitas: z.string().min(1, { message: 'Entitas wajib dipilih' }),
-    kode_plant: z.string().min(1, { message: 'Plant wajib dipilih' }),
+    entity_code: z.string().min(1, { message: 'Entitas wajib dipilih' }),
+    plant_code: z.string().min(1, { message: 'Plant wajib dipilih' }),
     no_p3k: z.string().min(1, { message: 'No P3K wajib diisi' }),
-    kode_ruang: z.string().min(1, { message: 'Kode Ruang wajib diisi' }),
-    lokasi: z.string().min(1, { message: 'Lokasi wajib diisi' }),
-    jenis: z.string().min(1, { message: 'Jenis wajib dipilih' }),
-    kode_inventaris: z.string().min(1, { message: 'Kode Inventaris wajib diisi' }),
+    room_code: z.string().min(1, { message: 'Kode Ruang wajib diisi' }),
+    location: z.string().min(1, { message: 'Lokasi wajib diisi' }),
+    type: z.string().min(1, { message: 'Jenis wajib dipilih' }),
+    inventory_code: z.string().min(1, { message: 'Kode Inventaris wajib diisi' }),
 });
 
 type FormSchemaType = z.infer<typeof formSchema>;
 
 type Plant = {
     id: string;
-    nama_plant: string;
-    kode_entitas: string;
-    kode_plant: string;
-    entitas_nama: string;
+    name_plant: string;
+    entity_code: string;
+    plant_code: string;
+    entity_name: string;
 };
 
 type MasterP3kProp = {
     id: number;
-    kode_entitas: string;
-    kode_plant: string;
+    entity_code: string;
+    plant_code: string;
     no_p3k: string;
-    kode_ruang: string;
-    lokasi: string;
-    jenis: string;
-    kode_inventaris: string;
-    entitasData: {
-        kode_entitas: string;
-        nama: string;
+    room_code: string;
+    location: string;
+    type: string;
+    inventory_code: string;
+    entityData: {
+        entity_code: string;
+        name: string;
     } | null;
     plantData: {
-        kode_plant: string;
-        nama: string;
+        plant_code: string;
+        name: string;
     } | null;
 };
 
@@ -89,22 +89,22 @@ export default function EditMasterP3k({
     const form = useForm<FormSchemaType>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            kode_entitas: masterP3k.kode_entitas || '',
-            kode_plant: masterP3k.kode_plant || '',
+            entity_code: masterP3k.entity_code || '',
+            plant_code: masterP3k.plant_code || '',
             no_p3k: masterP3k.no_p3k || '',
-            kode_ruang: masterP3k.kode_ruang || '',
-            lokasi: masterP3k.lokasi || '',
-            jenis: masterP3k.jenis || '',
-            kode_inventaris: masterP3k.kode_inventaris || '',
+            room_code: masterP3k.room_code || '',
+            location: masterP3k.location || '',
+            type: masterP3k.type || '',
+            inventory_code: masterP3k.inventory_code || '',
         },
     });
 
-    const currentKodeEntitas = form.watch('kode_entitas');
-    const currentKodePlant = form.watch('kode_plant');
+    const currentKodeEntitas = form.watch('entity_code');
+    const currentKodePlant = form.watch('plant_code');
 
     const groupedPlants = useMemo(() => {
         return plants.reduce((acc, plant) => {
-            const alias = plant.entitas_nama;
+            const alias = plant.entity_name;
             if (!acc[alias]) acc[alias] = [];
             acc[alias].push(plant);
             return acc;
@@ -113,16 +113,16 @@ export default function EditMasterP3k({
 
     const selectedEntitasName = useMemo(() => {
         const found = Object.values(groupedPlants).flat().find(
-            (plant) => plant.kode_entitas === currentKodeEntitas
+            (plant) => plant.entity_code === currentKodeEntitas
         );
-        return found ? found.entitas_nama : 'Pilih entitas';
+        return found ? found.entity_name : 'Pilih entity';
     }, [groupedPlants, currentKodeEntitas]);
 
     const selectedPlantName = useMemo(() => {
         const found = plants.find(
-            (plant) => plant.kode_plant === currentKodePlant && plant.kode_entitas === currentKodeEntitas
+            (plant) => plant.plant_code === currentKodePlant && plant.entity_code === currentKodeEntitas
         );
-        return found ? found.nama_plant : 'Pilih plant';
+        return found ? found.name_plant : 'Pilih plant';
     }, [plants, currentKodePlant, currentKodeEntitas]);
 
     useEffect(() => {
@@ -144,7 +144,7 @@ export default function EditMasterP3k({
             <div className="space-y-6 p-4">
                 <SectionHeader
                     title="Edit Master P3K"
-                    subtitle="Perbarui informasi lokasi dan identitas kotak P3K."
+                    subtitle="Perbarui informasi lokasi dan identitas P3K"
                 />
 
                 <Card>
@@ -157,7 +157,7 @@ export default function EditMasterP3k({
                                         {/* Entitas (Dropdown) */}
                                         <FormField
                                             control={form.control}
-                                            name="kode_entitas"
+                                            name="entity_code"
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormLabel>Entitas</FormLabel>
@@ -165,21 +165,21 @@ export default function EditMasterP3k({
                                                         value={field.value}
                                                         onValueChange={(value) => {
                                                             field.onChange(value);
-                                                            form.setValue('kode_plant', '');
+                                                            form.setValue('plant_code', '');
                                                         }}
                                                     >
                                                         <SelectTrigger className="w-full">
-                                                            <SelectValue placeholder="Pilih entitas">
+                                                            <SelectValue placeholder="Pilih entity">
                                                                 {selectedEntitasName}
                                                             </SelectValue>
                                                         </SelectTrigger>
                                                         <SelectContent>
-                                                            {Object.keys(groupedPlants).map(entitasNama => (
+                                                            {Object.keys(groupedPlants).map(entityNama => (
                                                                 <SelectItem
-                                                                    key={groupedPlants[entitasNama][0].kode_entitas}
-                                                                    value={groupedPlants[entitasNama][0].kode_entitas}
+                                                                    key={groupedPlants[entityNama][0].entity_code}
+                                                                    value={groupedPlants[entityNama][0].entity_code}
                                                                 >
-                                                                    {entitasNama}
+                                                                    {entityNama}
                                                                 </SelectItem>
                                                             ))}
                                                         </SelectContent>
@@ -192,7 +192,7 @@ export default function EditMasterP3k({
                                         {/* Plant (Dropdown) */}
                                         <FormField
                                             control={form.control}
-                                            name="kode_plant"
+                                            name="plant_code"
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormLabel>Plant</FormLabel>
@@ -210,13 +210,13 @@ export default function EditMasterP3k({
                                                         </SelectTrigger>
                                                         <SelectContent>
                                                             {plants
-                                                                .filter(plant => plant.kode_entitas === currentKodeEntitas)
+                                                                .filter(plant => plant.entity_code === currentKodeEntitas)
                                                                 .map(plant => (
                                                                     <SelectItem
-                                                                        key={plant.kode_plant}
-                                                                        value={plant.kode_plant}
+                                                                        key={plant.plant_code}
+                                                                        value={plant.plant_code}
                                                                     >
-                                                                        {plant.nama_plant}
+                                                                        {plant.name_plant}
                                                                     </SelectItem>
                                                                 ))}
                                                         </SelectContent>
@@ -244,12 +244,12 @@ export default function EditMasterP3k({
                                         {/* Kode Ruang - Pindah ke kolom kiri */}
                                         <FormField
                                             control={form.control}
-                                            name="kode_ruang"
+                                            name="room_code"
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormLabel>Kode Ruang</FormLabel>
                                                     <FormControl>
-                                                        <Input placeholder="Masukkan kode ruang" {...field} />
+                                                        <Input placeholder="Masukkan kode room" {...field} />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -262,12 +262,12 @@ export default function EditMasterP3k({
                                         {/* Lokasi - Tetap di kolom kanan */}
                                         <FormField
                                             control={form.control}
-                                            name="lokasi"
+                                            name="location"
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormLabel>Lokasi</FormLabel>
                                                     <FormControl>
-                                                        <Input placeholder="Masukkan lokasi P3K" {...field} />
+                                                        <Input placeholder="Masukkan location P3K" {...field} />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -277,7 +277,7 @@ export default function EditMasterP3k({
                                         {/* Kode Inventaris - Tetap di kolom kanan */}
                                         <FormField
                                             control={form.control}
-                                            name="kode_inventaris"
+                                            name="inventory_code"
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormLabel>Kode Inventaris</FormLabel>
@@ -292,19 +292,19 @@ export default function EditMasterP3k({
                                         {/* Jenis - Tetap di kolom kanan */}
                                         <FormField
                                             control={form.control}
-                                            name="jenis"
+                                            name="type"
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormLabel>Jenis</FormLabel>
                                                     <FormControl>
                                                         <Select value={field.value} onValueChange={field.onChange}>
                                                             <SelectTrigger className="w-full">
-                                                                <SelectValue placeholder="Pilih jenis" />
+                                                                <SelectValue placeholder="Pilih type" />
                                                             </SelectTrigger>
                                                             <SelectContent>
-                                                                {jenisOptions.map(jenis => (
-                                                                    <SelectItem key={jenis} value={jenis}>
-                                                                        {jenis}
+                                                                {typeOptions.map(type => (
+                                                                    <SelectItem key={type} value={type}>
+                                                                        {type}
                                                                     </SelectItem>
                                                                 ))}
                                                             </SelectContent>
@@ -336,4 +336,4 @@ export default function EditMasterP3k({
             </div>
         </AppLayout>
     );
-} 
+}

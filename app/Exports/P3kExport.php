@@ -2,26 +2,25 @@
 
 namespace App\Exports;
 
-use App\Models\Master\MasterApar;
 use App\Models\Master\MasterP3k;
 use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Events\AfterSheet;
 
-class P3kExport implements FromCollection, WithHeadings, ShouldAutoSize, WithEvents
+class P3kExport implements FromCollection, ShouldAutoSize, WithEvents, WithHeadings
 {
     public function collection()
     {
         return MasterP3k::select(
-            'kode_entitas',
-            'kode_plant',
+            'entity_code',
+            'plant_code',
             'no_p3k',
-            'kode_ruang',
-            'lokasi',
-            'jenis',
-            'kode_inventaris'
+            'room_code',
+            'location',
+            'type',
+            'inventory_code'
         )->get();
     }
 
@@ -34,7 +33,7 @@ class P3kExport implements FromCollection, WithHeadings, ShouldAutoSize, WithEve
             'Kode Ruang',
             'Lokasi',
             'Jenis',
-            'Kode Inventaris'
+            'Kode Inventaris',
         ];
     }
 
@@ -65,7 +64,7 @@ class P3kExport implements FromCollection, WithHeadings, ShouldAutoSize, WithEve
                 $sheet->getStyle($cellRange)->getAlignment()->setVertical('center');
 
                 // Style khusus untuk heading (baris pertama)
-                $sheet->getStyle('A1:' . $columnCount . '1')->applyFromArray([
+                $sheet->getStyle('A1:'.$columnCount.'1')->applyFromArray([
                     'fill' => [
                         'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
                         'startColor' => ['argb' => 'D9D9D9'], // abu-abu terang

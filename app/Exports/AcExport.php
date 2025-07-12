@@ -4,20 +4,20 @@ namespace App\Exports;
 
 use App\Models\Master\MasterAc;
 use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Events\AfterSheet;
 
-class AcExport implements FromCollection, WithHeadings, ShouldAutoSize, WithEvents
+class AcExport implements FromCollection, ShouldAutoSize, WithEvents, WithHeadings
 {
     public function collection()
     {
         return MasterAc::select(
-            'kode_entitas',
-            'kode_plant',     
-            'ruang',        
-            'kode_inventaris',     
+            'entity_code',
+            'plant_code',
+            'room',
+            'inventory_code',
             'merk'
         )->get();
     }
@@ -29,7 +29,7 @@ class AcExport implements FromCollection, WithHeadings, ShouldAutoSize, WithEven
             'Kode Plant',
             'Ruang',
             'Kode Inventaris',
-            'Merk'
+            'Merk',
         ];
     }
 
@@ -60,7 +60,7 @@ class AcExport implements FromCollection, WithHeadings, ShouldAutoSize, WithEven
                 $sheet->getStyle($cellRange)->getAlignment()->setVertical('center');
 
                 // Style khusus untuk heading (baris pertama)
-                $sheet->getStyle('A1:' . $columnCount . '1')->applyFromArray([
+                $sheet->getStyle('A1:'.$columnCount.'1')->applyFromArray([
                     'fill' => [
                         'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
                         'startColor' => ['argb' => 'D9D9D9'], // abu-abu terang

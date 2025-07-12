@@ -14,13 +14,13 @@ import { router } from '@inertiajs/react';
 
 type MasterGenset = {
   id: number;
-  jenis_mesin: string;
+  machine_type: string;
   merk: string;
   model: string;
-  negara_thn_pembuatan: string;
-  pabrik_pembuat: string;
-  no_seri: string;
-  kapasitas: string;
+  country_year_of_manufacture: string;
+  manufacturer: string;
+  serial_number: string;
+  capacity: string;
 };
 
 export const columns: ColumnDef<MasterGenset>[] = [
@@ -30,7 +30,7 @@ export const columns: ColumnDef<MasterGenset>[] = [
     cell: ({ row }) => row.index + 1,
   },
   {
-    accessorKey: 'jenis_mesin',
+    accessorKey: 'machine_type',
     header: 'Jenis Mesin',
   },
   {
@@ -42,19 +42,19 @@ export const columns: ColumnDef<MasterGenset>[] = [
     header: 'Model',
   },
   {
-    accessorKey: 'negara_thn_pembuatan',
+    accessorKey: 'country_year_of_manufacture',
     header: 'Negara/Thn Pembuatan',
   },
   {
-    accessorKey: 'pabrik_pembuat',
+    accessorKey: 'manufacturer',
     header: 'Pabrik Pembuat',
   },
   {
-    accessorKey: 'no_seri',
+    accessorKey: 'serial_number',
     header: 'No Seri',
   },
   {
-    accessorKey: 'kapasitas',
+    accessorKey: 'capacity',
     header: 'Kapasitas',
   },
   {

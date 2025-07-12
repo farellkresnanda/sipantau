@@ -10,9 +10,8 @@ class MasterPlant extends Model
 
     protected $guarded = [];
 
-
-    public function joinEntitas()
+    public function joinEntity()
     {
-        return $this->hasOne(MasterEntitas::class, 'kode_entitas', 'kode_entitas');
+        return $this->hasOne(MasterEntity::class, 'entity_code', 'entity_code');
     }
 }

@@ -35,24 +35,24 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 // Schema validasi
 const formSchema = z.object({
-    kode_entitas: z.string().min(1).max(255),
-    kode_plant: z.string().min(1).max(255),
-    nama: z.string().min(1).max(255),
+    entity_code: z.string().min(1).max(255),
+    plant_code: z.string().min(1).max(255),
+    name: z.string().min(1).max(255),
 });
 
 export default function EditPlant() {
-    const { errors, entitasList, plant } = usePage().props as unknown as {
+    const { errors, entityList, plant } = usePage().props as unknown as {
         errors: Record<string, string>;
-        entitasList: { kode_entitas: string; nama: string }[];
-        plant: { id: number; kode_entitas: string; kode_plant: string; nama: string };
+        entityList: { entity_code: string; name: string }[];
+        plant: { id: number; entity_code: string; plant_code: string; name: string };
     };
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            kode_entitas: plant.kode_entitas,
-            kode_plant: plant.kode_plant,
-            nama: plant.nama,
+            entity_code: plant.entity_code,
+            plant_code: plant.plant_code,
+            name: plant.name,
         },
     });
 
@@ -90,7 +90,7 @@ export default function EditPlant() {
                                         {/* Dropdown Entitas */}
                                         <FormField
                                             control={form.control}
-                                            name="kode_entitas"
+                                            name="entity_code"
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormLabel>Entitas</FormLabel>
@@ -100,15 +100,15 @@ export default function EditPlant() {
                                                             onValueChange={field.onChange}
                                                         >
                                                             <SelectTrigger className="w-full">
-                                                                <SelectValue placeholder="Pilih entitas" />
+                                                                <SelectValue placeholder="Pilih entity" />
                                                             </SelectTrigger>
                                                             <SelectContent>
-                                                                {entitasList.map((entitas) => (
+                                                                {entityList.map((entity) => (
                                                                     <SelectItem
-                                                                        key={entitas.kode_entitas}
-                                                                        value={entitas.kode_entitas}
+                                                                        key={entity.entity_code}
+                                                                        value={entity.entity_code}
                                                                     >
-                                                                        {entitas.nama}
+                                                                        {entity.name}
                                                                     </SelectItem>
                                                                 ))}
                                                             </SelectContent>
@@ -122,7 +122,7 @@ export default function EditPlant() {
                                         {/* Kode Plant */}
                                         <FormField
                                             control={form.control}
-                                            name="kode_plant"
+                                            name="plant_code"
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormLabel>Kode Plant</FormLabel>
@@ -137,12 +137,12 @@ export default function EditPlant() {
                                         {/* Nama Plant */}
                                         <FormField
                                             control={form.control}
-                                            name="nama"
+                                            name="name"
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormLabel>Nama Plant</FormLabel>
                                                     <FormControl>
-                                                        <Input placeholder="Masukkan nama plant" {...field} />
+                                                        <Input placeholder="Masukkan name plant" {...field} />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>

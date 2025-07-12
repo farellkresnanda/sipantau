@@ -13,24 +13,24 @@ import { Link, router } from '@inertiajs/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
 
-export type MasterEntitas = {
-    nama: string;
+export type MasterEntity = {
+    name: string;
 };
 
 export type MasterPlant = {
-    nama: string;
+    name: string;
 };
 
 export type InspeksiApar = {
     id: string;
-    entitas: MasterEntitas[];
+    entity: MasterEntity[];
     plants: MasterPlant[];
-    no_apar: string;
-    kode_ruang: string;
-    lokasi: string;
-    jenis: string;
+    apar_no: string;
+    room_code: string;
+    location: string;
+    type: string;
     apar: string;
-    kode_inventaris: string;
+    inventory_code: string;
 };
 
 export const columns: ColumnDef<InspeksiApar>[] = [
@@ -40,26 +40,26 @@ export const columns: ColumnDef<InspeksiApar>[] = [
     },
     {
         header: 'Entitas',
-        accessorFn: (row) => (row.entitas && row.entitas.length > 0 ? row.entitas.map((e) => e.nama).join(', ') : '-'), // tergantung struktur datamu
+        accessorFn: (row) => (row.entity && row.entity.length > 0 ? row.entity.map((e) => e.name).join(', ') : '-'), // tergantung struktur datamu
     },
     {
         header: 'Plant',
-        accessorFn: (row) => (row.plants && row.plants.length > 0 ? row.plants.map((p) => p.nama).join(', ') : '-'), // tergantung struktur datamu
+        accessorFn: (row) => (row.plants && row.plants.length > 0 ? row.plants.map((p) => p.name).join(', ') : '-'), // tergantung struktur datamu
     },
     {
-        accessorKey: 'no_apar',
+        accessorKey: 'apar_no',
         header: 'No APAR / No APAB',
     },
     {
-        accessorKey: 'kode_ruang',
+        accessorKey: 'room_code',
         header: 'Kode Ruang',
     },
     {
-        accessorKey: 'lokasi',
+        accessorKey: 'location',
         header: 'Lokasi',
     },
     {
-        accessorKey: 'jenis',
+        accessorKey: 'type',
         header: 'Jenis',
     },
     {
@@ -67,7 +67,7 @@ export const columns: ColumnDef<InspeksiApar>[] = [
         header: 'Type',
     },
     {
-        accessorKey: 'kode_inventaris',
+        accessorKey: 'inventory_code',
         header: 'Kode Inventaris',
     },
     {

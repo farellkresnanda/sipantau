@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Master;
 
 use App\Http\Controllers\Controller;
-use App\Models\Master\MasterEntitas;
-use App\Models\Master\MasterLokasi;
+use App\Models\Master\MasterEntity;
+use App\Models\Master\MasterLocation;
 use App\Models\Master\MasterPlant;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -16,21 +16,21 @@ class MasterLokasiController extends Controller
      */
     public function index()
     {
-        $lokasiList = MasterLokasi::latest()->with(['entitas', 'plants'])->get();
+        $locationList = MasterLocation::latest()->with(['entity', 'plants'])->get();
 
-        return Inertia::render('master/lokasi/page', compact('lokasiList'));
+        return Inertia::render('master/location/page', compact('locationList'));
     }
+
     /**
      * Show the form for creating a new resource.
      */
-
     public function create()
     {
-        $entitasList = MasterEntitas::latest()->get(['id', 'nama', 'kode_entitas']);
-        $plantList = MasterPlant::latest()->get(['id', 'nama', 'kode_entitas', 'kode_plant']);
-        return Inertia::render('master/lokasi/create', compact('entitasList', 'plantList'));
-    }
+        $entityList = MasterEntity::latest()->get(['id', 'name', 'entity_code']);
+        $plantList = MasterPlant::latest()->get(['id', 'name', 'entity_code', 'plant_code']);
 
+        return Inertia::render('master/location/create', compact('entityList', 'plantList'));
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -38,25 +38,17 @@ class MasterLokasiController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama' => 'required|string|max:255',
-            'entitas_kode' => 'required|exists:master_entitas,kode_entitas',
-            'plant_kode' => 'required|exists:master_plant,kode_plant',
+            'name' => 'required|string|max:255',
+            'entity_code' => 'required|exists:master_entities,entity_code',
+            'plant_kode' => 'required|exists:master_plant,plant_code',
         ]);
 
-        MasterLokasi::create($request->all());
+        MasterLocation::create($request->all());
 
-        activity()->log('User created a new master lokasi');
+        activity()->log('User created a new master location');
 
-        return redirect()->route('lokasi.index')
-            ->with('success', 'Master lokasi created successfully.');
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(MasterLokasi $masterLokasi)
-    {
-        //
+        return redirect()->route('location.index')
+            ->with('success', 'Master location created successfully.');
     }
 
     /**
@@ -64,39 +56,40 @@ class MasterLokasiController extends Controller
      */
     public function edit($id)
     {
-        $lokasi = MasterLokasi::findOrFail($id);
-        $entitasList = MasterEntitas::latest()->get(['id', 'nama', 'kode_entitas']);
-        $plantList = MasterPlant::latest()->get(['id', 'nama', 'kode_entitas', 'kode_plant']);
+        $location = MasterLocation::findOrFail($id);
+        $entityList = MasterEntity::latest()->get(['id', 'name', 'entity_code']);
+        $plantList = MasterPlant::latest()->get(['id', 'name', 'entity_code', 'plant_code']);
 
-        return Inertia::render('master/lokasi/edit', compact('lokasi', 'entitasList', 'plantList'));
+        return Inertia::render('master/location/edit', compact('location', 'entityList', 'plantList'));
     }
 
     public function update(Request $request, $id)
     {
         $request->validate([
-            'nama' => 'required|string|max:255',
-            'entitas_kode' => 'required|exists:master_entitas,kode_entitas',
-            'plant_kode' => 'required|exists:master_plant,kode_plant',
+            'name' => 'required|string|max:255',
+            'entity_code' => 'required|exists:master_entities,entity_code',
+            'plant_kode' => 'required|exists:master_plant,plant_code',
         ]);
 
-        $lokasi = MasterLokasi::findOrFail($id);
-        $lokasi->update($request->only('nama', 'entitas_kode', 'plant_kode'));
+        $location = MasterLocation::findOrFail($id);
+        $location->update($request->only('name', 'entity_code', 'plant_kode'));
 
-        activity()->log('User updated a master lokasi');
+        activity()->log('User updated a master location');
 
-        return redirect()->route('lokasi.index')->with('success', 'Master lokasi updated successfully.');
+        return redirect()->route('location.index')->with('success', 'Master location updated successfully.');
     }
+
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(MasterLokasi $masterLokasi, $id)
+    public function destroy(MasterLocation $masterLokasi, $id)
     {
         $masterLokasi = $masterLokasi->findOrFail($id);
         $masterLokasi->delete();
 
-        activity()->log('User deleted a master lokasi');
+        activity()->log('User deleted a master location');
 
-        return redirect()->route('lokasi.index')
-            ->with('success', 'Master lokasi deleted successfully.');
+        return redirect()->route('location.index')
+            ->with('success', 'Master location deleted successfully.');
     }
 }

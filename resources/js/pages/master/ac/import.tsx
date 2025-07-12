@@ -78,7 +78,7 @@ export default function ImportMasterAc() {
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="space-y-4"
-                encType="multipart/form-data"
+                enonconformityType="multipart/form-data"
               >
                 <FormField
                   control={form.control}

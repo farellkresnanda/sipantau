@@ -35,11 +35,11 @@ return [
         ],
     ],
 
-        // ✅ Tambahkan ini
+    // ✅ Tambahkan ini
     'recaptcha' => [
         'sitekey' => env('VITE_RECAPTCHAV3_SITEKEY'),
         'secret' => env('RECAPTCHAV3_SECRET'),
-        'version' => env('NOCAPTCHA_VERSION', 'v3'), 
+        'version' => env('NOCAPTCHA_VERSION', 'v3'),
     ],
 
 ];

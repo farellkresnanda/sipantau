@@ -6,14 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class MasterK3l extends Model
 {
-    protected $table = 'master_k3l';
-
     protected $guarded = [];
 
-
-    // relasi: satu master_k3l punya banyak deskripsi
-    public function deskripsi()
+    // relasi: satu master_k3l punya banyak description
+    public function description()
     {
-        return $this->hasMany(MasterK3lDeskripsi::class, 'master_k3l_id');
+        return $this->hasMany(MasterK3lDescription::class, 'master_k3l_id');
     }
 }

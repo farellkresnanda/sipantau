@@ -15,17 +15,17 @@ import { MoreHorizontal } from 'lucide-react';
 
 export type MasterP3k = {
     id: number;
-    // kode_entitas: string; // Tidak perlu ditampilkan, tapi mungkin masih perlu di tipe jika digunakan internal
-    kode_plant: string; // Tetap ada di tipe untuk fallback atau internal logic
+    // entity_code: string; // Tidak perlu ditampilkan, tapi mungkin masih perlu di tipe jika digunakan internal
+    plant_code: string; // Tetap ada di tipe untuk fallback atau internal logic
     no_p3k: string;
-    kode_ruang: string;
-    lokasi: string;
-    jenis: string;
-    kode_inventaris: string;
-    entitas: {
-        nama: string; // Pastikan ini adalah nama entitas yang ingin ditampilkan
+    room_code: string;
+    location: string;
+    type: string;
+    inventory_code: string;
+    entity: {
+        name: string; // Pastikan ini adalah name entity yang ingin ditampilkan
     } | null;
-    plant_nama: string | null; // Kolom untuk nama plant, pastikan dari backend
+    plant_name: string | null; // Kolom untuk name plant, pastikan dari backend
 };
 
 export const columns: ColumnDef<MasterP3k>[] = [
@@ -35,20 +35,20 @@ export const columns: ColumnDef<MasterP3k>[] = [
         cell: ({ row }) => row.index + 1,
     },
     {
-        accessorKey: 'entitas.nama', // Langsung akses nested property
+        accessorKey: 'entity.name', // Langsung akses nested property
         header: 'Nama Entitas',
         cell: ({ row }) => {
-            const entitasNama = row.original.entitas?.nama; // Gunakan optional chaining untuk keamanan
-            return entitasNama ? entitasNama : '-'; // Tampilkan nama entitas atau '-' jika null
+            const entityNama = row.original.entity?.name; // Gunakan optional chaining untuk keamanan
+            return entityNama ? entityNama : '-'; // Tampilkan name entity atau '-' jika null
         },
     },
     {
-        accessorKey: 'plant_nama',
+        accessorKey: 'plant_name',
         header: 'Plant',
         cell: ({ row }) => {
-            const plantNama = row.original.plant_nama;
-            return plantNama ? plantNama : row.original.kode_plant;
-          
+            const plantNama = row.original.plant_name;
+            return plantNama ? plantNama : row.original.plant_code;
+
         },
     },
     {
@@ -56,22 +56,22 @@ export const columns: ColumnDef<MasterP3k>[] = [
         header: 'No P3K',
     },
     {
-        accessorKey: 'kode_ruang',
+        accessorKey: 'room_code',
         header: 'Kode Ruang',
     },
     {
-        accessorKey: 'lokasi',
+        accessorKey: 'location',
         header: 'Lokasi',
         cell: ({ row }) => (
-            <div className="whitespace-pre-wrap">{row.original.lokasi}</div>
+            <div className="whitespace-pre-wrap">{row.original.location}</div>
         ),
     },
     {
-        accessorKey: 'jenis',
+        accessorKey: 'type',
         header: 'Jenis',
     },
     {
-        accessorKey: 'kode_inventaris',
+        accessorKey: 'inventory_code',
         header: 'Kode Inventaris',
     },
     {

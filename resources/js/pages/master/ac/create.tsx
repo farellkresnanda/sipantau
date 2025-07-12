@@ -15,10 +15,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import SectionHeader from '@/components/section-header';
 
 const formSchema = z.object({
-  kode_entitas: z.string().min(1, 'Entitas harus dipilih'),
-  kode_plant: z.string().min(1, 'Plant harus dipilih'),
-  ruang: z.string().min(1, 'Ruang harus diisi'),
-  kode_inventaris: z.string().min(1, 'Kode Inventaris harus diisi'),
+  entity_code: z.string().min(1, 'Entitas harus dipilih'),
+  plant_code: z.string().min(1, 'Plant harus dipilih'),
+  room: z.string().min(1, 'Ruang harus diisi'),
+  inventory_code: z.string().min(1, 'Kode Inventaris harus diisi'),
   merk: z.string().min(1, 'Merk harus diisi'),
 });
 
@@ -26,28 +26,28 @@ type FormSchemaType = z.infer<typeof formSchema>;
 
 type Entitas = {
   id: number;
-  nama: string;
-  kode_entitas: string;
+  name: string;
+  entity_code: string;
 };
 
 type Plant = {
   id: number;
-  nama: string;
-  kode_plant: string;
-  kode_entitas: string;
+  name: string;
+  plant_code: string;
+  entity_code: string;
 };
 
-export default function CreateMasterAc({ entitasList = [], plantList = [] }: { entitasList?: Entitas[]; plantList?: Plant[] }) {
+export default function CreateMasterAc({ entityList = [], plantList = [] }: { entityList?: Entitas[]; plantList?: Plant[] }) {
   const { errors } = usePage().props as { errors: Record<string, string> };
   const [filteredPlants, setFilteredPlants] = useState<Plant[]>([]);
 
   const form = useForm<FormSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      kode_entitas: '',
-      kode_plant: '',
-      ruang: '',
-      kode_inventaris: '',
+      entity_code: '',
+      plant_code: '',
+      room: '',
+      inventory_code: '',
       merk: '',
     },
   });
@@ -62,10 +62,10 @@ export default function CreateMasterAc({ entitasList = [], plantList = [] }: { e
   }, [errors, form]);
 
   useEffect(() => {
-    const kodeEntitas = form.watch('kode_entitas');
-    const filtered = plantList.filter((plant) => plant.kode_entitas === kodeEntitas);
+    const kodeEntitas = form.watch('entity_code');
+    const filtered = plantList.filter((plant) => plant.entity_code === kodeEntitas);
     setFilteredPlants(filtered);
-  }, [form.watch('kode_entitas')]);
+  }, [form.watch('entity_code')]);
 
   function onSubmit(values: FormSchemaType) {
     router.post(route('ac.store'), values, {
@@ -80,10 +80,10 @@ export default function CreateMasterAc({ entitasList = [], plantList = [] }: { e
     <AppLayout breadcrumbs={[
       { title: 'Home', href: '/'},
       { title: 'Master AC', href: route('ac.index') },
-      { title: 'Create Master AC', href: route('ac.create') },]}> 
+      { title: 'Create Master AC', href: route('ac.create') },]}>
       <Head title="Create Master AC" />
       <div className="space-y-6 p-4">
-        <SectionHeader title="Buat Data Master AC" subtitle="Masukkan data AC sesuai entitas dan inventaris" />
+        <SectionHeader title="Buat Data Master AC" subtitle="Masukkan data AC sesuai entity dan inventaris" />
         <Card>
           <CardContent className="p-6">
             <Form {...form}>
@@ -92,7 +92,7 @@ export default function CreateMasterAc({ entitasList = [], plantList = [] }: { e
                   <div className="space-y-4">
                     <FormField
                       control={form.control}
-                      name="kode_entitas"
+                      name="entity_code"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Entitas</FormLabel>
@@ -100,17 +100,17 @@ export default function CreateMasterAc({ entitasList = [], plantList = [] }: { e
                             <Select
                               onValueChange={(value) => {
                                 field.onChange(value);
-                                form.setValue('kode_plant', '');
+                                form.setValue('plant_code', '');
                               }}
                               value={field.value}
                             >
                               <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Pilih entitas" />
+                                <SelectValue placeholder="Pilih entity" />
                               </SelectTrigger>
                               <SelectContent>
-                                {entitasList.map((entitas) => (
-                                  <SelectItem key={entitas.id} value={entitas.kode_entitas}>
-                                    {entitas.nama}
+                                {entityList.map((entity) => (
+                                  <SelectItem key={entity.id} value={entity.entity_code}>
+                                    {entity.name}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
@@ -123,7 +123,7 @@ export default function CreateMasterAc({ entitasList = [], plantList = [] }: { e
 
                     <FormField
                       control={form.control}
-                      name="kode_plant"
+                      name="plant_code"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Plant</FormLabel>
@@ -138,8 +138,8 @@ export default function CreateMasterAc({ entitasList = [], plantList = [] }: { e
                               </SelectTrigger>
                               <SelectContent>
                                 {filteredPlants.map((plant) => (
-                                  <SelectItem key={plant.kode_plant} value={plant.kode_plant}>
-                                    {plant.nama}
+                                  <SelectItem key={plant.plant_code} value={plant.plant_code}>
+                                    {plant.name}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
@@ -152,12 +152,12 @@ export default function CreateMasterAc({ entitasList = [], plantList = [] }: { e
 
                     <FormField
                       control={form.control}
-                      name="ruang"
+                      name="room"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Ruang</FormLabel>
                           <FormControl>
-                            <Input placeholder="Masukkan nama ruang" {...field} />
+                            <Input placeholder="Masukkan name room" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -168,7 +168,7 @@ export default function CreateMasterAc({ entitasList = [], plantList = [] }: { e
                   <div className="space-y-4">
                     <FormField
                       control={form.control}
-                      name="kode_inventaris"
+                      name="inventory_code"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Kode Inventaris</FormLabel>

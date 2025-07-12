@@ -9,11 +9,11 @@ import {
     BookOpen, BookUpIcon, BriefcaseMedical,
     Building2,
     ChartBarIcon,
-    ClipboardCheck, ComputerIcon, DoorClosedIcon, DoorOpenIcon, FenceIcon,
+    ClipboardCheck, ComputerIcon, DoorClosedIcon, FenceIcon,
     FileUserIcon,
     HardHat, HotelIcon,
-    Info, InfoIcon,
-    LayoutGrid, LucideBadgeInfo,
+    Info,
+    LayoutGrid,
     Power,
     Recycle,
     ShieldCheck,
@@ -36,7 +36,7 @@ const mainNavItems: NavItemWithChildren[] = [
 
     {
         title: 'Temuan',
-        href: '/temuan',
+        href: '/finding',
         icon: DoorClosedIcon,
     },
 
@@ -72,7 +72,7 @@ const mainNavItems: NavItemWithChildren[] = [
             },
             {
                 title: 'Pemeliharaan Gedung',
-                href: '/inspeksi/gedung',
+                href: '/inspeksi/building',
                 icon: Building2,
             },
             {
@@ -90,32 +90,32 @@ const mainNavItems: NavItemWithChildren[] = [
         children: [
             {
                 title: 'JSA',
-                href: '/reports/jsa',
+                href: '/analysis/jsa',
                 icon: UsersIcon,
             },
             {
                 title: 'Izin Kerja',
-                href: '/reports/izin-kerja',
+                href: '/analysis/izin-kerja',
                 icon: UsersIcon,
             },
             {
                 title: 'Program Kerja K3',
-                href: '/reports/dokumen',
+                href: '/analysis/dokumen',
                 icon: FileUserIcon,
             },
             {
                 title: 'Kecelakaan Kerja ',
-                href: '/reports/dokumen',
+                href: '/analysis/dokumen',
                 icon: FileUserIcon,
             },
             {
                 title: 'IBPR',
-                href: '/reports/ibpr',
+                href: '/analysis/ibpr',
                 icon: BackpackIcon,
             },
             {
                 title: 'Informasi K3',
-                href: '/reports/k3info',
+                href: '/analysis/hse-information',
                 icon: FenceIcon,
             },
         ],
@@ -156,7 +156,7 @@ const mainNavItems: NavItemWithChildren[] = [
             },
             {
                 title: 'Master Entitas',
-                href: '/master/entitas',
+                href: '/master/entity',
                 icon: HotelIcon,
             },
             {
@@ -176,7 +176,7 @@ const mainNavItems: NavItemWithChildren[] = [
             },
             {
                 title: 'Master Gedung',
-                href: '/master/gedung',
+                href: '/master/building',
                 icon: Building2,
             },
             {
@@ -195,28 +195,28 @@ const mainNavItems: NavItemWithChildren[] = [
                 icon: BriefcaseMedical,
             },
             {
-                title: 'Master Jenis Ketidaksesuaian',
-                href: '/master/jenis-ketidaksesuaian',
+                title: 'Master Ketidaksesuaian',
+                href: '/master/nonconformity-type',
                 icon: DoorClosedIcon,
             },
             {
                 title: 'Master Konsekuensi',
-                href: '/master/konsekuensi',
+                href: '/master/consequence',
                 icon: TargetIcon,
             },
             {
-                title: 'Master Laporan Uji Riksa Fasilitas',
-                href: '/master/laporan-uji-riksa-fasilitas',
+                title: 'Master Uji Riksa Fasilitas',
+                href: '/master/test-facility-report',
                 icon: Building2,
             },
             {
-                title: 'Master Laporan Uji Riksa Peralatan',
-                href: '/master/laporan-uji-riksa-peralatan',
+                title: 'Master Uji Riksa Peralatan',
+                href: '/master/test-equipment-report',
                 icon: ComputerIcon,
             },
             {
                 title: 'Master Lokasi',
-                href: '/master/lokasi',
+                href: '/master/location',
                 icon: LayoutGrid,
             },
             {
@@ -226,32 +226,32 @@ const mainNavItems: NavItemWithChildren[] = [
             },
             {
                 title: 'Master Probabilitas',
-                href: '/master/probabilitas',
+                href: '/master/probability',
                 icon: ChartBarIcon,
             },
             {
                 title: 'Master Sertifikasi K3',
-                href: '/master/sertifikasi-k3',
+                href: '/master/hse-certification',
                 icon: ShieldCheck,
             },
             {
                 title: 'Master Skala Prioritas',
-                href: '/master/skala-prioritas',
+                href: '/master/priority-scale',
                 icon: TargetIcon,
             },
             {
                 title: 'Master Standar Kerja Gedung',
-                href: '/master/standar-kerja-gedung',
+                href: '/master/building-work-standard',
                 icon: ClipboardCheck,
             },
             {
                 title: 'Master Standar Kerja Genset',
-                href: '/master/standar-kerja-genset',
+                href: '/master/genset-work-standard',
                 icon: Power,
             },
             {
                 title: 'Master Statistik K3',
-                href: '/master/statistik-k3',
+                href: '/master/hse-statistic',
                 icon: ChartBarIcon,
             },
         ],

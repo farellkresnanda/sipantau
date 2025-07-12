@@ -6,7 +6,7 @@ use App\Exports\AcExport;
 use App\Http\Controllers\Controller;
 use App\Imports\AcImport;
 use App\Models\Master\MasterAc;
-use App\Models\Master\MasterEntitas;
+use App\Models\Master\MasterEntity;
 use App\Models\Master\MasterPlant;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -19,7 +19,8 @@ class MasterAcController extends Controller
      */
     public function index()
     {
-        $masterAc = MasterAc::latest()->with(['entitas','plants'])->get();
+        $masterAc = MasterAc::latest()->with(['entity', 'plants'])->get();
+
         return Inertia::render('master/ac/page', compact('masterAc'));
     }
 
@@ -28,9 +29,10 @@ class MasterAcController extends Controller
      */
     public function create()
     {
-        $entitasList = MasterEntitas::latest()->get(['id', 'nama', 'kode_entitas']);
-        $plantList = MasterPlant::latest()->get(['id', 'nama', 'kode_entitas', 'kode_plant']);
-        return Inertia::render('master/ac/create', compact('entitasList', 'plantList'));
+        $entityList = MasterEntity::latest()->get(['id', 'name', 'entity_code']);
+        $plantList = MasterPlant::latest()->get(['id', 'name', 'entity_code', 'plant_code']);
+
+        return Inertia::render('master/ac/create', compact('entityList', 'plantList'));
     }
 
     /**
@@ -39,10 +41,10 @@ class MasterAcController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'kode_entitas' => 'required|string|max:255',
-            'kode_plant' => 'required|string|max:255',
-            'ruang' => 'required|string|max:255',
-            'kode_inventaris' => 'required|string|max:255',
+            'entity_code' => 'required|string|max:255',
+            'plant_code' => 'required|string|max:255',
+            'room' => 'required|string|max:255',
+            'inventory_code' => 'required|string|max:255',
             'merk' => 'required|string|max:255',
         ]);
 
@@ -54,14 +56,15 @@ class MasterAcController extends Controller
             ->with('success', 'Master AC created successfully.');
     }
 
-    
     public function show() {}
+
     public function edit(MasterAc $masterAc, $id)
     {
         $masterAc = $masterAc->findOrFail($id);
-        $entitasList = MasterEntitas::latest()->get(['id', 'nama', 'kode_entitas']);
-        $plantList = MasterPlant::latest()->get(['id', 'nama', 'kode_entitas', 'kode_plant']);
-        return Inertia::render('master/ac/edit', compact('masterAc', 'entitasList', 'plantList'));
+        $entityList = MasterEntity::latest()->get(['id', 'name', 'entity_code']);
+        $plantList = MasterPlant::latest()->get(['id', 'name', 'entity_code', 'plant_code']);
+
+        return Inertia::render('master/ac/edit', compact('masterAc', 'entityList', 'plantList'));
     }
 
     /**
@@ -70,10 +73,10 @@ class MasterAcController extends Controller
     public function update(Request $request, MasterAc $masterAc, $id)
     {
         $request->validate([
-            'kode_entitas' => 'required|string|max:255',
-            'kode_plant' => 'required|string|max:255',
-            'ruang' => 'required|string|max:255',
-            'kode_inventaris' => 'required|string|max:255',
+            'entity_code' => 'required|string|max:255',
+            'plant_code' => 'required|string|max:255',
+            'room' => 'required|string|max:255',
+            'inventory_code' => 'required|string|max:255',
             'merk' => 'required|string|max:255',
         ]);
 
@@ -108,8 +111,6 @@ class MasterAcController extends Controller
         return Inertia::render('master/ac/import');
     }
 
-
-
     /**
      * Handle the Excel import.
      */
@@ -133,6 +134,7 @@ class MasterAcController extends Controller
     public function export()
     {
         activity()->log('User exported master AC');
+
         return Excel::download(new AcExport, 'master_ac.xlsx');
     }
 }

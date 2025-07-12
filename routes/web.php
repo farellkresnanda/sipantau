@@ -1,31 +1,28 @@
 <?php
 
-use App\Http\Controllers\K3InfoController;
-use App\Http\Controllers\TemuanController;
+use App\Http\Controllers\HseInformationController;
 use App\Http\Controllers\Master\MasterAcController;
 use App\Http\Controllers\Master\MasterAparController;
 use App\Http\Controllers\Master\MasterApdController;
-use App\Http\Controllers\Master\MasterEntitasController;
-use App\Http\Controllers\Master\MasterGedungController;
+use App\Http\Controllers\Master\MasterBuildingController;
+use App\Http\Controllers\Master\MasterConsequenceController;
+use App\Http\Controllers\Master\MasterEntityController;
 use App\Http\Controllers\Master\MasterGensetController;
-use App\Http\Controllers\Master\MasterJenisKetidaksesuaianController;
-use App\Http\Controllers\Master\MasterJenisKetidaksesuaianSubController;
 use App\Http\Controllers\Master\MasterK3lController;
-use App\Http\Controllers\Master\MasterKonsekuensiController;
-use App\Http\Controllers\Master\MasterLaporanUjiRiksaFasilitasController;
-use App\Http\Controllers\Master\MasterLaporanUjiRiksaPeralatanController;
 use App\Http\Controllers\Master\MasterLokasiController;
+use App\Http\Controllers\Master\MasterNonconformityTypeController;
 use App\Http\Controllers\Master\MasterP3kController;
 use App\Http\Controllers\Master\MasterPlantController;
-use App\Http\Controllers\Master\MasterProbabilitasController;
-use App\Http\Controllers\Master\MasterRumusLtifrController;
-use App\Http\Controllers\Master\MasterSertifikasiK3Controller;
-use App\Http\Controllers\Master\MasterSkalaPrioritasController;
-use App\Http\Controllers\Master\MasterStandarKerjaGedungController;
-use App\Http\Controllers\Master\MasterStandarKerjaGensetController;
-use App\Http\Controllers\Master\MasterStatistikK3Controller;
+use App\Http\Controllers\Master\MasterProbabilityController;
+use App\Http\Controllers\Master\MasterHseCertificationController;
+use App\Http\Controllers\Master\MasterPriorityScaleController;
+use App\Http\Controllers\Master\MasterBuildingWorkStandardController;
+use App\Http\Controllers\Master\MasterGensetWorkStandardController;
+use App\Http\Controllers\Master\MasterHseStatisticController;
+use App\Http\Controllers\Master\MasterTestEquipmentReportController;
+use App\Http\Controllers\Master\MasterTestFacilityReportController;
+use App\Http\Controllers\FindingController;
 use App\Http\Controllers\UserController;
-
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -41,51 +38,49 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('home');
 
     // Temuan routes
-    Route::resource('temuan', TemuanController::class);
+    Route::resource('finding', FindingController::class);
 
-    // K3 Info routes
-    Route::prefix('reports')->group(function () {
-        Route::resource('k3info', K3InfoController::class);
+    // Analysis routes
+    Route::prefix('analysis')->group(function () {
+        Route::resource('hse-information', HseInformationController::class);
     });
 
     // Role Admin and Super Admin routes
-    Route::group(['middleware' => ['role:Admin|Super Admin']], function () {   
-    
-    // Master Data routes
+    Route::group(['middleware' => ['role:Admin|Super Admin']], function () {
+
+        // Master Data routes
         Route::resource('users', UserController::class);
         Route::prefix('master')->group(function () {
-            Route::resource('entitas', MasterEntitasController::class);
-             Route::get('ac/export', [MasterAcController::class, 'export'])->name('ac.export');          
+            Route::resource('entity', MasterEntityController::class);
+            Route::get('ac/export', [MasterAcController::class, 'export'])->name('ac.export');
             Route::get('ac/import', [MasterAcController::class, 'import'])->name('ac.import');
             Route::post('ac/import', [MasterAcController::class, 'action_import'])->name('ac.action_import');
             Route::resource('ac', MasterAcController::class);
-            Route::get('apar/export', [MasterAparController::class, 'export'])->name('apar.export');          
+            Route::get('apar/export', [MasterAparController::class, 'export'])->name('apar.export');
             Route::get('apar/import', [MasterAparController::class, 'import'])->name('apar.import');
             Route::post('apar/import', [MasterAparController::class, 'action_import'])->name('apar.action_import');
             Route::resource('apar', MasterAparController::class);
             Route::resource('apd', MasterApdController::class);
-            Route::resource('gedung', MasterGedungController::class);
+            Route::resource('building', MasterBuildingController::class);
             Route::resource('genset', MasterGensetController::class);
             Route::resource('k3l', MasterK3lController::class);
-             Route::get('p3k/export', [MasterP3kController::class, 'export'])->name('p3k.export');          
+            Route::get('p3k/export', [MasterP3kController::class, 'export'])->name('p3k.export');
             Route::get('p3k/import', [MasterP3kController::class, 'import'])->name('p3k.import');
             Route::post('p3k/import', [MasterP3kController::class, 'action_import'])->name('p3k.action_import');
             Route::resource('p3k', MasterP3kController::class);
-            Route::resource('jenis-ketidaksesuaian', MasterJenisKetidaksesuaianController::class);
-            Route::resource('jenis-ketidaksesuaian-sub', MasterJenisKetidaksesuaianSubController::class);
-            Route::resource('konsekuensi', MasterKonsekuensiController::class);
-            Route::resource('laporan-uji-riksa-fasilitas', MasterLaporanUjiRiksaFasilitasController::class);
-            Route::resource('laporan-uji-riksa-peralatan', MasterLaporanUjiRiksaPeralatanController::class);
-            Route::resource('lokasi', MasterLokasiController::class);
+            Route::resource('nonconformity-type', MasterNonconformityTypeController::class);
+            Route::resource('consequence', MasterConsequenceController::class);
+            Route::resource('test-facility-report', MasterTestFacilityReportController::class);
+            Route::resource('test-equipment-report', MasterTestEquipmentReportController::class);
+            Route::resource('location', MasterLokasiController::class);
             Route::resource('plant', MasterPlantController::class);
-            Route::resource('probabilitas', MasterProbabilitasController::class);
-            Route::resource('rumus-ltifr', MasterRumusLtifrController::class);
-            Route::resource('sertifikasi-k3', MasterSertifikasiK3Controller::class);
-            Route::resource('skala-prioritas', MasterSkalaPrioritasController::class);
-            Route::resource('standar-kerja-gedung', MasterStandarKerjaGedungController::class);
-            Route::resource('standar-kerja-genset', MasterStandarKerjaGensetController::class);
-            Route::resource('statistik-k3', MasterStatistikK3Controller::class);
-            Route::resource('probabilitas', MasterProbabilitasController::class);
+            Route::resource('probability', MasterProbabilityController::class);
+            Route::resource('hse-certification', MasterHseCertificationController::class);
+            Route::resource('priority-scale', MasterPriorityScaleController::class);
+            Route::resource('building-work-standard', MasterBuildingWorkStandardController::class);
+            Route::resource('genset-work-standard', MasterGensetWorkStandardController::class);
+            Route::resource('hse-statistic', MasterHseStatisticController::class);
+            Route::resource('probability', MasterProbabilityController::class);
         });
     });
 
@@ -98,9 +93,5 @@ Route::get('/test-error', function () {
     abort(500);
 });
 
-
-
-
-
-require __DIR__ . '/settings.php';
-require __DIR__ . '/auth.php';
+require __DIR__.'/settings.php';
+require __DIR__.'/auth.php';

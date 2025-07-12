@@ -21,14 +21,14 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 const formSchema = z.object({
-    tujuan: z.string().min(1, { message: 'Tujuan is required' }).max(255),
-    deskripsi: z
+    objective: z.string().min(1, { message: 'Tujuan is required' }).max(255),
+    description: z
         .array(
             z.object({
-                deskripsi: z.string().min(1, { message: 'Deskripsi is required' }).max(255),
+                description: z.string().min(1, { message: 'Deskripsi is required' }).max(255),
             }),
         )
-        .min(1, { message: 'Minimal 1 deskripsi' }),
+        .min(1, { message: 'Minimal 1 description' }),
 });
 
 export default function CreateMasterK3l() {
@@ -39,14 +39,14 @@ export default function CreateMasterK3l() {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            tujuan: '',
-            deskripsi: [{ deskripsi: '' }],
+            objective: '',
+            description: [{ description: '' }],
         },
     });
 
     const { fields, append, remove } = useFieldArray({
         control: form.control,
-        name: 'deskripsi',
+        name: 'description',
     });
 
     useEffect(() => {
@@ -91,14 +91,14 @@ export default function CreateMasterK3l() {
                                     <div className="w-10" /> {/* Placeholder kiri */}
                                     <FormField
                                         control={form.control}
-                                        name="tujuan"
+                                        name="objective"
                                         render={({ field, formState }) => (
                                             <FormItem className="w-full">
                                                 <FormLabel>Tujuan</FormLabel>
                                                 <FormControl>
                                                     <Input placeholder="Enter Tujuan" {...field} />
                                                 </FormControl>
-                                                <FormMessage>{formState.errors?.tujuan?.message}</FormMessage>
+                                                <FormMessage>{formState.errors?.objective?.message}</FormMessage>
                                             </FormItem>
                                         )}
                                     />
@@ -121,8 +121,8 @@ export default function CreateMasterK3l() {
                                                     type="button"
                                                     variant="outline"
                                                     size="icon"
-                                                    onClick={() => append({ deskripsi: '' })}
-                                                    title="Tambah deskripsi"
+                                                    onClick={() => append({ description: '' })}
+                                                    title="Tambah description"
                                                     className="h-10 w-10 shrink-0"
                                                     disabled={!isLast} // aktif hanya di baris terakhir
                                                 >
@@ -132,14 +132,14 @@ export default function CreateMasterK3l() {
                                                 {/* Input Deskripsi */}
                                                 <FormField
                                                     control={form.control}
-                                                    name={`deskripsi.${index}.deskripsi`}
+                                                    name={`description.${index}.description`}
                                                     render={({ field, formState }) => {
                                                         return (
                                                             <FormItem className="w-full">
                                                                 <FormControl>
                                                                     <Input placeholder="Enter Deskripsi" {...field} />
                                                                 </FormControl>
-                                                                <FormMessage>{formState.errors?.deskripsi?.[index]?.deskripsi?.message}</FormMessage>
+                                                                <FormMessage>{formState.errors?.description?.[index]?.description?.message}</FormMessage>
                                                             </FormItem>
                                                         );
                                                     }}

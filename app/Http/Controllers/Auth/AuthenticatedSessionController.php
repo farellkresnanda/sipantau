@@ -40,7 +40,7 @@ class AuthenticatedSessionController extends Controller
         $recaptcha = $recaptchaResponse->json();
 
         // Gagal jika token tidak valid atau skor rendah
-        if (!($recaptcha['success'] ?? false) || ($recaptcha['score'] ?? 0) < 0.5) {
+        if (! ($recaptcha['success'] ?? false) || ($recaptcha['score'] ?? 0) < 0.5) {
             return back()->withErrors([
                 'g-recaptcha-response' => 'Verifikasi reCAPTCHA gagal. Silakan coba lagi.',
             ]);

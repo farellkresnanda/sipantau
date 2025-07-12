@@ -19,35 +19,35 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 const formSchema = z.object({
-    kode_entitas: z.string().min(1, { message: 'Kode entitas is required' }).max(255),
-    kode_plant: z.string().min(1, { message: 'Kode plant is required' }).max(255),
-    no_apar: z.string().min(1, { message: 'No APAR is required' }).max(255),
-    kode_ruang: z.string().min(1, { message: 'Kode ruang is required' }).max(255),
-    lokasi: z.string().min(1, { message: 'Lokasi is required' }).max(255),
-    jenis: z.string().min(1, { message: 'Jenis is required' }).max(255),
+    entity_code: z.string().min(1, { message: 'Kode entity is required' }).max(255),
+    plant_code: z.string().min(1, { message: 'Kode plant is required' }).max(255),
+    apar_no: z.string().min(1, { message: 'No APAR is required' }).max(255),
+    room_code: z.string().min(1, { message: 'Kode room is required' }).max(255),
+    location: z.string().min(1, { message: 'Lokasi is required' }).max(255),
+    type: z.string().min(1, { message: 'Jenis is required' }).max(255),
     apar: z.string().min(1, { message: 'APAR is required' }).max(255),
-    kode_inventaris: z.string().min(1, { message: 'Kode inventaris is required' }).max(255),
+    inventory_code: z.string().min(1, { message: 'Kode inventaris is required' }).max(255),
 });
 
 type Entitas = {
     id: number;
-    nama: string;
-    kode_entitas: string;
+    name: string;
+    entity_code: string;
 };
 
 type Plant = {
     id: number;
-    nama: string;
-    kode_entitas: string;
-    kode_plant: string;
+    name: string;
+    entity_code: string;
+    plant_code: string;
 };
 
 type Props = {
-    entitasList: Entitas[];
+    entityList: Entitas[];
     plantList: Plant[];
 };
 
-export default function CreateMasterApar({ entitasList, plantList }: Props) {
+export default function CreateMasterApar({ entityList, plantList }: Props) {
     const { errors } = usePage().props as {
         errors: Record<string, string>;
     };
@@ -55,14 +55,14 @@ export default function CreateMasterApar({ entitasList, plantList }: Props) {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            kode_entitas: '',
-            kode_plant: '',
-            no_apar: '',
-            kode_ruang: '',
-            lokasi: '',
-            jenis: '',
+            entity_code: '',
+            plant_code: '',
+            apar_no: '',
+            room_code: '',
+            location: '',
+            type: '',
             apar: '',
-            kode_inventaris: '',
+            inventory_code: '',
         },
     });
 
@@ -100,7 +100,7 @@ export default function CreateMasterApar({ entitasList, plantList }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Create Master APAR" />
             <div className="space-y-6 p-4">
-                <SectionHeader title="Buat Data Master APAR" subtitle="Buat catatan data master APAR baru untuk mengelola data inspeksi APAR" />
+                <SectionHeader title="Buat Data Master APAR" subtitle="Buat note data master APAR baru untuk mengelola data inspeksi APAR" />
                 <Card>
                     <CardContent className="p-6">
                         <Form {...form}>
@@ -108,28 +108,28 @@ export default function CreateMasterApar({ entitasList, plantList }: Props) {
                                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                     <FormField
                                         control={form.control}
-                                        name="kode_entitas"
+                                        name="entity_code"
                                         render={({ field }) => (
                                             <FormItem>
                                                 <FormLabel>Pilih Entitas</FormLabel>
                                                 <Select
                                                     onValueChange={(value) => {
-                                                        form.setValue('kode_entitas', value);
-                                                        form.setValue('kode_plant', '');
-                                                        const filtered = plantList.filter((plant) => plant.kode_entitas === value);
+                                                        form.setValue('entity_code', value);
+                                                        form.setValue('plant_code', '');
+                                                        const filtered = plantList.filter((plant) => plant.entity_code === value);
                                                         setFilteredPlants(filtered);
                                                     }}
                                                     value={field.value}
                                                 >
                                                     <FormControl>
                                                         <SelectTrigger className="w-full">
-                                                            <SelectValue placeholder="Pilih entitas" />
+                                                            <SelectValue placeholder="Pilih entity" />
                                                         </SelectTrigger>
                                                     </FormControl>
                                                     <SelectContent>
-                                                        {entitasList.map((entitas) => (
-                                                            <SelectItem key={entitas.id} value={entitas.kode_entitas}>
-                                                                {entitas.nama}
+                                                        {entityList.map((entity) => (
+                                                            <SelectItem key={entity.id} value={entity.entity_code}>
+                                                                {entity.name}
                                                             </SelectItem>
                                                         ))}
                                                     </SelectContent>
@@ -141,7 +141,7 @@ export default function CreateMasterApar({ entitasList, plantList }: Props) {
 
                                     <FormField
                                         control={form.control}
-                                        name="kode_plant"
+                                        name="plant_code"
                                         render={({ field }) => (
                                             <FormItem>
                                                 <FormLabel>Pilih Plant</FormLabel>
@@ -157,8 +157,8 @@ export default function CreateMasterApar({ entitasList, plantList }: Props) {
                                                     </FormControl>
                                                     <SelectContent>
                                                         {filteredPlants.map((plant) => (
-                                                            <SelectItem key={plant.id} value={plant.kode_plant}>
-                                                                {plant.nama}
+                                                            <SelectItem key={plant.id} value={plant.plant_code}>
+                                                                {plant.name}
                                                             </SelectItem>
                                                         ))}
                                                     </SelectContent>
@@ -170,7 +170,7 @@ export default function CreateMasterApar({ entitasList, plantList }: Props) {
 
                                     <FormField
                                         control={form.control}
-                                        name="no_apar"
+                                        name="apar_no"
                                         render={({ field }) => (
                                             <FormItem>
                                                 <FormLabel>No APAR / No APAB</FormLabel>
@@ -184,12 +184,12 @@ export default function CreateMasterApar({ entitasList, plantList }: Props) {
 
                                     <FormField
                                         control={form.control}
-                                        name="kode_ruang"
+                                        name="room_code"
                                         render={({ field }) => (
                                             <FormItem>
                                                 <FormLabel>Kode Ruang</FormLabel>
                                                 <FormControl>
-                                                    <Input placeholder="Enter kode ruang" {...field} />
+                                                    <Input placeholder="Enter kode room" {...field} />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -198,12 +198,12 @@ export default function CreateMasterApar({ entitasList, plantList }: Props) {
 
                                     <FormField
                                         control={form.control}
-                                        name="lokasi"
+                                        name="location"
                                         render={({ field }) => (
                                             <FormItem>
                                                 <FormLabel>Lokasi</FormLabel>
                                                 <FormControl>
-                                                    <Input placeholder="Enter lokasi" {...field} />
+                                                    <Input placeholder="Enter location" {...field} />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -212,7 +212,7 @@ export default function CreateMasterApar({ entitasList, plantList }: Props) {
 
                                     <FormField
                                         control={form.control}
-                                        name="jenis"
+                                        name="type"
                                         render={({ field }) => (
                                             <FormItem>
                                                 <FormLabel>Jenis</FormLabel>
@@ -222,7 +222,7 @@ export default function CreateMasterApar({ entitasList, plantList }: Props) {
                                                         value={field.value}
                                                     >
                                                         <SelectTrigger className="w-full">
-                                                            <SelectValue placeholder="Pilih jenis" />
+                                                            <SelectValue placeholder="Pilih type" />
                                                         </SelectTrigger>
                                                         <SelectContent>
                                                             <SelectItem value="Non Halon">Non Halon</SelectItem>
@@ -262,7 +262,7 @@ export default function CreateMasterApar({ entitasList, plantList }: Props) {
 
                                     <FormField
                                         control={form.control}
-                                        name="kode_inventaris"
+                                        name="inventory_code"
                                         render={({ field }) => (
                                             <FormItem>
                                                 <FormLabel>Kode Inventaris</FormLabel>

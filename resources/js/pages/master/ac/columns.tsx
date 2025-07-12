@@ -14,20 +14,20 @@ import { ColumnDef } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
 import { showToast } from '@/components/ui/toast'; // ✅ import toast
 
-export type MasterEntitas = {
-    nama: string;
+export type MasterEntity = {
+    name: string;
 };
 
 export type MasterPlant = {
-    nama: string;
+    name: string;
 };
 
 export type MasterAc = {
     id: string;
-    entitas: MasterEntitas[];
+    entity: MasterEntity[];
     plants: MasterPlant[];
-    ruang: string;
-    kode_inventaris: string;
+    room: string;
+    inventory_code: string;
     merk: string;
 };
 
@@ -40,23 +40,23 @@ export const columns: ColumnDef<MasterAc>[] = [
     {
         header: 'Entitas',
         accessorFn: (row) =>
-            row.entitas?.length > 0
-                ? row.entitas.map((e) => e.nama).join(', ')
+            row.entity?.length > 0
+                ? row.entity.map((e) => e.name).join(', ')
                 : '-',
     },
     {
         header: 'Plant',
         accessorFn: (row) =>
             row.plants?.length > 0
-                ? row.plants.map((p) => p.nama).join(', ')
+                ? row.plants.map((p) => p.name).join(', ')
                 : '-',
     },
     {
-        accessorKey: 'ruang',
+        accessorKey: 'room',
         header: 'Ruang',
     },
     {
-        accessorKey: 'kode_inventaris',
+        accessorKey: 'inventory_code',
         header: 'Kode Inventaris',
     },
     {
@@ -69,7 +69,7 @@ export const columns: ColumnDef<MasterAc>[] = [
         cell: ({ row }) => {
             const handleDelete = () => {
                 const confirmed = confirm(
-                    `Yakin ingin menghapus AC dengan kode inventaris "${row.original.kode_inventaris}"?`
+                    `Yakin ingin menghapus AC dengan kode inventaris "${row.original.inventory_code}"?`
                 );
                 if (confirmed) {
                     router.delete(`/master/ac/${row.original.id}`, {

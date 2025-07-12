@@ -29,19 +29,19 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 // Skema validasi menggunakan zod
 const formSchema = z.object({
-    nama_apd: z.string().min(1, 'Nama APD wajib diisi').max(255),
-    kriteria_inspeksi: z.string().min(1, 'Kriteria inspeksi wajib diisi'),
+    apd_name: z.string().min(1, 'Nama APD wajib diisi').max(255),
+    inspection_criteria: z.string().min(1, 'Kriteria inspeksi wajib diisi'),
 });
 
 type FormSchemaType = z.infer<typeof formSchema>;
 
-export default function EditMasterApd({
+export default function EditmasterApd({
     masterApd,
 }: {
     masterApd: {
         id: number;
-        nama_apd: string;
-        kriteria_inspeksi: string;
+        apd_name: string;
+        inspection_criteria: string;
     };
 }) {
     const { errors } = usePage().props as {
@@ -51,8 +51,8 @@ export default function EditMasterApd({
     const form = useForm<FormSchemaType>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            nama_apd: masterApd.nama_apd || '',
-            kriteria_inspeksi: masterApd.kriteria_inspeksi || '',
+            apd_name: masterApd.apd_name || '',
+            inspection_criteria: masterApd.inspection_criteria || '',
         },
     });
 
@@ -77,7 +77,7 @@ export default function EditMasterApd({
                 <div className="flex items-center justify-between">
                     <SectionHeader
                         title="Edit Master APD"
-                        subtitle="Perbarui data nama dan kriteria inspeksi APD di bawah ini."
+                        subtitle="Perbarui data name dan kriteria inspeksi APD di bawah ini."
                     />
                 </div>
 
@@ -87,7 +87,7 @@ export default function EditMasterApd({
                             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                                 <FormField
                                     control={form.control}
-                                    name="nama_apd"
+                                    name="apd_name"
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Nama APD</FormLabel>
@@ -101,7 +101,7 @@ export default function EditMasterApd({
 
                                 <FormField
                                     control={form.control}
-                                    name="kriteria_inspeksi"
+                                    name="inspection_criteria"
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Kriteria Inspeksi</FormLabel>

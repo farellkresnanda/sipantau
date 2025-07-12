@@ -6,7 +6,7 @@ use App\Exports\AparExport;
 use App\Http\Controllers\Controller;
 use App\Imports\AparImport;
 use App\Models\Master\MasterApar;
-use App\Models\Master\MasterEntitas;
+use App\Models\Master\MasterEntity;
 use App\Models\Master\MasterPlant;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -19,7 +19,8 @@ class MasterAparController extends Controller
      */
     public function index()
     {
-        $masterApar = MasterApar::latest()->with(['entitas', 'plants'])->get();
+        $masterApar = MasterApar::latest()->with(['entity', 'plants'])->get();
+
         return Inertia::render('master/apar/page', compact('masterApar'));
     }
 
@@ -28,9 +29,10 @@ class MasterAparController extends Controller
      */
     public function create()
     {
-        $entitasList = MasterEntitas::latest()->get(['id', 'nama', 'kode_entitas']);
-        $plantList = MasterPlant::latest()->get(['id', 'nama', 'kode_entitas', 'kode_plant']);
-        return Inertia::render('master/apar/create', compact('entitasList', 'plantList'));
+        $entityList = MasterEntity::latest()->get(['id', 'name', 'entity_code']);
+        $plantList = MasterPlant::latest()->get(['id', 'name', 'entity_code', 'plant_code']);
+
+        return Inertia::render('master/apar/create', compact('entityList', 'plantList'));
     }
 
     /**
@@ -39,14 +41,14 @@ class MasterAparController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'kode_entitas' => 'required|string|max:255',
-            'kode_plant' => 'required|string|max:255',
-            'no_apar' => 'required|string|max:255',
-            'kode_ruang' => 'required|string|max:255',
-            'lokasi' => 'required|string|max:255',
-            'jenis' => 'required|string|max:255',
+            'entity_code' => 'required|string|max:255',
+            'plant_code' => 'required|string|max:255',
+            'apar_no' => 'required|string|max:255',
+            'room_code' => 'required|string|max:255',
+            'location' => 'required|string|max:255',
+            'type' => 'required|string|max:255',
             'apar' => 'required|string|max:255',
-            'kode_inventaris' => 'required|string|max:255',
+            'inventory_code' => 'required|string|max:255',
         ]);
 
         MasterApar::create($request->all());
@@ -60,15 +62,16 @@ class MasterAparController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-
     public function show() {}
+
     public function edit(MasterApar $masterInspeksiApar, $id)
     {
 
         $masterApar = $masterInspeksiApar->findOrFail($id);
-        $entitasList = MasterEntitas::latest()->get(['id', 'nama', 'kode_entitas']);
-        $plantList = MasterPlant::latest()->get(['id', 'nama', 'kode_entitas', 'kode_plant']);
-        return Inertia::render('master/apar/edit', compact('masterApar', 'entitasList', 'plantList'));
+        $entityList = MasterEntity::latest()->get(['id', 'name', 'entity_code']);
+        $plantList = MasterPlant::latest()->get(['id', 'name', 'entity_code', 'plant_code']);
+
+        return Inertia::render('master/apar/edit', compact('masterApar', 'entityList', 'plantList'));
     }
 
     /**
@@ -78,14 +81,14 @@ class MasterAparController extends Controller
     {
 
         $request->validate([
-            'kode_entitas' => 'required|string|max:255',
-            'kode_plant' => 'required|string|max:255',
-            'no_apar' => 'required|string|max:255',
-            'kode_ruang' => 'required|string|max:255',
-            'lokasi' => 'required|string|max:255',
-            'jenis' => 'required|string|max:255',
+            'entity_code' => 'required|string|max:255',
+            'plant_code' => 'required|string|max:255',
+            'apar_no' => 'required|string|max:255',
+            'room_code' => 'required|string|max:255',
+            'location' => 'required|string|max:255',
+            'type' => 'required|string|max:255',
             'apar' => 'required|string|max:255',
-            'kode_inventaris' => 'required|string|max:255',
+            'inventory_code' => 'required|string|max:255',
         ]);
 
         $masterInspeksiApar = $masterInspeksiApar->findOrFail($id);
@@ -117,13 +120,10 @@ class MasterAparController extends Controller
         return Inertia::render('master/apar/import');
     }
 
-
-
-
     public function action_import(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|mimes:xlsx,xls'
+            'file' => 'required|file|mimes:xlsx,xls',
         ]);
 
         Excel::import(new AparImport, $request->file('file'));

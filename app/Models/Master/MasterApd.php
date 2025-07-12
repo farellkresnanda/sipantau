@@ -4,9 +4,7 @@ namespace App\Models\Master;
 
 use Illuminate\Database\Eloquent\Model;
 
-class MasterApd extends Model
+class masterApd extends Model
 {
-    protected $table = 'master_apd';
-
     protected $guarded = [];
 }

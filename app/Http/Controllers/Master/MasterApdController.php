@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Master;
 
 use App\Http\Controllers\Controller;
-use App\Models\Master\MasterApd;
+use App\Models\Master\masterApd;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -14,7 +14,8 @@ class MasterApdController extends Controller
      */
     public function index()
     {
-        $masterApd = MasterApd::latest()->get();
+        $masterApd = masterApd::latest()->get();
+
         return Inertia::render('master/apd/page', compact('masterApd'));
     }
 
@@ -32,11 +33,11 @@ class MasterApdController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama_apd' => 'required|string|max:255',
-            'kriteria_inspeksi' => 'required|string',
+            'apd_name' => 'required|string|max:255',
+            'inspection_criteria' => 'required|string',
         ]);
 
-        MasterApd::create($request->all());
+        masterApd::create($request->all());
 
         activity()->log('User created a new master APD');
 
@@ -47,24 +48,25 @@ class MasterApdController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(MasterApd $masterInspeksiApd, $id)
+    public function edit(masterApd $masterApd, $id)
     {
-        $masterApd = $masterInspeksiApd->findOrFail($id);
+        $masterApd = $masterApd->findOrFail($id);
+
         return Inertia::render('master/apd/edit', compact('masterApd'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, MasterApd $masterInspeksiApd)
+    public function update(Request $request, masterApd $masterApd)
     {
         $request->validate([
-            'nama_apd' => 'required|string|max:255',
-            'kriteria_inspeksi' => 'required|string',
+            'apd_name' => 'required|string|max:255',
+            'inspection_criteria' => 'required|string',
         ]);
 
-        $masterInspeksiApd = $masterInspeksiApd->findOrFail($request->id);
-        $masterInspeksiApd->update($request->all());
+        $masterApd = $masterApd->findOrFail($request->id);
+        $masterApd->update($request->all());
 
         activity()->log('User updated a master APD');
 
@@ -75,10 +77,10 @@ class MasterApdController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(MasterApd $masterInspeksiApd, $id)
+    public function destroy(masterApd $masterApd, $id)
     {
-        $masterInspeksiApd = $masterInspeksiApd->findOrFail($id);
-        $masterInspeksiApd->delete();
+        $masterApd = $masterApd->findOrFail($id);
+        $masterApd->delete();
 
         activity()->log('User deleted a master APD');
 

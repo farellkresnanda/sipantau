@@ -13,28 +13,44 @@ import { Link, router } from '@inertiajs/react';
 import type { ColumnDef } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
 
-export type MasterApd = {
+export type masterApd = {
     id: string;
-    nama_apd: string;
-    kriteria_inspeksi: string;
+    apd_name: string;
+    inspection_criteria: string;
+    created_at: string;
+    updated_at: string;
 };
 
-export const columns: ColumnDef<MasterApd, unknown>[] = [
+export const columns: ColumnDef<masterApd, unknown>[] = [
     {
         id: 'index',
-        header: 'No',
+        header: 'No.',
         cell: ({ row }) => row.index + 1,
     },
     {
-        accessorKey: 'nama_apd',
+        accessorKey: 'apd_name',
         header: 'Nama APD',
     },
     {
-        accessorKey: 'kriteria_inspeksi',
+        accessorKey: 'inspection_criteria',
         header: 'Kriteria Inspeksi',
-        cell: ({ row }) => (
-            <div className="whitespace-pre-wrap">{row.original.kriteria_inspeksi}</div>
-        ),
+        cell: ({ row }) => <div className="whitespace-pre-wrap">{row.original.inspection_criteria}</div>,
+    },
+    {
+        accessorKey: 'created_at',
+        header: 'Dibuat',
+        cell: ({ getValue }) => {
+            const value = getValue() as string;
+            return value?.replace('T', ' ').split('.')[0];
+        },
+    },
+    {
+        accessorKey: 'updated_at',
+        header: 'Diubah',
+        cell: ({ getValue }) => {
+            const value = getValue() as string;
+            return value?.replace('T', ' ').split('.')[0];
+        },
     },
     {
         id: 'actions',

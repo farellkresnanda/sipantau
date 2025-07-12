@@ -28,13 +28,13 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 // Skema validasi dengan zod
 const formSchema = z.object({
-  jenis_mesin: z.string().min(1, 'Jenis mesin wajib diisi'),
+  machine_type: z.string().min(1, 'Jenis mesin wajib diisi'),
   merk: z.string().min(1, 'Merk wajib diisi'),
   model: z.string().min(1, 'Model wajib diisi'),
-  negara_thn_pembuatan: z.string().min(1, 'Negara & tahun pembuatan wajib diisi'),
-  pabrik_pembuat: z.string().min(1, 'Pabrik pembuat wajib diisi'),
-  no_seri: z.string().min(1, 'No seri wajib diisi'),
-  kapasitas: z.string().min(1, 'Kapasitas wajib diisi'),
+  country_year_of_manufacture: z.string().min(1, 'Negara & tahun pembuatan wajib diisi'),
+  manufacturer: z.string().min(1, 'Pabrik pembuat wajib diisi'),
+  serial_number: z.string().min(1, 'No seri wajib diisi'),
+  capacity: z.string().min(1, 'Kapasitas wajib diisi'),
 });
 
 type FormSchemaType = z.infer<typeof formSchema>;
@@ -43,13 +43,13 @@ export default function CreateMasterGenset() {
   const form = useForm<FormSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      jenis_mesin: '',
+      machine_type: '',
       merk: '',
       model: '',
-      negara_thn_pembuatan: '',
-      pabrik_pembuat: '',
-      no_seri: '',
-      kapasitas: '',
+      country_year_of_manufacture: '',
+      manufacturer: '',
+      serial_number: '',
+      capacity: '',
     },
   });
 
@@ -77,7 +77,7 @@ export default function CreateMasterGenset() {
                   <div className="space-y-4">
                     <FormField
                       control={form.control}
-                      name="jenis_mesin"
+                      name="machine_type"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Jenis Mesin</FormLabel>
@@ -119,7 +119,7 @@ export default function CreateMasterGenset() {
 
                     <FormField
                       control={form.control}
-                      name="negara_thn_pembuatan"
+                      name="country_year_of_manufacture"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Negara & Tahun Pembuatan</FormLabel>
@@ -136,7 +136,7 @@ export default function CreateMasterGenset() {
                   <div className="space-y-4">
                     <FormField
                       control={form.control}
-                      name="pabrik_pembuat"
+                      name="manufacturer"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Pabrik Pembuat</FormLabel>
@@ -150,7 +150,7 @@ export default function CreateMasterGenset() {
 
                     <FormField
                       control={form.control}
-                      name="no_seri"
+                      name="serial_number"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>No Seri</FormLabel>
@@ -164,7 +164,7 @@ export default function CreateMasterGenset() {
 
                     <FormField
                       control={form.control}
-                      name="kapasitas"
+                      name="capacity"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Kapasitas</FormLabel>

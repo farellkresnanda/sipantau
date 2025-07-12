@@ -7,7 +7,6 @@ use App\Http\Controllers\Controller;
 use App\Imports\P3kImport;
 use App\Models\Master\MasterP3k;
 use App\Models\Master\MasterPlant;
-use App\Models\Master\MasterEntitas;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Maatwebsite\Excel\Facades\Excel;
@@ -20,26 +19,26 @@ class MasterP3kController extends Controller
     public function index()
     {
         $data = MasterP3k::query()
-            // Perbarui nama relasi di sini
+            // Perbarui name relasi di sini
             ->with([
-                'entitasData:kode_entitas,nama', // <-- GUNAKAN NAMA FUNGSI RELASI BARU
-                'plantData:kode_plant,nama',     // <-- GUNAKAN NAMA FUNGSI RELASI BARU
+                'entityData:entity_code,name', // <-- GUNAKAN NAMA FUNGSI RELASI BARU
+                'plantData:plant_code,name',     // <-- GUNAKAN NAMA FUNGSI RELASI BARU
             ])
             ->latest()
             ->get()
             ->map(function ($p3k) {
                 return [
                     'id' => $p3k->id,
-                    'kode_entitas' => $p3k->kode_entitas,
-                    'kode_plant' => $p3k->kode_plant,
+                    'entity_code' => $p3k->entity_code,
+                    'plant_code' => $p3k->plant_code,
                     'no_p3k' => $p3k->no_p3k,
-                    'kode_ruang' => $p3k->kode_ruang,
-                    'lokasi' => $p3k->lokasi,
-                    'jenis' => $p3k->jenis,
-                    'kode_inventaris' => $p3k->kode_inventaris,
-                    // Akses relasi dengan nama fungsi relasi yang baru
-                    'entitas' => $p3k->entitasData ? ['nama' => $p3k->entitasData->nama] : null, // <-- GUNAKAN NAMA FUNGSI RELASI BARU
-                    'plant_nama' => $p3k->plantData ? $p3k->plantData->nama : null, // <-- GUNAKAN NAMA FUNGSI RELASI BARU
+                    'room_code' => $p3k->room_code,
+                    'location' => $p3k->location,
+                    'type' => $p3k->type,
+                    'inventory_code' => $p3k->inventory_code,
+                    // Akses relasi dengan name fungsi relasi yang baru
+                    'entity' => $p3k->entityData ? ['name' => $p3k->entityData->name] : null, // <-- GUNAKAN NAMA FUNGSI RELASI BARU
+                    'plant_name' => $p3k->plantData ? $p3k->plantData->name : null, // <-- GUNAKAN NAMA FUNGSI RELASI BARU
                 ];
             });
 
@@ -54,14 +53,14 @@ class MasterP3kController extends Controller
     public function create()
     {
         $plants = MasterPlant::select(
-                'master_plant.id',
-                'master_plant.nama as nama_plant',
-                'master_plant.kode_entitas',
-                'master_plant.kode_plant',
-                'master_entitas.nama as entitas_nama'
-            )
-            ->leftJoin('master_entitas', 'master_plant.kode_entitas', '=', 'master_entitas.kode_entitas')
-            ->orderBy('master_entitas.nama')
+            'master_plant.id',
+            'master_plant.name as name_plant',
+            'master_plant.entity_code',
+            'master_plant.plant_code',
+            'master_entities.name as entity_name'
+        )
+            ->leftJoin('master_entities', 'master_plant.entity_code', '=', 'master_entities.entity_code')
+            ->orderBy('master_entities.name')
             ->get();
 
         return Inertia::render('master/p3k/create', [
@@ -75,13 +74,13 @@ class MasterP3kController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'kode_entitas'      => 'required|string|max:10',
-            'kode_plant'        => 'required|string|max:10',
-            'no_p3k'            => 'required|string|max:50',
-            'kode_ruang'        => 'required|string|max:100',
-            'lokasi'            => 'required|string|max:255',
-            'jenis'             => 'required|string|max:10',
-            'kode_inventaris'   => 'required|string|max:100',
+            'entity_code' => 'required|string|max:10',
+            'plant_code' => 'required|string|max:10',
+            'no_p3k' => 'required|string|max:50',
+            'room_code' => 'required|string|max:100',
+            'location' => 'required|string|max:255',
+            'type' => 'required|string|max:10',
+            'inventory_code' => 'required|string|max:100',
         ]);
 
         MasterP3k::create($validated);
@@ -89,24 +88,23 @@ class MasterP3kController extends Controller
         return redirect()->route('p3k.index')->with('success', 'Data P3K berhasil ditambahkan.');
     }
 
-    
     public function edit(MasterP3k $p3k)
     {
-        // Perbarui nama relasi 
+        // Perbarui name relasi
         $p3k->load([
-            'entitasData:kode_entitas,nama', 
-            'plantData:kode_plant,nama'      
+            'entityData:entity_code,name',
+            'plantData:plant_code,name',
         ]);
 
         $plants = MasterPlant::select(
-                'master_plant.id',
-                'master_plant.nama as nama_plant',
-                'master_plant.kode_entitas',
-                'master_plant.kode_plant',
-                'master_entitas.nama as entitas_nama'
-            )
-            ->leftJoin('master_entitas', 'master_plant.kode_entitas', '=', 'master_entitas.kode_entitas')
-            ->orderBy('master_entitas.nama')
+            'master_plant.id',
+            'master_plant.name as name_plant',
+            'master_plant.entity_code',
+            'master_plant.plant_code',
+            'master_entities.name as entity_name'
+        )
+            ->leftJoin('master_entities', 'master_plant.entity_code', '=', 'master_entities.entity_code')
+            ->orderBy('master_entities.name')
             ->get();
 
         return Inertia::render('master/p3k/edit', [
@@ -121,13 +119,13 @@ class MasterP3kController extends Controller
     public function update(Request $request, MasterP3k $p3k)
     {
         $validated = $request->validate([
-            'kode_entitas'      => 'required|string|max:10',
-            'kode_plant'        => 'required|string|max:10',
-            'no_p3k'            => 'required|string|max:50',
-            'kode_ruang'        => 'required|string|max:100',
-            'lokasi'            => 'required|string|max:255',
-            'jenis'             => 'required|string|max:10',
-            'kode_inventaris'   => 'required|string|max:100',
+            'entity_code' => 'required|string|max:10',
+            'plant_code' => 'required|string|max:10',
+            'no_p3k' => 'required|string|max:50',
+            'room_code' => 'required|string|max:100',
+            'location' => 'required|string|max:255',
+            'type' => 'required|string|max:10',
+            'inventory_code' => 'required|string|max:100',
         ]);
 
         $p3k->update($validated);
@@ -145,31 +143,27 @@ class MasterP3kController extends Controller
         return redirect()->route('p3k.index')->with('success', 'Data P3K berhasil dihapus.');
     }
 
-
-       public function import()
+    public function import()
     {
         // dd('OKE')  ;
         return Inertia::render('master/p3k/import');
     }
 
+    public function action_import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls',
+        ]);
 
-       
+        Excel::import(new P3kImport, $request->file('file'));
 
-public function action_import(Request $request)
-{
-    $request->validate([
-        'file' => 'required|file|mimes:xlsx,xls'
-    ]);
+        activity()->log('User import master P3K');
 
-    Excel::import(new P3kImport, $request->file('file'));
+        return redirect()->route('p3k.index')
+            ->with('success', 'Master P3K imported successfully.');
+    }
 
-    activity()->log('User import master P3K');
-
-    return redirect()->route('p3k.index')
-        ->with('success', 'Master P3K imported successfully.');
-}
-
-   public function export() 
+    public function export()
     {
         return Excel::download(new P3kExport, 'master_data_p3k.xlsx');
     }

@@ -13,17 +13,17 @@ import { Link, router } from '@inertiajs/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
 
-// Tipe relasi deskripsi (anak)
+// Tipe relasi description (anak)
 type DeskripsiItem = {
     id: number;
-    deskripsi: string;
+    description: string;
 };
 
 // Tipe data utama dari MasterK3l (induk)
 export type MasterK3l = {
     id: string;
-    tujuan: string;
-    deskripsi: DeskripsiItem[]; // ← ini relasi one-to-many
+    objective: string;
+    description: DeskripsiItem[]; // ← ini relasi one-to-many
 };
 
 export const columns: ColumnDef<MasterK3l>[] = [
@@ -32,13 +32,13 @@ export const columns: ColumnDef<MasterK3l>[] = [
         header: 'No',
     },
     {
-        accessorKey: 'tujuan',
+        accessorKey: 'objective',
         header: 'Tujuan',
     },
     {
-        id: 'deskripsi',
+        id: 'description',
         header: 'Deskripsi',
-        cell: ({ row }) => <ul className="list-disc pl-4">{row.original.deskripsi?.map((d) => <li key={d.id}>{d.deskripsi}</li>)}</ul>,
+        cell: ({ row }) => <ul className="list-disc pl-4">{row.original.description?.map((d) => <li key={d.id}>{d.description}</li>)}</ul>,
     },
     {
         id: 'actions',

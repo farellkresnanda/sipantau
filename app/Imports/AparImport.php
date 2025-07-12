@@ -16,14 +16,14 @@ class AparImport implements ToModel, WithStartRow
     public function model(array $row)
     {
         return new MasterApar([
-            'kode_entitas'     => $row[0],
-            'kode_plant'       => $row[1],
-            'no_apar'          => $row[2],
-            'kode_ruang'       => $row[3],
-            'lokasi'           => $row[4],
-            'jenis'            => $row[5],
-            'apar'             => $row[6],
-            'kode_inventaris'  => $row[7],
+            'entity_code' => $row[0],
+            'plant_code' => $row[1],
+            'apar_no' => $row[2],
+            'room_code' => $row[3],
+            'location' => $row[4],
+            'type' => $row[5],
+            'apar' => $row[6],
+            'inventory_code' => $row[7],
         ]);
     }
 }

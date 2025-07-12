@@ -20,15 +20,15 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 const formSchema = z.object({
-    tujuan: z.string().min(1, { message: 'Tujuan wajib diisi' }).max(255),
-    deskripsi: z
+    objective: z.string().min(1, { message: 'Tujuan wajib diisi' }).max(255),
+    description: z
         .array(
             z.object({
                 id: z.number().optional(),
-                deskripsi: z.string().min(1, { message: 'Deskripsi wajib diisi' }),
+                description: z.string().min(1, { message: 'Deskripsi wajib diisi' }),
             }),
         )
-        .min(1, { message: 'Minimal satu deskripsi' }),
+        .min(1, { message: 'Minimal satu description' }),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -36,8 +36,8 @@ type FormData = z.infer<typeof formSchema>;
 interface EditPageProps {
     data: {
         id: number;
-        tujuan: string;
-        deskripsi: { id?: number; deskripsi: string }[];
+        objective: string;
+        description: { id?: number; description: string }[];
     };
     errors: Record<string, string>;
 }
@@ -48,20 +48,20 @@ export default function EditMasterK3l() {
     const form = useForm<FormData>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            tujuan: data.tujuan,
-            deskripsi: data.deskripsi,
+            objective: data.objective,
+            description: data.description,
         },
     });
 
     const { fields, append, remove } = useFieldArray({
         control: form.control,
-        name: 'deskripsi',
+        name: 'description',
     });
 
     useEffect(() => {
         form.reset({
-            tujuan: data.tujuan,
-            deskripsi: data.deskripsi,
+            objective: data.objective,
+            description: data.description,
         });
     }, [data]);
 
@@ -83,7 +83,7 @@ export default function EditMasterK3l() {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Edit Master K3l" />
             <div className="space-y-6 p-4">
-                <SectionHeader title="Edit Data Master K3l" subtitle="Perbarui data tujuan dan deskripsi K3L" />
+                <SectionHeader title="Edit Data Master K3l" subtitle="Perbarui data objective dan description K3L" />
 
                 <Card>
                     <CardContent className="p-6">
@@ -94,12 +94,12 @@ export default function EditMasterK3l() {
                                     <div className="w-10" />
                                     <FormField
                                         control={form.control}
-                                        name="tujuan"
+                                        name="objective"
                                         render={({ field }) => (
                                             <FormItem className="w-full">
                                                 <FormLabel>Tujuan</FormLabel>
                                                 <FormControl>
-                                                    <Input placeholder="Masukkan tujuan" {...field} />
+                                                    <Input placeholder="Masukkan objective" {...field} />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -128,8 +128,8 @@ export default function EditMasterK3l() {
                                                     type="button"
                                                     variant="outline"
                                                     size="icon"
-                                                    onClick={() => append({ deskripsi: '' })}
-                                                    title="Tambah deskripsi"
+                                                    onClick={() => append({ description: '' })}
+                                                    title="Tambah description"
                                                     className="h-10 w-10"
                                                     disabled={!isLast} // Hanya aktif di baris terakhir
                                                 >
@@ -139,7 +139,7 @@ export default function EditMasterK3l() {
                                                 {/* Kolom tengah: Input Deskripsi */}
                                                 <FormField
                                                     control={form.control}
-                                                    name={`deskripsi.${index}.deskripsi`}
+                                                    name={`description.${index}.description`}
                                                     render={({ field }) => (
                                                         <FormItem className="w-full">
                                                             <FormControl>
@@ -156,7 +156,7 @@ export default function EditMasterK3l() {
                                                     variant="destructive"
                                                     size="icon"
                                                     onClick={() => remove(index)}
-                                                    title="Hapus deskripsi"
+                                                    title="Hapus description"
                                                     className="h-10 w-10"
                                                     disabled={!showDelete} // Hanya aktif jika lebih dari 1 field
                                                 >
