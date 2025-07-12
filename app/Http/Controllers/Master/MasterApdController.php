@@ -14,6 +14,7 @@ class MasterApdController extends Controller
      */
     public function index()
     {
+        // Master APD
         $masterApd = MasterApd::latest()->get();
 
         return Inertia::render('master/apd/page', compact('masterApd'));
