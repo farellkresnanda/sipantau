@@ -76,6 +76,18 @@ class UserController extends Controller
         return redirect()->route('users.index')->with('success', 'User created successfully.');
     }
 
+
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
+    {
+        $user = User::with('roles')->findOrFail($id);
+
+        return Inertia::render('users/show', compact('user'));
+    }
+
     /**
      * Show the form for editing the specified resource.
      */

@@ -33,6 +33,11 @@ export const columns: ColumnDef<User>[] = [
     {
         accessorKey: 'name',
         header: 'Name',
+        cell: ({ row }) => (
+            <Link href={`/users/${row.original.id}`} className="hover:underline">
+                {row.original.name}
+            </Link>
+        ),
     },
     {
         accessorKey: 'npp',
