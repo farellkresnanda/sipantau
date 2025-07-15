@@ -98,7 +98,7 @@ export const columns: ColumnDef<MasterP3k>[] = [
                         <DropdownMenuItem asChild>
                             <Link href={route('p3k.edit', row.original.id)}>Edit</Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={handleDelete}>Hapus</DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">Hapus</DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             );

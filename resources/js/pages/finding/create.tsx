@@ -22,7 +22,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 const formSchema = z.object({
     date: z.string().min(1, { message: 'Tanggal is required' }),
     nonconformity_type_id: z.string().min(1, { message: 'Jenis ketidaksesuaian is required' }),
-    nonconformity_subtype_id: z.string().min(1, { message: 'Sub type ketidaksesuaian is required' }),
+    nonconformity_subtype_id: z.string().optional(),
     finding_description: z.string().min(1, { message: 'Deskripsi finding is required' }),
     photo_before: z.instanceof(File, { message: 'Foto finding is required' }),
     location_details: z.string().min(1, { message: 'Detail location finding is required' }),

@@ -3,6 +3,8 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Master\MasterEntity;
+use App\Models\Master\MasterPlant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -45,8 +47,8 @@ class User extends Authenticatable
         'sub_unit_name',
         'department_code',
         'department_name',
-        'branch_manager_code',
-        'branch_manager_name',
+        'plant_code',
+        'plant_name',
     ];
 
     /**
@@ -70,5 +72,15 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function entity()
+    {
+        return $this->belongsTo(MasterEntity::class, 'entity_code', 'entity_code');
+    }
+
+    public function plant()
+    {
+        return $this->belongsTo(MasterPlant::class, 'plant_code', 'plant_code');
     }
 }

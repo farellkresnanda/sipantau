@@ -55,8 +55,8 @@ const formSchema = z
         sub_unit_name: z.string(),
         department_code: z.string(),
         department_name: z.string(),
-        branch_manager_code: z.string(),
-        branch_manager_name: z.string(),
+        plant_code: z.string(),
+        plant_name: z.string(),
     })
     .refine((data) => data.password === data.password_confirmation, {
         message: 'Passwords do not match',
@@ -96,8 +96,8 @@ export default function CreateUser({ roles }: { roles: { id: string; name: strin
             sub_unit_name: '',
             department_code: '',
             department_name: '',
-            branch_manager_code: '',
-            branch_manager_name: '',
+            plant_code: '',
+            plant_name: '',
         },
     });
 
@@ -432,12 +432,12 @@ export default function CreateUser({ roles }: { roles: { id: string; name: strin
 
                                         <FormField
                                             control={form.control}
-                                            name="branch_manager_code"
+                                            name="plant_code"
                                             render={({ field }) => (
                                                 <FormItem>
-                                                    <FormLabel>Kode Branch Manager</FormLabel>
+                                                    <FormLabel>Kode Plant</FormLabel>
                                                     <FormControl>
-                                                        <Input placeholder="Masukkan Kode Branch Manager" {...field} />
+                                                        <Input placeholder="Masukkan Kode Plant" {...field} />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -446,12 +446,12 @@ export default function CreateUser({ roles }: { roles: { id: string; name: strin
 
                                         <FormField
                                             control={form.control}
-                                            name="branch_manager_name"
+                                            name="plant_name"
                                             render={({ field }) => (
                                                 <FormItem>
-                                                    <FormLabel>Nama Branch Manager</FormLabel>
+                                                    <FormLabel>Nama Plant</FormLabel>
                                                     <FormControl>
-                                                        <Input placeholder="Masukkan Nama Branch Manager" {...field} />
+                                                        <Input placeholder="Masukkan Nama Plant" {...field} />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>

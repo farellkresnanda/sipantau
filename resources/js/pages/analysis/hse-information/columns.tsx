@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown, CheckCircle, XCircle } from 'lucide-react';
 
@@ -108,7 +108,11 @@ export const columns: ColumnDef<{
         id: 'actions',
         cell: ({ row }) => {
             const hseInformation = row.original;
-
+            const handleDelete = () => {
+                if (confirm('Are you sure you want to delete this data?')) {
+                    router.delete(`/analysis/hse-information/${row.original.id}`);
+                }
+            };
             return (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -134,16 +138,7 @@ export const columns: ColumnDef<{
                         <DropdownMenuItem asChild>
                             <Link href={`/analysis/hse-information/${hseInformation.id}/edit`}>Edit</Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                            <Link
-                                href={`/analysis/hse-information/${hseInformation.id}`}
-                                method="delete"
-                                as="button"
-                                className="w-full text-left text-red-600 hover:text-red-700"
-                            >
-                                Delete
-                            </Link>
-                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">Delete</DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             );

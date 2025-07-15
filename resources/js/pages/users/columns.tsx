@@ -19,6 +19,16 @@ export type User = {
         id: number;
         name: string;
     }>;
+    entity: {
+        id: number;
+        name: string;
+        entity_code: string;
+    };
+    plant: {
+        id: number;
+        name: string;
+        plant_code: string;
+    };
     id: string;
     name: string;
     npp: string;
@@ -32,7 +42,7 @@ export const columns: ColumnDef<User>[] = [
     },
     {
         accessorKey: 'name',
-        header: 'Name',
+        header: 'Nama Pegawai',
         cell: ({ row }) => (
             <Link href={`/users/${row.original.id}`} className="hover:underline">
                 {row.original.name}
@@ -81,8 +91,23 @@ export const columns: ColumnDef<User>[] = [
         },
     },
     {
+        accessorKey: 'entity_plant',
+        header: 'Entitas & Plant',
+        cell: ({ row }) => {
+            const entity = row.original.entity;
+            const plant = row.original.plant;
+            return (
+                <div className="flex flex-col gap-1">
+                    <div>{entity ? `${entity.name} (${entity.entity_code})` : '-'}</div>
+                    <div className="text-sm text-gray-500">{plant ? `${plant.name} (${plant.plant_code})` : '-'}</div>
+                </div>
+            );
+        },
+    },
+
+    {
         accessorKey: 'created_at',
-        header: 'Created At',
+        header: 'Dibuat',
         cell: ({ getValue }) => {
             const value = getValue() as string;
             return value?.replace('T', ' ').split('.')[0];
@@ -90,7 +115,7 @@ export const columns: ColumnDef<User>[] = [
     },
     {
         accessorKey: 'updated_at',
-        header: 'Updated At',
+        header: 'Diubah',
         cell: ({ getValue }) => {
             const value = getValue() as string;
             return value?.replace('T', ' ').split('.')[0];
@@ -120,7 +145,7 @@ export const columns: ColumnDef<User>[] = [
                         <DropdownMenuItem asChild>
                             <Link href={`/users/${row.original.id}/edit`}>Edit User</Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={handleDelete}>Delete User</DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">Delete User</DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             );

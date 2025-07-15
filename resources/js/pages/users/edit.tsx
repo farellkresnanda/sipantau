@@ -46,8 +46,8 @@ const formSchema = z
         sub_unit_name: z.string().optional(),
         department_code: z.string().optional(),
         department_name: z.string().optional(),
-        branch_manager_code: z.string().optional(),
-        branch_manager_name: z.string().optional(),
+        plant_code: z.string().optional(),
+        plant_name: z.string().optional(),
     })
     .refine(
         (data) => {
@@ -93,8 +93,8 @@ export default function EditUser({
         sub_unit_name?: string;
         department_code?: string;
         department_name?: string;
-        branch_manager_code?: string;
-        branch_manager_name?: string;
+        plant_code?: string;
+        plant_name?: string;
     };
     roles: { id: string; name: string }[];
 }) {
@@ -130,8 +130,8 @@ export default function EditUser({
             sub_unit_name: user.sub_unit_name || '',
             department_code: user.department_code || '',
             department_name: user.department_name || '',
-            branch_manager_code: user.branch_manager_code || '',
-            branch_manager_name: user.branch_manager_name || '',
+            plant_code: user.plant_code || '',
+            plant_name: user.plant_name || '',
         },
     });
 
@@ -467,12 +467,12 @@ export default function EditUser({
 
                                         <FormField
                                             control={form.control}
-                                            name="branch_manager_code"
+                                            name="plant_code"
                                             render={({ field }) => (
                                                 <FormItem>
-                                                    <FormLabel>Kode Branch Manager</FormLabel>
+                                                    <FormLabel>Kode Plant</FormLabel>
                                                     <FormControl>
-                                                        <Input placeholder="Masukkan Kode Branch Manager" {...field} />
+                                                        <Input placeholder="Masukkan Kode Plant" {...field} />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -481,12 +481,12 @@ export default function EditUser({
 
                                         <FormField
                                             control={form.control}
-                                            name="branch_manager_name"
+                                            name="plant_name"
                                             render={({ field }) => (
                                                 <FormItem>
-                                                    <FormLabel>Nama Branch Manager</FormLabel>
+                                                    <FormLabel>Nama Plant</FormLabel>
                                                     <FormControl>
-                                                        <Input placeholder="Masukkan Nama Branch Manager" {...field} />
+                                                        <Input placeholder="Masukkan Nama Plant" {...field} />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>

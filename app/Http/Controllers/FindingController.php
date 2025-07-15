@@ -17,8 +17,7 @@ class FindingController extends Controller
      */
     public function index()
     {
-        $findings = Finding::latest()->with(['nonconformityType', 'findingStatus'])->get();
-
+        $findings = Finding::latest()->with(['nonconformityType', 'findingStatus', 'entity', 'plant', 'createdBy'])->get();
         return Inertia::render('finding/page', compact('findings'));
     }
 
@@ -62,12 +61,14 @@ class FindingController extends Controller
             }
 
             // Generate CAR number (you may want to extract this logic into a service later)
-            $carNumber = 'KFHO/'.sprintf('%03d', Finding::count() + 1).'/'.now()->format('d/m/Y');
+            $carNumber = auth()->user()->plant->alias_name . '/' . sprintf('%03d', Finding::count() + 1) . '/' . now()->format('d/m/Y');
 
             // Create the finding
             $finding = Finding::create(array_merge($data, [
                 'finding_status_code' => 'SOP', // Status Open
                 'created_by' => auth()->id(),
+                'entity_code' => auth()->user()->entity_code,
+                'plant_code' => auth()->user()->plant_code,
                 'car_number_auto' => $carNumber,
             ]));
 
@@ -94,8 +95,7 @@ class FindingController extends Controller
      */
     public function show($id)
     {
-        $finding = Finding::with(['nonconformityType', 'nonconformitySubType', 'findingApprovalHistories', 'findingStatus', 'createdBy'])->findOrFail($id);
-
+        $finding = Finding::with(['nonconformityType', 'nonconformitySubType', 'findingApprovalHistories', 'findingStatus', 'entity', 'plant', 'createdBy'])->findOrFail($id);
         return Inertia::render('finding/show', compact('finding'));
     }
 
