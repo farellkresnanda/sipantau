@@ -36,7 +36,7 @@ class MasterPlantController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'plant_code' => 'required|unique:master_plant,plant_code',
+            'plant_code' => 'required|unique:master_plants,plant_code',
             'entity_code' => 'required',
             'name' => 'required',
         ]);
@@ -69,7 +69,7 @@ class MasterPlantController extends Controller
     public function update(Request $request, MasterPlant $masterPlant)
     {
         $request->validate([
-            'plant_code' => 'required|string|max:255|unique:master_plant,plant_code,'.$request->id,
+            'plant_code' => 'required|string|max:255|unique:master_plants,plant_code,'.$request->id,
             'entity_code' => 'required|string|max:255',
             'name' => 'required|string|max:255',
         ]);

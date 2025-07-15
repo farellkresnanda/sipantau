@@ -45,13 +45,13 @@ class MasterBuildingController extends Controller
     public function create()
     {
         $plants = MasterPlant::select(
-            'master_plant.id',
-            'master_plant.name as name_plant',
-            'master_plant.entity_code',
-            'master_plant.plant_code',
+            'master_plants.id',
+            'master_plants.name as name_plant',
+            'master_plants.entity_code',
+            'master_plants.plant_code',
             'master_entities.name as entity_name'
         )
-            ->leftJoin('master_entities', 'master_plant.entity_code', '=', 'master_entities.entity_code')
+            ->leftJoin('master_entities', 'master_plants.entity_code', '=', 'master_entities.entity_code')
             ->orderBy('master_entities.name')
             ->get();
 
@@ -87,13 +87,13 @@ class MasterBuildingController extends Controller
         ]);
 
         $plants = MasterPlant::select(
-            'master_plant.id',
-            'master_plant.name as name_plant',
-            'master_plant.entity_code',
-            'master_plant.plant_code',
+            'master_plants.id',
+            'master_plants.name as name_plant',
+            'master_plants.entity_code',
+            'master_plants.plant_code',
             'master_entities.name as entity_name'
         )
-            ->leftJoin('master_entities', 'master_plant.entity_code', '=', 'master_entities.entity_code')
+            ->leftJoin('master_entities', 'master_plants.entity_code', '=', 'master_entities.entity_code')
             ->orderBy('master_entities.name')
             ->get();
 

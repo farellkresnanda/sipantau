@@ -147,14 +147,20 @@ const mainNavItems: NavItemWithChildren[] = [
         ],
     },
 
+    // {
+    //     title: 'Hak Akses Modul',
+    //     href: '/module-managers',
+    //     icon: LayoutGrid,
+    // },
+
     {
-        title: 'Manage',
+        title: 'Kelola Data',
         href: '#',
         icon: UsersIcon,
         roles: ['SuperAdmin', 'Admin'],
         children: [
             {
-                title: 'Master Users',
+                title: 'Master Pengguna',
                 href: '/users',
                 icon: UsersIcon,
             },

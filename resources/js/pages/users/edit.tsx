@@ -14,7 +14,7 @@ import * as z from 'zod';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Home', href: '/' },
-    { title: 'Manage Users', href: '/users' },
+    { title: 'Kelola Data Pengguna', href: '/users' },
     { title: 'Edit User', href: '#' },
 ];
 

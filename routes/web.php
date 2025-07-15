@@ -22,6 +22,7 @@ use App\Http\Controllers\Master\MasterPriorityScaleController;
 use App\Http\Controllers\Master\MasterProbabilityController;
 use App\Http\Controllers\Master\MasterTestEquipmentReportController;
 use App\Http\Controllers\Master\MasterTestFacilityReportController;
+use App\Http\Controllers\ModuleManagerController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -38,6 +39,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('home');
 
     // Temuan routes
+    Route::post('finding/verify/{uiid}', [FindingController::class, 'verify'])->name('finding.verify');
     Route::resource('finding', FindingController::class);
 
     // Analysis routes
@@ -52,8 +54,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Role Admin and SuperAdmin routes
     Route::group(['middleware' => ['role:Admin|SuperAdmin']], function () {
 
-        // Master Data routes
+        // User Management routes
         Route::resource('users', UserController::class);
+        // Module Manager routes
+        Route::resource('module-managers', ModuleManagerController::class);
+        // Master Data routes
         Route::prefix('master')->group(function () {
             Route::resource('entity', MasterEntityController::class);
             Route::get('ac/export', [MasterAcController::class, 'export'])->name('ac.export');

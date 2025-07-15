@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\UserStageHelper;
 use App\Models\Finding;
+use App\Models\FindingApprovalAssignment;
 use App\Models\FindingApprovalHistory;
 use App\Models\FindingApprovalStage;
 use App\Models\Master\MasterNonconformityType;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -18,7 +22,23 @@ class FindingController extends Controller
      */
     public function index()
     {
-        $findings = Finding::latest()->with(['nonconformityType', 'findingStatus', 'entity', 'plant', 'createdBy'])->get();
+        $user = Auth::user();
+        $rolesCanViewAll = ['SuperAdmin', 'Admin', 'Viewer'];
+
+        $findings = Finding::latest()
+            ->with(['nonconformityType', 'findingStatus', 'entity', 'plant', 'createdBy'])
+            ->when(!in_array($user->role, $rolesCanViewAll), function ($query) use ($user) {
+                $query->where(function ($q) use ($user) {
+                    // 1. Created by current user
+                    $q->where('created_by', $user->id)
+                        // 2. OR exists approval assignment for this user
+                        ->orWhereHas('findingApprovalHistories.findingApprovalAssignment', function ($subQuery) use ($user) {
+                            $subQuery->where('user_id', $user->id);
+                        });
+                });
+            })
+            ->get();
+
         return Inertia::render('finding/page', compact('findings'));
     }
 
@@ -74,18 +94,38 @@ class FindingController extends Controller
                 'car_number_auto' => $carNumber,
             ]));
 
-            // Get all approval stages, ordered
-            $findingApprovalStage = FindingApprovalStage::orderBy('stage')->get();
+            // Step 1: Ambil semua stage approval berurutan
+            $findingApprovalStage = FindingApprovalStage::orderBy('sequence')->get();
 
-            foreach ($findingApprovalStage as $row) {
-                FindingApprovalHistory::create([
+            foreach ($findingApprovalStage as $stage) {
+                // Step 2: Buat entry history per stage
+                $history = FindingApprovalHistory::create([
                     'finding_id' => $finding->id,
-                    'stage' => $row->stage,
+                    'stage' => $stage->stage,
+                    'finding_approval_stage_id' => $stage->id,
                     'approval_status' => 'PENDING',
                     'verified_by' => null,
                     'verified_at' => null,
                     'note' => null,
                 ]);
+
+                // Step 3: Cari semua user dengan role sesuai dan entitas yang sama
+                $users  = UserStageHelper::getUsersForStage($stage, $finding);
+
+                // Step 4: Assign user ke tahap approval ini
+                foreach ($users as $user) {
+                    FindingApprovalAssignment::create([
+                        'finding_approval_history_id' => $history->id,
+                        'user_id' => $user->id,
+                        'is_verified' => false,
+                        'verified_at' => null,
+                        'note' => null,
+                    ]);
+
+                    // (Opsional) Kirim notifikasi ke user
+                    // Notification::send($user, new FindingAssignedNotification($finding, $stage->stage));
+                }
+
             }
         });
 
@@ -97,7 +137,7 @@ class FindingController extends Controller
      */
     public function show($uuid)
     {
-        $finding = Finding::with(['nonconformityType', 'nonconformitySubType', 'findingApprovalHistories', 'findingStatus', 'entity', 'plant', 'createdBy'])->where('uuid', $uuid)->firstOrFail();
+        $finding = Finding::with(['nonconformityType', 'nonconformitySubType', 'findingApprovalHistories','findingApprovalHistories.findingApprovalAssignment.user', 'findingStatus', 'entity', 'plant', 'createdBy'])->where('uuid', $uuid)->firstOrFail();
         return Inertia::render('finding/show', compact('finding'));
     }
 
@@ -170,8 +210,102 @@ class FindingController extends Controller
             \Storage::disk('public')->delete($finding->photo_after);
         }
 
+        // Delete related approval assignments first
+        foreach ($finding->findingApprovalHistories as $history) {
+            $history->findingApprovalAssignment()->delete();
+        }
+
+        // Then delete the approval histories
+        $finding->findingApprovalHistories()->delete();
+
+        // Finally, delete the finding itself
         $finding->delete();
 
         return redirect()->route('finding.index')->with('success', 'Temuan deleted successfully.');
     }
+
+    /**
+     * Verify the finding approval.
+     */
+    public function verify(Request $request, $uuid)
+    {
+        $request->validate([
+            'approval_status' => 'required|in:APPROVED,REJECTED',
+            'corrective_plan' => 'required|string',
+            'corrective_due_date' => 'required|string',
+        ]);
+
+        $finding = Finding::where('uuid', $uuid)
+            ->with(['findingApprovalHistories.findingApprovalAssignment'])
+            ->firstOrFail();
+
+        // Ensure the finding is in a state that allows verification
+        $finding->update([
+            'corrective_plan' => $request->corrective_plan,
+            'corrective_due_date' => $request->corrective_due_date,
+        ]);
+
+        try {
+            DB::transaction(function () use ($request, $finding) {
+                $user = Auth::user();
+
+                // Find current user's assignment
+                $currentHistory = $finding->findingApprovalHistories()
+                    ->whereHas('findingApprovalAssignment', function ($query) use ($user) {
+                        $query->where('user_id', $user->id)
+                            ->where('is_verified', false);
+                    })
+                    ->first();
+
+                if (!$currentHistory) {
+                    throw new \Exception('No pending verification found for this user.');
+                }
+
+                // Update the assignment
+                $assignment = $currentHistory->findingApprovalAssignment()
+                    ->where('user_id', $user->id)
+                    ->first();
+
+                $assignment->update([
+                    'is_verified' => true,
+                    'verified_at' => now(),
+                    'note' => $request->note
+                ]);
+
+                // Check if all assignments for this history are verified
+                $allVerified = $currentHistory->findingApprovalAssignment()
+                    ->where('is_verified', false)
+                    ->doesntExist();
+
+                if ($allVerified) {
+                    // Update the history status
+                    $currentHistory->update([
+                        'approval_status' => $request->approval_status,
+                        'verified_by' => $user->id,
+                        'verified_at' => now(),
+                        'note' => $request->note
+                    ]);
+
+                    // If rejected, update finding status to rejected
+                    if ($request->approval_status === 'REJECTED') {
+                        $finding->update(['finding_status_code' => 'SRE']); // Status Rejected
+                    }
+
+                    // If approved and this is the last stage, update finding status to approved
+                    $isLastStage = !FindingApprovalHistory::where('finding_id', $finding->id)
+                        ->where('approval_status', 'PENDING')
+                        ->exists();
+                }
+            });
+
+            return redirect()->route('finding.show', $uuid)
+                ->with('success', 'Verification processed successfully.');
+
+        } catch (\Exception $e) {
+            return redirect()->route('finding.show', $uuid)
+                ->with('error', 'Error processing verification: ' . $e->getMessage());
+        }
+    }
+
+
 }

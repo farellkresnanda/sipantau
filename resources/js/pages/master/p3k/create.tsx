@@ -76,7 +76,7 @@ export default function CreateMasterP3k({ plants }: { plants: Plant[] }) {
         },
     });
 
-    const selectedEntitasKode = form.watch('entity_code');
+    const selectedEntityCode = form.watch('entity_code');
 
     useEffect(() => {
         Object.entries(errors).forEach(([key, message]) => {
@@ -97,8 +97,8 @@ export default function CreateMasterP3k({ plants }: { plants: Plant[] }) {
     }, [plants]);
 
     const filteredPlants = useMemo(() => {
-        return plants.filter(plant => plant.entity_code === selectedEntitasKode);
-    }, [plants, selectedEntitasKode]);
+        return plants.filter(plant => plant.entity_code === selectedEntityCode);
+    }, [plants, selectedEntityCode]);
 
     useEffect(() => {
         if (filteredPlants.length === 1) {
@@ -177,7 +177,7 @@ export default function CreateMasterP3k({ plants }: { plants: Plant[] }) {
                                                             <Select
                                                                 value={field.value}
                                                                 onValueChange={field.onChange}
-                                                                disabled={!selectedEntitasKode}
+                                                                disabled={!selectedEntityCode}
                                                             >
                                                                 <SelectTrigger className="w-full">
                                                                     <SelectValue placeholder="Pilih plant" />

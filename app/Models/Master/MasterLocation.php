@@ -17,10 +17,10 @@ class MasterLocation extends Model
     }
 
     /**
-     * Relasi ke MasterPlant berdasarkan plant_kode
+     * Relasi ke MasterPlant berdasarkan plant_code
      */
     public function plants()
     {
-        return $this->hasMany(MasterPlant::class, 'plant_code', 'plant_kode');
+        return $this->hasMany(MasterPlant::class, 'plant_code', 'plant_code');
     }
 }

@@ -11,15 +11,15 @@ import { showToast } from '@/components/ui/toast';
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Home',
-        href: '/users',
+        href: '/module-managers',
     },
     {
-        title: 'Kelola Data Pengguna',
-        href: '/users',
+        title: 'Hak Akses Modul',
+        href: '/module-managers',
     },
 ];
 
-export default function PageUser({ users }: { users: never[] }) {
+export default function PageModule({ moduleManagers }: { moduleManagers: never[] }) {
     const { flash } = usePage().props as {
         flash?: { success?: string; error?: string; message?: string };
     };
@@ -38,19 +38,19 @@ export default function PageUser({ users }: { users: never[] }) {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Kelola Data Pengguna" />
+            <Head title="Hak Akses Modul" />
             <div className="p-4">
                 <div className="mb-3 flex flex-col items-center justify-between gap-4 sm:flex-row">
                     <SectionHeader
-                        title="Kelola Data Pengguna"
-                        subtitle="Kelola data pengguna di sini. Anda dapat menambah, mengubah, dan menghapus data pengguna."
+                        title="Hak Akses Modul"
+                        subtitle="Kelola data hak akses pengguna modul di sini. Anda dapat menambah, mengubah, dan menghapus hak akses modul untuk pengguna."
                     />
                     <Button asChild className="w-full sm:w-auto">
-                        <Link href="/users/create">Create User</Link>
+                        <Link href="/module-managers/create">Create User Module</Link>
                     </Button>
                 </div>
                 <div className="w-full">
-                    <DataTable columns={columns} data={users} />
+                    <DataTable columns={columns} data={moduleManagers} />
                 </div>
             </div>
         </AppLayout>

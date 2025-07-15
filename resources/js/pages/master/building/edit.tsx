@@ -79,7 +79,7 @@ export default function EditMasterBuilding({
         },
     });
 
-    const selectedEntitasKode = form.watch('entity_code');
+    const selectedEntityCode = form.watch('entity_code');
 
     useEffect(() => {
         Object.entries(errors).forEach(([key, message]) => {
@@ -100,20 +100,20 @@ export default function EditMasterBuilding({
     }, [plants]);
 
     const filteredPlants = useMemo(() => {
-        return plants.filter(plant => plant.entity_code === selectedEntitasKode);
-    }, [plants, selectedEntitasKode]);
+        return plants.filter(plant => plant.entity_code === selectedEntityCode);
+    }, [plants, selectedEntityCode]);
 
     useEffect(() => {
         if (
-            selectedEntitasKode &&
+            selectedEntityCode &&
             filteredPlants.length === 1 &&
             form.getValues('plant_code') !== filteredPlants[0].plant_code
         ) {
             form.setValue('plant_code', filteredPlants[0].plant_code);
-        } else if (selectedEntitasKode && filteredPlants.length === 0) {
+        } else if (selectedEntityCode && filteredPlants.length === 0) {
             form.setValue('plant_code', '');
         }
-    }, [filteredPlants, form, selectedEntitasKode]);
+    }, [filteredPlants, form, selectedEntityCode]);
 
     function onSubmit(values: FormSchemaType) {
         router.put(route('building.update', masterBuilding.id), values);
@@ -179,7 +179,7 @@ export default function EditMasterBuilding({
                                                     <Select
                                                         value={field.value}
                                                         onValueChange={field.onChange}
-                                                        disabled={!selectedEntitasKode}
+                                                        disabled={!selectedEntityCode}
                                                     >
                                                         <SelectTrigger className="w-full">
                                                             <SelectValue placeholder="Pilih plant" />

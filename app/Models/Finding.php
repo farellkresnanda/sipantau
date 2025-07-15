@@ -7,9 +7,12 @@ use App\Models\Master\MasterNonconformitySubType;
 use App\Models\Master\MasterNonconformityType;
 use App\Models\Master\MasterPlant;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Finding extends Model
 {
+    use SoftDeletes;
+
     protected $guarded = [];
 
     public function nonconformityType()

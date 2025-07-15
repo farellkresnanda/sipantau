@@ -21,7 +21,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 const formSchema = z.object({
     name: z.string().min(1, { message: 'Nama location wajib diisi' }),
     entity_code: z.string().min(1, { message: 'Entitas wajib dipilih' }),
-    plant_kode: z.string().min(1, { message: 'Plant wajib dipilih' }),
+    plant_code: z.string().min(1, { message: 'Plant wajib dipilih' }),
 });
 
 type Entitas = {
@@ -54,7 +54,7 @@ export default function CreateMasterLokasi({ entityList, plantList }: Props) {
         defaultValues: {
             name: '',
             entity_code: '',
-            plant_kode: '',
+            plant_code: '',
         },
     });
 
@@ -122,7 +122,7 @@ export default function CreateMasterLokasi({ entityList, plantList }: Props) {
                                                 <Select
                                                     onValueChange={(value) => {
                                                         form.setValue('entity_code', value);
-                                                        form.setValue('plant_kode', '');
+                                                        form.setValue('plant_code', '');
                                                         const filtered = plantList.filter((plant) => plant.entity_code === value);
                                                         setFilteredPlants(filtered);
                                                     }}
@@ -149,7 +149,7 @@ export default function CreateMasterLokasi({ entityList, plantList }: Props) {
                                     {/* Plant */}
                                     <FormField
                                         control={form.control}
-                                        name="plant_kode"
+                                        name="plant_code"
                                         render={({ field }) => (
                                             <FormItem>
                                                 <FormLabel>Pilih Plant</FormLabel>

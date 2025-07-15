@@ -18,7 +18,7 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/',
     },
     {
-        title: 'Manage Users',
+        title: 'Kelola Data Pengguna',
         href: '/users',
     },
     {

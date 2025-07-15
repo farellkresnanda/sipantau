@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class MasterPlant extends Model
 {
-    protected $table = 'master_plant';
+    protected $table = 'master_plants';
 
     protected $guarded = [];
 

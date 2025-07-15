@@ -37,7 +37,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 const formSchema = z.object({
     name: z.string().min(1, { message: 'Nama location wajib diisi' }),
     entity_code: z.string().min(1, { message: 'Entitas wajib dipilih' }),
-    plant_kode: z.string().min(1, { message: 'Plant wajib dipilih' }),
+    plant_code: z.string().min(1, { message: 'Plant wajib dipilih' }),
 });
 
 type Entitas = {
@@ -60,7 +60,7 @@ type Props = {
         id: number;
         name: string;
         entity_code: string;
-        plant_kode: string;
+        plant_code: string;
     };
 };
 
@@ -74,12 +74,12 @@ export default function EditMasterLokasi({ entityList, plantList, location }: Pr
         defaultValues: {
             name: location.name || '',
             entity_code: location.entity_code?.toString() || '',
-            plant_kode: location.plant_kode?.toString() || '',
+            plant_code: location.plant_code?.toString() || '',
         },
     });
 
     const entityKode = form.watch('entity_code');
-    const plantKode = form.watch('plant_kode');
+    const plantKode = form.watch('plant_code');
 
     const filteredPlants = useMemo(() => {
         return plantList.filter((plant) => plant.entity_code === entityKode);
@@ -138,7 +138,7 @@ export default function EditMasterLokasi({ entityList, plantList, location }: Pr
                                                     value={field.value}
                                                     onValueChange={(value) => {
                                                         field.onChange(value);
-                                                        form.setValue('plant_kode', '');
+                                                        form.setValue('plant_code', '');
                                                     }}
                                                 >
                                                     <FormControl>
@@ -165,7 +165,7 @@ export default function EditMasterLokasi({ entityList, plantList, location }: Pr
                                     {/* Plant */}
                                     <FormField
                                         control={form.control}
-                                        name="plant_kode"
+                                        name="plant_code"
                                         render={({ field }) => (
                                             <FormItem>
                                                 <FormLabel>Plant</FormLabel>

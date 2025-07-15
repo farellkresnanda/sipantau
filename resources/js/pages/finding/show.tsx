@@ -3,14 +3,15 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/react';
+import {Head} from '@inertiajs/react';
 import { Avatar } from '@radix-ui/react-avatar';
 import { format } from 'date-fns';
+import VerifyDialog from './verify-dialog';
 import {
     AlertCircle,
     Building2,
     Calendar,
-    Camera,
+    Camera, CheckCircle,
     Factory,
     FileText,
     GitCommit,
@@ -250,30 +251,70 @@ export default function ShowFinding({ finding }: { finding: any }) {
                                 <h3 className="text-lg font-semibold">Riwayat Approval</h3>
                                 <div className="grid gap-6">
                                     {finding.finding_approval_histories && finding.finding_approval_histories.length > 0 ? (
-                                        finding.finding_approval_histories.map((approval: any, index: number) => (
-                                            <div key={index} className="flex items-center gap-4">
-                                                <Avatar className="h-9 w-9">
-                                                    <AvatarImage src={`https://api.dicebear.com/7.x/micah/svg?seed=${approval.stage}`} />
-                                                    <AvatarFallback>{approval.stage[0]}</AvatarFallback>
-                                                </Avatar>
-                                                <div className="flex flex-1 items-start justify-between gap-4">
-                                                    <div className="space-y-1">
-                                                        <p className="text-sm leading-none font-medium">{approval.stage}</p>
-                                                        <p className="text-muted-foreground text-sm">{approval.approval_status}</p>
-                                                    </div>
-                                                    <div className="text-muted-foreground ml-auto text-right text-sm whitespace-nowrap">
-                                                        {format(new Date(approval.created_at), 'dd-MM-yyyy')}
-                                                        <div className="text-xs">{format(new Date(approval.created_at), 'HH:mm')} WIB</div>
+                                        finding.finding_approval_histories.map((approval: any, index: number) => {
+                                            const assignment = approval.finding_approval_assignment?.[0]; // ambil yang pertama jika hasMany
+                                            const userName = assignment?.user?.name ?? '-';
+
+                                            const badgeStyleMap = {
+                                                APPROVED: {
+                                                    variant: 'secondary',
+                                                    className: 'bg-green-500 hover:bg-green-600 text-white',
+                                                },
+                                                REJECTED: {
+                                                    variant: 'destructive',
+                                                    className: 'bg-red-500 hover:bg-red-600 text-white',
+                                                },
+                                                DEFAULT: {
+                                                    variant: 'default',
+                                                    className: 'bg-gray-500 hover:bg-gray-600 text-white',
+                                                },
+                                            };
+
+                                            const { variant, className } =
+                                                badgeStyleMap[approval.approval_status as keyof typeof badgeStyleMap] || badgeStyleMap.DEFAULT;
+
+                                            return (
+                                                <div key={index} className="flex items-center gap-4">
+                                                    <Avatar className="h-9 w-9">
+                                                        <AvatarImage src={`https://api.dicebear.com/7.x/micah/svg?seed=${approval.stage}`} />
+                                                        <AvatarFallback>{approval.stage[0]}</AvatarFallback>
+                                                    </Avatar>
+                                                    <div className="flex flex-1 items-start justify-between gap-4">
+                                                        <div className="space-y-1">
+                                                            <p className="text-sm leading-none font-medium">{userName}</p>
+                                                            <p className="text-muted-foreground text-sm italic">({approval.stage})</p>
+                                                            <Badge variant={variant as any} className={`text-xs ${className}`}>
+                                                                {approval.approval_status}
+                                                            </Badge>
+                                                        </div>
+                                                        <div className="text-muted-foreground ml-auto text-right text-sm whitespace-nowrap">
+                                                            {approval.verified_at ? (
+                                                                <>
+                                                                    <div className="flex items-center justify-end gap-1">
+                                                                        <CheckCircle className="h-4 w-4" />
+                                                                        {format(new Date(approval.verified_at), 'dd-MM-yyyy')}
+                                                                    </div>
+                                                                    <div className="text-xs">
+                                                                        {format(new Date(approval.verified_at), 'HH:mm')} WIB
+                                                                    </div>
+                                                                    {approval.note && <div className="mt-1 text-xs italic">{approval.note}</div>}
+                                                                </>
+                                                            ) : (
+                                                                <span className="text-gray-400">Belum diverifikasi</span>
+                                                            )}
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        ))
+                                            );
+                                        })
                                     ) : (
                                         <p className="text-muted-foreground text-sm">Tidak ada riwayat approval.</p>
                                     )}
                                 </div>
                             </CardContent>
                         </Card>
+                        {/* Tombol Verifikasi */}
+                        <VerifyDialog finding={finding} />
                     </div>
                 </div>
             </div>

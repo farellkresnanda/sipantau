@@ -40,7 +40,7 @@ class MasterLokasiController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'entity_code' => 'required|exists:master_entities,entity_code',
-            'plant_kode' => 'required|exists:master_plant,plant_code',
+            'plant_code' => 'required|exists:master_plants,plant_code',
         ]);
 
         MasterLocation::create($request->all());
@@ -68,11 +68,11 @@ class MasterLokasiController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'entity_code' => 'required|exists:master_entities,entity_code',
-            'plant_kode' => 'required|exists:master_plant,plant_code',
+            'plant_code' => 'required|exists:master_plants,plant_code',
         ]);
 
         $location = MasterLocation::findOrFail($id);
-        $location->update($request->only('name', 'entity_code', 'plant_kode'));
+        $location->update($request->only('name', 'entity_code', 'plant_code'));
 
         activity()->log('User updated a master location');
 

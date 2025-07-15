@@ -14,7 +14,7 @@ class MasterApar extends Model
     }
 
     /**
-     * Relasi ke MasterPlant berdasarkan plant_kode
+     * Relasi ke MasterPlant berdasarkan plant_code
      */
     public function plants()
     {
