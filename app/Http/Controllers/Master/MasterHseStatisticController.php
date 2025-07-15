@@ -43,9 +43,9 @@ class MasterHseStatisticController extends Controller
 
         ]);
 
-        activity()->log('User created a new master statistik K3');
+        activity()->log('User created a new master Kecelakaan Kerja');
 
-        return redirect()->route('hse-statistic.index')->with('success', 'Master statistik k3 created successfully.');
+        return redirect()->route('hse-statistic.index')->with('success', 'Master data kecelakaan Kerja created successfully.');
     }
 
     /**
@@ -74,9 +74,9 @@ class MasterHseStatisticController extends Controller
             'statistic_data' => $request->statistic_data,
         ]);
 
-        activity()->log('User updated a master statistik K3');
+        activity()->log('User updated a master Kecelakaan Kerja');
 
-        return redirect()->route('hse-statistic.index')->with('success', 'Master statistik K3 updated successfully.');
+        return redirect()->route('hse-statistic.index')->with('success', 'Master data kecelakaan Kerja updated successfully.');
     }
 
     /**
@@ -86,8 +86,8 @@ class MasterHseStatisticController extends Controller
     {
         $masterHseStatistic = $masterHseStatistic->findOrFail($id);
         $masterHseStatistic->delete();
-        activity()->log('User deleted a master statistik k3');
+        activity()->log('User deleted a master Kecelakaan Kerja');
 
-        return redirect()->route('hse-statistic.index')->with('success', 'Master statistik k3 deleted successfully.');
+        return redirect()->route('hse-statistic.index')->with('success', 'Master data kecelakaan Kerja deleted successfully.');
     }
 }

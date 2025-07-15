@@ -13,8 +13,8 @@ import * as z from 'zod';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Home', href: '/' },
-    { title: 'Manage Statistik K3', href: '/master/hse-statistic' },
-    { title: 'Create Statistik K3', href: '/master/hse-statistic/create' },
+    { title: 'Manage Kecelakaan Kerja', href: '/master/hse-statistic' },
+    { title: 'Create Kecelakaan Kerja', href: '/master/hse-statistic/create' },
 ];
 
 // Validasi minimal: hanya wajib isi
@@ -51,13 +51,13 @@ export default function CreateHseStatistics() {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Create Statistik K3" />
+            <Head title="Create Data Kecelakaan Kerja" />
 
             <div className="space-y-6 p-4">
                 <div className="flex items-center justify-between">
                     <SectionHeader
-                        title="Buat Statistik K3 Baru"
-                        subtitle="Isi formulir di bawah ini untuk membuat Statistik K3 baru. Pastikan semua kolom yang wajib diisi telah dilengkapi."
+                        title="Buat Kecelakaan Kerja Baru"
+                        subtitle="Isi formulir di bawah ini untuk membuat  data Kecelakaan Kerja baru. Pastikan semua kolom yang wajib diisi telah dilengkapi."
                     />
                 </div>
 
@@ -66,13 +66,13 @@ export default function CreateHseStatistics() {
                         <Form {...form}>
                             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                                 <div className="grid grid-cols-1 gap-4">
-                                    {/* Field Jenis Statistik K3 */}
+                                    {/* Field Jenis Kecelakaan Kerja */}
                                     <FormField
                                         control={form.control}
                                         name="statistic_data"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel>Data Statistik K3</FormLabel>
+                                                <FormLabel>Data Sertifikasi K3</FormLabel>
                                                 <FormControl>
                                                     <Input placeholder="Masukkan data statistik k3" {...field} />
                                                 </FormControl>

@@ -13,8 +13,8 @@ import * as z from 'zod';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Home', href: '/' },
-    { title: 'Manage Statistik K3', href: '/master/hse-statistic' },
-    { title: 'Edit Statistik K3', href: '#' },
+    { title: 'Manage Data Kecelakaan Kerja', href: '/master/hse-statistic' },
+    { title: 'Edit Data Kecelakaan Kerja', href: '#' },
 ];
 
 // Schema validasi
@@ -53,11 +53,11 @@ export default function EditHseStatistics({ masterHseStatistic }: { masterHseSta
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Edit Statistik K3" />
+            <Head title="Edit Data Kecelakaan Kerja" />
 
             <div className="space-y-6 p-4">
                 <div className="flex items-center justify-between">
-                    <SectionHeader title="Edit Statistik K3" subtitle="Perbarui data statistik k3 di bawah ini." />
+                    <SectionHeader title="Edit Data Kecelakaan Kerja" subtitle="Perbarui data kecelakaan kerja di bawah ini." />
                 </div>
                 <Card className="w-full">
                     <CardContent className="p-6">
@@ -73,7 +73,7 @@ export default function EditHseStatistics({ masterHseStatistic }: { masterHseSta
                                                 <FormItem>
                                                     <FormLabel>Data Statistik K3</FormLabel>
                                                     <FormControl>
-                                                        <Input placeholder="Enter Data Statistik K3" {...field} />
+                                                        <Input placeholder="Enter Data Data Statistik K3" {...field} />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
