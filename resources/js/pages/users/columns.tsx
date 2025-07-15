@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Link, router } from '@inertiajs/react';
 import { ColumnDef } from '@tanstack/react-table';
-import { MoreHorizontal } from 'lucide-react';
+import {IdCard, Mail, MoreHorizontal, User} from 'lucide-react';
 
 // You can use a Zod schema here if you want.
 export type User = {
@@ -31,6 +31,7 @@ export type User = {
     };
     id: string;
     name: string;
+    position_name?: string;
     npp: string;
     email: string;
 };
@@ -44,18 +45,34 @@ export const columns: ColumnDef<User>[] = [
         accessorKey: 'name',
         header: 'Nama Pegawai',
         cell: ({ row }) => (
-            <Link href={`/users/${row.original.id}`} className="hover:underline">
-                {row.original.name}
+            <Link href={`/users/${row.original.id}`} className="inline-flex items-center gap-2 hover:underline">
+                <User className="h-4 w-4" />
+                <div className="flex flex-col">
+                    <span>{row.original.name}</span>
+                    <span className="text-xs text-gray-500" title={row.original.position_name || '-'}>
+                        {row.original.position_name && row.original.position_name.length > 30
+                            ? `${row.original.position_name.slice(0, 30)}...`
+                            : row.original.position_name || '-'}
+                    </span>
+                </div>
             </Link>
         ),
     },
     {
-        accessorKey: 'npp',
-        header: 'NPP',
-    },
-    {
-        accessorKey: 'email',
-        header: 'Email',
+        accessorKey: 'npp_email',
+        header: 'NPP & Email',
+        cell: ({ row }) => (
+            <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-1">
+                    <IdCard className="h-4 w-4" />
+                    {row.original.npp}
+                </div>
+                <div className="flex items-center gap-1 text-sm text-gray-500">
+                    <Mail className="h-4 w-4" />
+                    {row.original.email}
+                </div>
+            </div>
+        ),
     },
     {
         accessorKey: 'roles',
@@ -104,15 +121,6 @@ export const columns: ColumnDef<User>[] = [
             );
         },
     },
-
-    {
-        accessorKey: 'created_at',
-        header: 'Dibuat',
-        cell: ({ getValue }) => {
-            const value = getValue() as string;
-            return value?.replace('T', ' ').split('.')[0];
-        },
-    },
     {
         accessorKey: 'updated_at',
         header: 'Diubah',
@@ -145,7 +153,9 @@ export const columns: ColumnDef<User>[] = [
                         <DropdownMenuItem asChild>
                             <Link href={`/users/${row.original.id}/edit`}>Edit User</Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">Delete User</DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">
+                            Delete User
+                        </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             );
