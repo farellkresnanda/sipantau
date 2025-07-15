@@ -135,7 +135,7 @@ export default function CreateFinding() {
             <div className="space-y-6 p-4">
                 <SectionHeader
                     title="Buat Temuan Baru"
-                    subtitle="Buat data finding baru dan lengkapi formulir di bawah ini dengan data yang dibutuhkan"
+                    subtitle="Buat data temuan baru dan lengkapi formulir di bawah ini dengan data yang dibutuhkan"
                 />
 
                 <Form {...form}>

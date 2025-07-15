@@ -7,7 +7,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { CheckCircle, Info, XCircle } from 'lucide-react';
 
 export const columns: ColumnDef<{
-    id: number;
+    uuid: string;
     finding_status: {
         id: number;
         name: string;
@@ -79,7 +79,7 @@ export const columns: ColumnDef<{
             }
 
             return (
-                <Link href={`/finding/${row.original.id}`} className="inline-flex items-center gap-2 hover:underline">
+                <Link href={`/finding/${row.original.uuid}`} className="inline-flex items-center gap-2 hover:underline">
                     <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${colorClasses}`}>
                         {icon}
                         {statusName}
@@ -134,11 +134,11 @@ export const columns: ColumnDef<{
         },
     },
     {
-        id: 'actions',
+        id: 'uuid',
         cell: ({ row }) => {
             const handleDelete = () => {
                 if (confirm('Are you sure you want to delete this data?')) {
-                    router.delete(`/finding/${row.original.id}`);
+                    router.delete(`/finding/${row.original.uuid}`);
                 }
             };
             const finding = row.original;
@@ -165,7 +165,7 @@ export const columns: ColumnDef<{
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                         <DropdownMenuItem asChild>
-                            <Link href={`/finding/${finding.id}/edit`}>Edit</Link>
+                            <Link href={`/finding/${finding.uuid}/edit`}>Edit</Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">
                             Delete

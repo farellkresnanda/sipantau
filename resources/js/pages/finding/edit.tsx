@@ -13,8 +13,8 @@ import * as z from 'zod';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Home', href: '/' },
-    { title: 'Master AC', href: '/master/ac' },
-    { title: 'Edit Master AC', href: '#' },
+    { title: 'Temuan', href: '/master/ac' },
+    { title: 'Edit Temuan', href: '#' },
 ];
 
 const formSchema = z.object({
@@ -70,11 +70,11 @@ export default function EditInspeksiApar({
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Edit Master AC" />
+            <Head title="Edit Temuan" />
 
             <div className="space-y-6 p-4">
                 <div className="flex items-center justify-between">
-                    <SectionHeader title="Edit Master AC" subtitle="Update data Master AC beserta semua informasinya di bawah ini." />
+                    <SectionHeader title="Edit Temuan" subtitle="Update data temuan beserta semua informasinya di bawah ini." />
                 </div>
 
                 <Card className="w-full">

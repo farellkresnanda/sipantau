@@ -43,7 +43,7 @@ export default function PageFinding({ findings }: { findings: any[] }) {
                 <div className="mb-3 flex flex-col items-center justify-between gap-4 sm:flex-row">
                     <SectionHeader
                         title="Daftar Temuan"
-                        subtitle="Kelola data finding di sini. Anda dapat menambah, mengubah, dan menghapus finding."
+                        subtitle="Kelola data temuan di sini. Anda dapat menambah, mengubah, dan menghapus temuan."
                     />
                     <Button asChild className="w-full sm:w-auto">
                         <Link href="/finding/create">Buat Temuan</Link>

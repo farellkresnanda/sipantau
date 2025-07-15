@@ -8,6 +8,7 @@ use App\Models\FindingApprovalStage;
 use App\Models\Master\MasterNonconformityType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class FindingController extends Controller
@@ -65,6 +66,7 @@ class FindingController extends Controller
 
             // Create the finding
             $finding = Finding::create(array_merge($data, [
+                'uuid' => Str::uuid(),
                 'finding_status_code' => 'SOP', // Status Open
                 'created_by' => auth()->id(),
                 'entity_code' => auth()->user()->entity_code,
@@ -93,25 +95,28 @@ class FindingController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id)
+    public function show($uuid)
     {
-        $finding = Finding::with(['nonconformityType', 'nonconformitySubType', 'findingApprovalHistories', 'findingStatus', 'entity', 'plant', 'createdBy'])->findOrFail($id);
+        $finding = Finding::with(['nonconformityType', 'nonconformitySubType', 'findingApprovalHistories', 'findingStatus', 'entity', 'plant', 'createdBy'])->where('uuid', $uuid)->firstOrFail();
         return Inertia::render('finding/show', compact('finding'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Finding $finding)
+    public function edit(string $uuid)
     {
+        $finding = Finding::where('uuid', $uuid)->with(['nonconformityType', 'nonconformitySubType', 'findingStatus', 'entity', 'plant', 'createdBy'])->firstOrFail();
         return Inertia::render('finding/edit', compact('finding'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Finding $finding)
+    public function update(Request $request, string $uuid)
     {
+        $finding = Finding::where('uuid', $uuid)->firstOrFail();
+
         $request->validate([
             'status_finding' => 'required|string',
             'approval_status' => 'required|string',
@@ -154,8 +159,10 @@ class FindingController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Finding $finding)
+    public function destroy(string $uuid)
     {
+        $finding = Finding::where('uuid', $uuid)->firstOrFail();
+
         if ($finding->photo_before) {
             \Storage::disk('public')->delete($finding->photo_before);
         }
