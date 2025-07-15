@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Head, Link, router } from '@inertiajs/react';
 import * as z from 'zod';
+import { useEffect, useState } from 'react';
 
 import AppLayout from '@/layouts/app-layout';
 import SectionHeader from '@/components/section-header';
@@ -18,6 +19,13 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select';
 import type { BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -27,6 +35,8 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 const formSchema = z.object({
+  entity_code: z.string().min(1, 'Entitas wajib dipilih'),
+  plant_code: z.string().min(1, 'Plant wajib dipilih'),
   machine_type: z.string().min(1, 'Jenis mesin wajib diisi'),
   merk: z.string().min(1, 'Merk wajib diisi'),
   model: z.string().min(1, 'Model wajib diisi'),
@@ -38,33 +48,33 @@ const formSchema = z.object({
 
 type FormSchemaType = z.infer<typeof formSchema>;
 
-type MasterGenset = {
-  id: number;
-  machine_type: string;
-  merk: string;
-  model: string;
-  country_year_of_manufacture: string;
-  manufacturer: string;
-  serial_number: string;
-  capacity: string;
+type Props = {
+  genset: FormSchemaType & { id: number };
+  entities: { id: number; name: string; entity_code: string }[];
+  plants: { id: number; name: string; plant_code: string; entity_code: string }[];
 };
 
-export default function EditMasterGenset({ masterGenset }: { masterGenset: MasterGenset }) {
+export default function EditMasterGenset({ genset, entities, plants }: Props) {
+  const [filteredPlants, setFilteredPlants] = useState(() =>
+    plants.filter((p) => p.entity_code === genset.entity_code)
+  );
+
   const form = useForm<FormSchemaType>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      machine_type: masterGenset.machine_type || '',
-      merk: masterGenset.merk || '',
-      model: masterGenset.model || '',
-      country_year_of_manufacture: masterGenset.country_year_of_manufacture || '',
-      manufacturer: masterGenset.manufacturer || '',
-      serial_number: masterGenset.serial_number || '',
-      capacity: masterGenset.capacity || '',
-    },
+    defaultValues: genset,
   });
 
+  useEffect(() => {
+    const subscription = form.watch((values) => {
+      const selectedEntity = values.entity_code;
+      const newFilteredPlants = plants.filter((p) => p.entity_code === selectedEntity);
+      setFilteredPlants(newFilteredPlants);
+    });
+    return () => subscription.unsubscribe();
+  }, [form, plants]);
+
   function onSubmit(values: FormSchemaType) {
-    router.put(route('genset.update', masterGenset.id), values);
+    router.put(route('genset.update', genset.id), values);
   }
 
   return (
@@ -81,8 +91,63 @@ export default function EditMasterGenset({ masterGenset }: { masterGenset: Maste
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Kiri */}
                   <div className="space-y-4">
+                    <FormField
+                      control={form.control}
+                      name="entity_code"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Entitas</FormLabel>
+                          <FormControl>
+                            <Select
+                              onValueChange={(value) => {
+                                field.onChange(value);
+                                form.setValue('plant_code', '');
+                              }}
+                              value={field.value}
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Pilih entitas" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {entities.map((ent) => (
+                                  <SelectItem key={ent.id} value={ent.entity_code}>
+                                    {ent.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="plant_code"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Plant</FormLabel>
+                          <FormControl>
+                            <Select onValueChange={field.onChange} value={field.value}>
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Pilih plant" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {filteredPlants.map((plant) => (
+                                  <SelectItem key={plant.id} value={plant.plant_code}>
+                                    {plant.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
                     <FormField
                       control={form.control}
                       name="machine_type"
@@ -96,6 +161,7 @@ export default function EditMasterGenset({ masterGenset }: { masterGenset: Maste
                         </FormItem>
                       )}
                     />
+
                     <FormField
                       control={form.control}
                       name="merk"
@@ -109,6 +175,7 @@ export default function EditMasterGenset({ masterGenset }: { masterGenset: Maste
                         </FormItem>
                       )}
                     />
+
                     <FormField
                       control={form.control}
                       name="model"
@@ -122,6 +189,9 @@ export default function EditMasterGenset({ masterGenset }: { masterGenset: Maste
                         </FormItem>
                       )}
                     />
+                  </div>
+
+                  <div className="space-y-4">
                     <FormField
                       control={form.control}
                       name="country_year_of_manufacture"
@@ -135,10 +205,7 @@ export default function EditMasterGenset({ masterGenset }: { masterGenset: Maste
                         </FormItem>
                       )}
                     />
-                  </div>
 
-                  {/* Kanan */}
-                  <div className="space-y-4">
                     <FormField
                       control={form.control}
                       name="manufacturer"
@@ -152,6 +219,7 @@ export default function EditMasterGenset({ masterGenset }: { masterGenset: Maste
                         </FormItem>
                       )}
                     />
+
                     <FormField
                       control={form.control}
                       name="serial_number"
@@ -165,6 +233,7 @@ export default function EditMasterGenset({ masterGenset }: { masterGenset: Maste
                         </FormItem>
                       )}
                     />
+
                     <FormField
                       control={form.control}
                       name="capacity"
@@ -181,7 +250,6 @@ export default function EditMasterGenset({ masterGenset }: { masterGenset: Maste
                   </div>
                 </div>
 
-                {/* Tombol Aksi */}
                 <div className="flex items-center gap-2">
                   <Button type="submit" disabled={form.formState.isSubmitting}>
                     {form.formState.isSubmitting ? 'Updating...' : 'Update Data'}

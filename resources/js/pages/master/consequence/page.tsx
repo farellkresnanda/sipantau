@@ -14,6 +14,9 @@ interface Konsekuensi {
   id: number;
   name: string;
   consequence: string;
+  human_effect: string;
+  company_effect: string;
+  environment_effect: string;
 }
 
 const breadcrumbs: BreadcrumbItem[] = [

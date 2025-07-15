@@ -17,9 +17,11 @@ const breadcrumbs = [
   { title: 'Master Genset', href: '/master/genset' },
 ];
 
-// Tipe data langsung di sini
-type MasterGenset = {
+// 👇 Tipe data sesuai tabel master_gensets
+export type MasterGenset = {
   id: number;
+  entity_code: string;
+  plant_code: string;
   machine_type: string;
   merk: string;
   model: string;
@@ -27,6 +29,16 @@ type MasterGenset = {
   manufacturer: string;
   serial_number: string;
   capacity: string;
+
+  // Relasi (opsional)
+  entity?: {
+    id: number;
+    name: string;
+  };
+  plant?: {
+    id: number;
+    name: string;
+  };
 };
 
 export default function PageGenset({ gensets }: { gensets: MasterGenset[] }) {
@@ -56,9 +68,11 @@ export default function PageGenset({ gensets }: { gensets: MasterGenset[] }) {
             title="Master Genset"
             subtitle="Daftar data mesin genset yang tersedia."
           />
-          <Button asChild className="w-full sm:w-auto bg-yellow-400 hover:bg-yellow-500 text-black">
+          <Button
+            asChild
+            className="w-full sm:w-auto bg-yellow-400 hover:bg-yellow-500 text-black"
+          >
             <Link href="/master/genset/create">
-
               Create Data
             </Link>
           </Button>

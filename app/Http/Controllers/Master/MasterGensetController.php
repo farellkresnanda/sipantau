@@ -3,39 +3,41 @@
 namespace App\Http\Controllers\Master;
 
 use App\Http\Controllers\Controller;
+use App\Models\Master\MasterEntity;
 use App\Models\Master\MasterGenset;
+use App\Models\Master\MasterPlant;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class MasterGensetController extends Controller
 {
-    /**
-     * Menampilkan daftar Genset
-     */
     public function index()
     {
-        $gensets = MasterGenset::orderBy('id', 'desc')->get();
+        $gensets = MasterGenset::with(['entity', 'plant'])
+            ->latest()
+            ->get();
 
-        // Ganti 'Page' => 'page' untuk cocokan file React page.tsx
         return Inertia::render('master/genset/page', [
             'gensets' => $gensets,
         ]);
     }
 
-    /**
-     * Menampilkan form create
-     */
     public function create()
     {
-        return Inertia::render('master/genset/create'); // harus lowercase 'create.tsx'
+        $entityList = MasterEntity::select('id', 'name', 'entity_code')->get();
+        $plantList = MasterPlant::select('id', 'name', 'plant_code', 'entity_code')->get();
+
+        return Inertia::render('master/genset/create', [
+            'entityList' => $entityList,
+            'plantList' => $plantList,
+        ]);
     }
 
-    /**
-     * Menyimpan data Genset baru
-     */
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $request->validate([
+            'entity_code' => 'required|string|max:255',
+            'plant_code' => 'required|string|max:255',
             'machine_type' => 'required|string|max:100',
             'merk' => 'required|string|max:100',
             'model' => 'required|string|max:100',
@@ -45,28 +47,30 @@ class MasterGensetController extends Controller
             'capacity' => 'required|string|max:50',
         ]);
 
-        MasterGenset::create($validated);
+        MasterGenset::create($request->all());
 
         return redirect()->route('genset.index')
             ->with('success', 'Data Genset berhasil ditambahkan.');
     }
 
-    /**
-     * Menampilkan form edit
-     */
-    public function edit(MasterGenset $genset)
+    public function edit($id)
     {
-        return Inertia::render('master/genset/edit', [ // harus lowercase 'edit.tsx'
+        $genset = MasterGenset::findOrFail($id);
+        $entities = MasterEntity::select('id', 'name', 'entity_code')->get();
+        $plants = MasterPlant::select('id', 'name', 'plant_code', 'entity_code')->get();
+
+        return Inertia::render('master/genset/edit', [
             'genset' => $genset,
+            'entities' => $entities,
+            'plants' => $plants,
         ]);
     }
 
-    /**
-     * Update data Genset
-     */
-    public function update(Request $request, MasterGenset $genset)
+    public function update(Request $request, $id)
     {
-        $validated = $request->validate([
+        $request->validate([
+            'entity_code' => 'required|string|max:255',
+            'plant_code' => 'required|string|max:255',
             'machine_type' => 'required|string|max:100',
             'merk' => 'required|string|max:100',
             'model' => 'required|string|max:100',
@@ -76,17 +80,16 @@ class MasterGensetController extends Controller
             'capacity' => 'required|string|max:50',
         ]);
 
-        $genset->update($validated);
+        $genset = MasterGenset::findOrFail($id);
+        $genset->update($request->all());
 
         return redirect()->route('genset.index')
             ->with('success', 'Data Genset berhasil diperbarui.');
     }
 
-    /**
-     * Hapus data Genset
-     */
-    public function destroy(MasterGenset $genset)
+    public function destroy($id)
     {
+        $genset = MasterGenset::findOrFail($id);
         $genset->delete();
 
         return redirect()->route('genset.index')

@@ -1,12 +1,13 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import { useForm } from 'react-hook-form';
 import * as z from 'zod';
+import { useEffect, useState } from 'react';
 
 import AppLayout from '@/layouts/app-layout';
-import SectionHeader from '@/components/section-header';
+import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -17,7 +18,14 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import SectionHeader from '@/components/section-header';
 import type { BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -26,8 +34,9 @@ const breadcrumbs: BreadcrumbItem[] = [
   { title: 'Create Genset', href: '/master/genset/create' },
 ];
 
-// Skema validasi dengan zod
 const formSchema = z.object({
+  entity_code: z.string().min(1, 'Entitas wajib dipilih'),
+  plant_code: z.string().min(1, 'Plant wajib dipilih'),
   machine_type: z.string().min(1, 'Jenis mesin wajib diisi'),
   merk: z.string().min(1, 'Merk wajib diisi'),
   model: z.string().min(1, 'Model wajib diisi'),
@@ -39,10 +48,34 @@ const formSchema = z.object({
 
 type FormSchemaType = z.infer<typeof formSchema>;
 
-export default function CreateMasterGenset() {
+type Entitas = {
+  id: number;
+  name: string;
+  entity_code: string;
+};
+
+type Plant = {
+  id: number;
+  name: string;
+  plant_code: string;
+  entity_code: string;
+};
+
+export default function CreateMasterGenset({
+  entityList = [],
+  plantList = [],
+}: {
+  entityList?: Entitas[];
+  plantList?: Plant[];
+}) {
+  const { errors } = usePage().props as { errors: Record<string, string> };
+  const [filteredPlants, setFilteredPlants] = useState<Plant[]>([]);
+
   const form = useForm<FormSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      entity_code: '',
+      plant_code: '',
       machine_type: '',
       merk: '',
       model: '',
@@ -53,9 +86,27 @@ export default function CreateMasterGenset() {
     },
   });
 
+  useEffect(() => {
+    Object.entries(errors).forEach(([key, message]) => {
+      form.setError(key as keyof FormSchemaType, {
+        type: 'manual',
+        message,
+      });
+    });
+  }, [errors, form]);
+
+  useEffect(() => {
+    const kodeEntitas = form.watch('entity_code');
+    const filtered = plantList.filter((plant) => plant.entity_code === kodeEntitas);
+    setFilteredPlants(filtered);
+  }, [form.watch('entity_code')]);
+
   function onSubmit(values: FormSchemaType) {
     router.post(route('genset.store'), values, {
-      onSuccess: () => form.reset(),
+      onSuccess: () => {
+        form.reset();
+        setFilteredPlants([]);
+      },
     });
   }
 
@@ -73,8 +124,68 @@ export default function CreateMasterGenset() {
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Kiri */}
+                  {/* Kolom kiri */}
                   <div className="space-y-4">
+                    <FormField
+                      control={form.control}
+                      name="entity_code"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Entitas</FormLabel>
+                          <FormControl>
+                            <Select
+                              onValueChange={(value) => {
+                                field.onChange(value);
+                                form.setValue('plant_code', '');
+                              }}
+                              value={field.value}
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Pilih entitas" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {entityList.map((entity) => (
+                                  <SelectItem key={entity.id} value={entity.entity_code}>
+                                    {entity.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="plant_code"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Plant</FormLabel>
+                          <FormControl>
+                            <Select
+                              disabled={filteredPlants.length === 0}
+                              onValueChange={field.onChange}
+                              value={field.value}
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Pilih plant" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {filteredPlants.map((plant) => (
+                                  <SelectItem key={plant.id} value={plant.plant_code}>
+                                    {plant.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
                     <FormField
                       control={form.control}
                       name="machine_type"
@@ -82,7 +193,7 @@ export default function CreateMasterGenset() {
                         <FormItem>
                           <FormLabel>Jenis Mesin</FormLabel>
                           <FormControl>
-                            <Input placeholder="Contoh: Motor Diesel" {...field} />
+                            <Input placeholder="Contoh: Motor Diesel" {...field} className="w-full" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -96,7 +207,7 @@ export default function CreateMasterGenset() {
                         <FormItem>
                           <FormLabel>Merk</FormLabel>
                           <FormControl>
-                            <Input placeholder="Contoh: PERKINS" {...field} />
+                            <Input placeholder="Contoh: PERKINS" {...field} className="w-full" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -110,21 +221,7 @@ export default function CreateMasterGenset() {
                         <FormItem>
                           <FormLabel>Model</FormLabel>
                           <FormControl>
-                            <Input placeholder="Contoh: 1006-6TA" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="country_year_of_manufacture"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Negara & Tahun Pembuatan</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Contoh: UK/2014" {...field} />
+                            <Input placeholder="Contoh: 1006-6TA" {...field} className="w-full" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -132,8 +229,22 @@ export default function CreateMasterGenset() {
                     />
                   </div>
 
-                  {/* Kanan */}
+                  {/* Kolom kanan */}
                   <div className="space-y-4">
+                    <FormField
+                      control={form.control}
+                      name="country_year_of_manufacture"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Negara & Tahun Pembuatan</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Contoh: UK/2014" {...field} className="w-full" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
                     <FormField
                       control={form.control}
                       name="manufacturer"
@@ -141,7 +252,7 @@ export default function CreateMasterGenset() {
                         <FormItem>
                           <FormLabel>Pabrik Pembuat</FormLabel>
                           <FormControl>
-                            <Input placeholder="Contoh: PERKINS ENGINE CC" {...field} />
+                            <Input placeholder="Contoh: PERKINS ENGINE CC" {...field} className="w-full" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -155,7 +266,7 @@ export default function CreateMasterGenset() {
                         <FormItem>
                           <FormLabel>No Seri</FormLabel>
                           <FormControl>
-                            <Input placeholder="Contoh: U960673Y" {...field} />
+                            <Input placeholder="Contoh: U960673Y" {...field} className="w-full" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -169,7 +280,7 @@ export default function CreateMasterGenset() {
                         <FormItem>
                           <FormLabel>Kapasitas</FormLabel>
                           <FormControl>
-                            <Input placeholder="Contoh: 123 KW" {...field} />
+                            <Input placeholder="Contoh: 123 KW" {...field} className="w-full" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -181,7 +292,7 @@ export default function CreateMasterGenset() {
                 {/* Tombol Aksi */}
                 <div className="flex items-center gap-2">
                   <Button type="submit" disabled={form.formState.isSubmitting}>
-                    {form.formState.isSubmitting ? 'Creating...' : 'Submit Data'}
+                    {form.formState.isSubmitting ? 'Menyimpan...' : 'Submit Data'}
                   </Button>
                   <Link
                     href={route('genset.index')}

@@ -35,6 +35,9 @@ class MasterConsequenceController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'consequence' => 'required|string|max:10',
+            'human_effect' => 'required|string|max:255',
+            'company_effect' => 'required|string|max:255',
+            'environment_effect' => 'required|string|max:255',
         ]);
 
         MasterConsequence::create($validated);
@@ -60,6 +63,9 @@ class MasterConsequenceController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'consequence' => 'required|string|max:10',
+            'human_effect' => 'required|string|max:255',
+            'company_effect' => 'required|string|max:255',
+            'environment_effect' => 'required|string|max:255',
         ]);
 
         MasterConsequence::findOrFail($id)->update($validated);

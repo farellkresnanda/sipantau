@@ -34,6 +34,18 @@ export const columns: ColumnDef<MasterKonsekuensi>[] = [
     header: 'Konsekuensi',
   },
   {
+    accessorKey: 'human_effect',
+    header: 'Efek Terhadap Manusia',
+  },
+  {
+    accessorKey: 'company_effect',
+    header: 'Efek Terhadap Perusahaan',
+  },
+  {
+    accessorKey: 'environment_effect',
+    header: 'Efek Terhadap Lingkungan',
+  },
+  {
     id: 'actions',
     header: '#',
     cell: ({ row }) => {

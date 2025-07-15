@@ -2,6 +2,8 @@
 
 import { ColumnDef } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
+import { router } from '@inertiajs/react';
+
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -9,11 +11,15 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
-import { router } from '@inertiajs/react';
+import { showToast } from '@/components/ui/toast';
 
-type MasterGenset = {
+// ✅ Tipe data Genset lengkap
+export type MasterGenset = {
   id: number;
+  entity_code: string;
+  plant_code: string;
   machine_type: string;
   merk: string;
   model: string;
@@ -21,6 +27,12 @@ type MasterGenset = {
   manufacturer: string;
   serial_number: string;
   capacity: string;
+  entity?: {
+    name: string;
+  };
+  plant?: {
+    name: string;
+  };
 };
 
 export const columns: ColumnDef<MasterGenset>[] = [
@@ -28,6 +40,14 @@ export const columns: ColumnDef<MasterGenset>[] = [
     id: 'index',
     header: 'No',
     cell: ({ row }) => row.index + 1,
+  },
+  {
+    header: 'Entitas',
+    accessorFn: (row) => row.entity?.name ?? row.entity_code,
+  },
+  {
+    header: 'Plant',
+    accessorFn: (row) => row.plant?.name ?? row.plant_code,
   },
   {
     accessorKey: 'machine_type',
@@ -64,8 +84,18 @@ export const columns: ColumnDef<MasterGenset>[] = [
       const genset = row.original;
 
       const handleDelete = () => {
-        if (confirm('Are you sure you want to delete this Master Genset?')) {
-          router.delete(route('genset.destroy', genset.id));
+        const confirmDelete = confirm(
+          `Yakin ingin menghapus Genset dengan serial "${genset.serial_number}"?`
+        );
+        if (confirmDelete) {
+          router.delete(route('genset.destroy', genset.id), {
+            onSuccess: () => {
+              showToast({ type: 'success', message: 'Data Genset berhasil dihapus.' });
+            },
+            onError: () => {
+              showToast({ type: 'error', message: 'Gagal menghapus data Genset.' });
+            },
+          });
         }
       };
 
@@ -79,6 +109,7 @@ export const columns: ColumnDef<MasterGenset>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Action</DropdownMenuLabel>
+            <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => router.visit(route('genset.edit', genset.id))}>
               Edit
             </DropdownMenuItem>
