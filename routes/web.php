@@ -45,6 +45,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('hse-information', HseInformationController::class);
     });
 
+    // Login as user routes
+    Route::get('users/login-revert', [UserController::class, 'loginRevert'])->name('login-as.revert');
+    Route::get('users/login-as/{id}', [UserController::class, 'loginAs'])->name('login.as')->middleware('role:Admin|SuperAdmin');
+
     // Role Admin and SuperAdmin routes
     Route::group(['middleware' => ['role:Admin|SuperAdmin']], function () {
 

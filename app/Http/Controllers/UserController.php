@@ -169,4 +169,46 @@ class UserController extends Controller
 
         return redirect()->route('users.index')->with('success', 'User deleted successfully.');
     }
+
+    /**
+     * Login as another user
+     */
+    public function loginAs($id)
+    {
+        $user = User::findOrFail($id);
+
+        // Store original user info in session
+        if (!session()->has('login_as')) {
+            session()->put('login_as', [
+                'id' => auth()->id(),
+                'name' => auth()->user()->name,
+                'role' => auth()->user()->roles->first()->name ?? null
+            ]);
+        }
+
+        auth()->login($user);
+
+        return redirect('/')->with('success', 'You are now logged in as ' . $user->name);
+    }
+
+    /**
+     * Revert back to original user
+     */
+    public function loginRevert()
+    {
+        if (session()->has('login_as')) {
+            $originalUser = User::findOrFail(session('login_as.id'));
+            auth()->login($originalUser);
+
+            if (session('login_as.role')) {
+                $originalUser->assignRole(session('login_as.role'));
+            }
+
+            session()->forget('login_as');
+
+            return redirect('/')->with('success', 'Successfully returned to ' . $originalUser->name . ' account');
+        }
+
+        return redirect('/');
+    }
 }

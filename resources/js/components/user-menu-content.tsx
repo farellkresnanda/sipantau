@@ -1,9 +1,9 @@
 import { DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { UserInfo } from '@/components/user-info';
 import { useMobileNavigation } from '@/hooks/use-mobile-navigation';
-import { type User } from '@/types';
-import { Link, router } from '@inertiajs/react';
-import { LogOut, Settings } from 'lucide-react';
+import { SharedData, type User } from '@/types';
+import { Link, usePage } from '@inertiajs/react';
+import { ArrowLeft, LogOut, Settings } from 'lucide-react';
 
 interface UserMenuContentProps {
     user: User;
@@ -11,31 +11,64 @@ interface UserMenuContentProps {
 
 export function UserMenuContent({ user }: UserMenuContentProps) {
     const cleanup = useMobileNavigation();
+    const { auth } = usePage<SharedData>().props;
+    const loginAs = auth.login_as;
 
     const handleLogout = () => {
         cleanup();
-        router.flushAll();
     };
 
     return (
         <>
             <DropdownMenuLabel className="p-0 font-normal">
                 <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                    <UserInfo user={user} showEmail={true} />
+                    <UserInfo user={user} showEmail />
                 </div>
             </DropdownMenuLabel>
+
             <DropdownMenuSeparator />
+
             <DropdownMenuGroup>
                 <DropdownMenuItem asChild>
-                    <Link className="block w-full" href={route('profile.edit')} as="button" prefetch onClick={cleanup}>
+                    <Link
+                        className="block w-full"
+                        href={route('profile.edit')}
+                        as="button"
+                        onClick={cleanup}
+                    >
                         <Settings className="mr-2" />
                         Settings
                     </Link>
                 </DropdownMenuItem>
             </DropdownMenuGroup>
+
+            {loginAs && (
+                <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuLabel className="text-xs text-muted-foreground px-2">
+                        Previous Account
+                    </DropdownMenuLabel>
+                    <DropdownMenuItem asChild>
+                        <Link
+                            className="block w-full"
+                            href={route('login-as.revert')}
+                        >
+                            <ArrowLeft className="mr-2" />
+                            Back to {loginAs.name}
+                        </Link>
+                    </DropdownMenuItem>
+                </>
+            )}
+
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-                <Link className="block w-full" method="post" href={route('logout')} as="button" onClick={handleLogout}>
+                <Link
+                    className="block w-full"
+                    method="post"
+                    href={route('logout')}
+                    as="button"
+                    onClick={handleLogout}
+                >
                     <LogOut className="mr-2" />
                     Log out
                 </Link>
@@ -43,3 +76,4 @@ export function UserMenuContent({ user }: UserMenuContentProps) {
         </>
     );
 }
+

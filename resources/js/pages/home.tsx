@@ -8,8 +8,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip} from "recharts"
 import { DollarSign, Users, CreditCard, Activity } from "lucide-react"
 import AppLayout from "@/layouts/app-layout";
-import {Head} from "@inertiajs/react";
+import { Head, usePage } from '@inertiajs/react';
 import {BreadcrumbItem} from "@/types";
+import { useEffect } from 'react';
+import { showToast } from '@/components/ui/toast';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -67,6 +69,22 @@ const finding = [
 ];
 
 export default function Dashboard() {
+    const { flash } = usePage().props as {
+        flash?: { success?: string; error?: string; message?: string };
+    };
+
+    useEffect(() => {
+        if (flash?.success) {
+            showToast({ type: 'success', message: flash.success });
+        }
+        if (flash?.error) {
+            showToast({ type: 'error', message: flash.error });
+        }
+        if (flash?.message) {
+            showToast({ message: flash.message });
+        }
+    }, [flash]);
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Home" />

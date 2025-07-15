@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Link, router } from '@inertiajs/react';
 import { ColumnDef } from '@tanstack/react-table';
-import {IdCard, Mail, MoreHorizontal, User} from 'lucide-react';
+import { IdCard, LogIn, Mail, MoreHorizontal, PencilIcon, Trash2, User } from 'lucide-react';
 
 // You can use a Zod schema here if you want.
 export type User = {
@@ -151,9 +151,20 @@ export const columns: ColumnDef<User>[] = [
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild>
-                            <Link href={`/users/${row.original.id}/edit`}>Edit User</Link>
+                            <Link href={route('login.as', row.original.id)}>
+                                <LogIn className="mr-2 h-4 w-4" />
+                                Login As
+                            </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild>
+                            <Link href={`/users/${row.original.id}/edit`}>
+                                <PencilIcon className="mr-2 h-4 w-4" />
+                                Edit User
+                            </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">
+                            <Trash2 className="mr-2 h-4 w-4" />
                             Delete User
                         </DropdownMenuItem>
                     </DropdownMenuContent>
