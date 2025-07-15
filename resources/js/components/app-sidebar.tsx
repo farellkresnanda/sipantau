@@ -254,7 +254,7 @@ const mainNavItems: NavItemWithChildren[] = [
                 icon: Power,
             },
             {
-                title: 'Master Statistik K3',
+                title: 'Master Kecelakaan Kerja',
                 href: '/master/hse-statistic',
                 icon: ChartBarIcon,
             },
