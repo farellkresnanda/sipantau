@@ -144,12 +144,12 @@ export default function ShowUser({ user }: { user: any }) {
 
                             <div className="space-y-2">
                                 <Label className="text-muted-foreground flex items-center gap-1 text-sm">Kode Manager Cabang</Label>
-                                <p className="mt-1 text-sm whitespace-pre-wrap">{user.branch_manager_code}</p>
+                                <p className="mt-1 text-sm whitespace-pre-wrap">{user.plant_code}</p>
                             </div>
 
                             <div className="space-y-2">
                                 <Label className="text-muted-foreground flex items-center gap-1 text-sm">Nama Manager Cabang</Label>
-                                <p className="mt-1 text-sm whitespace-pre-wrap">{user.branch_manager_name}</p>
+                                <p className="mt-1 text-sm whitespace-pre-wrap">{user.plant_name}</p>
                             </div>
 
                             <div className="space-y-2">

@@ -6,7 +6,18 @@ import type { BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
 import { Avatar } from '@radix-ui/react-avatar';
 import { format } from 'date-fns';
-import { AlertCircle, Calendar, Camera, FileText, GitCommit, ListTree, MapPin } from 'lucide-react';
+import {
+    AlertCircle,
+    Building2,
+    Calendar,
+    Camera,
+    Factory,
+    FileText,
+    GitCommit,
+    ListTree,
+    MapPin,
+    User
+} from 'lucide-react';
 import { AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -30,8 +41,34 @@ export default function ShowFinding({ finding }: { finding: any }) {
             <Head title="Detail Temuan" />
             <div className="space-y-6 p-4">
                 <div className="flex flex-wrap items-center gap-2">
-                    <Badge title={`Nomor CAR: ${finding.car_number_auto}`}>{finding.car_number_auto}</Badge>
-                    <Badge title={`Status Temuan: ${finding.finding_status?.name}`}>{finding.finding_status?.name}</Badge>
+                    <Badge variant="outline" className="flex items-center gap-1" title={`Nomor CAR: ${finding.car_number_auto}`}>
+                        <FileText className="h-4 w-4 text-orange-500" />
+                        {finding.car_number_auto}
+                    </Badge>
+                    <Badge variant="outline" className="flex items-center gap-1" title={`Status Temuan: ${finding.finding_status?.name}`}>
+                        <AlertCircle className="h-4 w-4 text-blue-500" />
+                        {finding.finding_status?.name}
+                    </Badge>
+                    <Badge variant="outline" className="flex items-center gap-1" title={`Entitas: ${finding.entity?.name}`}>
+                        <Building2 className="h-4 w-4 text-green-500" />
+                        {finding.entity?.name}
+                    </Badge>
+                    <Badge variant="outline" className="flex items-center gap-1" title={`Plant: ${finding.plant?.name}`}>
+                        <Factory className="h-4 w-4 text-purple-500" />
+                        {finding.plant?.name}
+                    </Badge>
+                    <Badge variant="outline" className="flex items-center gap-1" title={`Dibuat oleh: ${finding.created_by?.name}`}>
+                        <User className="h-4 w-4 text-red-500" />
+                        {finding.created_by?.name}
+                    </Badge>
+                    <Badge
+                        variant="outline"
+                        className="flex items-center gap-1"
+                        title={`Dibuat pada: ${format(new Date(finding.created_at), 'dd MMMM yyyy')}`}
+                    >
+                        <Calendar className="h-4 w-4 text-yellow-500" />
+                        {format(new Date(finding.created_at), 'dd MMMM yyyy')}
+                    </Badge>
                 </div>
 
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-[2fr_1fr]">
@@ -79,7 +116,7 @@ export default function ShowFinding({ finding }: { finding: any }) {
                                                 <ListTree className="h-4 w-4" />
                                                 Sub Ketidaksesuaian
                                             </Label>
-                                            <div className="mt-1 text-sm font-medium">{finding.nonconformity_type_sub?.name}</div>
+                                            <div className="mt-1 text-sm font-medium">{finding.nonconformity_sub_type?.name}</div>
                                         </div>
                                     </div>
                                 </div>

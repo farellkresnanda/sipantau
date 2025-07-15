@@ -71,7 +71,7 @@ export const columns: ColumnDef<MasterKonsekuensi>[] = [
             <DropdownMenuItem onClick={() => router.visit(route('consequence.edit', consequence.id))}>
               Edit
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleDelete}>
+            <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">
               Delete
             </DropdownMenuItem>
           </DropdownMenuContent>

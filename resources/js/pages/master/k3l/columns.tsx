@@ -64,7 +64,7 @@ export const columns: ColumnDef<MasterK3l>[] = [
                         <DropdownMenuItem asChild>
                             <Link href={`/master/k3l/${row.original.id}/edit`}>Edit</Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={handleDelete}>Delete</DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">Delete</DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             );

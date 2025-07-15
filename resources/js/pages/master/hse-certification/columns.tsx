@@ -69,7 +69,7 @@ export const columns: ColumnDef<MasterHseCertification>[] = [
                         <DropdownMenuItem asChild>
                             <Link href={`/master/hse-certification/${row.original.id}/edit`}>Edit</Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={handleDelete}>Delete</DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">Delete</DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             );

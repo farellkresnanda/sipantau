@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { CheckCircle, Info, XCircle } from 'lucide-react';
 
@@ -10,6 +10,14 @@ export const columns: ColumnDef<{
     id: number;
     finding_status: {
         id: number;
+        name: string;
+    } | null;
+    entity: {
+        entity_code: string;
+        name: string;
+    } | null;
+    plant: {
+        plant_code: string;
         name: string;
     } | null;
     car_number_auto: string;
@@ -20,6 +28,9 @@ export const columns: ColumnDef<{
     } | null;
     finding_description: string;
     location_details: string;
+    created_by: {
+        name: string;
+    } | null;
 }>[] = [
     {
         accessorKey: 'index',
@@ -78,6 +89,20 @@ export const columns: ColumnDef<{
         },
     },
     {
+        accessorKey: 'entity',
+        header: 'Entitas & Plant',
+        cell: ({ row }) => {
+            const entityName = row.original.entity?.name ?? '-';
+            const plantName = row.original.plant?.name ?? '-';
+            return (
+                <div className="flex flex-col">
+                    <span>{entityName}</span>
+                    <span className="text-sm text-gray-500">{plantName}</span>
+                </div>
+            );
+        },
+    },
+    {
         accessorKey: 'car_number_auto',
         header: 'Nomor CAR (Auto)',
     },
@@ -102,8 +127,20 @@ export const columns: ColumnDef<{
         header: 'Detail Lokasi Temuan',
     },
     {
+        accessorKey: 'created_by',
+        header: 'Dibuat Oleh',
+        cell: ({ row }) => {
+            return row.original.created_by?.name ?? '-';
+        },
+    },
+    {
         id: 'actions',
         cell: ({ row }) => {
+            const handleDelete = () => {
+                if (confirm('Are you sure you want to delete this data?')) {
+                    router.delete(`/finding/${row.original.id}`);
+                }
+            };
             const finding = row.original;
             return (
                 <DropdownMenu>
@@ -128,17 +165,10 @@ export const columns: ColumnDef<{
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                         <DropdownMenuItem asChild>
-                            <Link href={`/reports/finding/${finding.id}/edit`}>Edit</Link>
+                            <Link href={`/finding/${finding.id}/edit`}>Edit</Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                            <Link
-                                href={`/reports/finding/${finding.id}`}
-                                method="delete"
-                                as="button"
-                                className="w-full text-left text-red-600 hover:text-red-700"
-                            >
-                                Delete
-                            </Link>
+                        <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">
+                            Delete
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>

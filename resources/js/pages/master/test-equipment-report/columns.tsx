@@ -71,7 +71,7 @@ export const columns: ColumnDef<UjiRiksaPeralatan>[] = [
             <DropdownMenuItem onClick={() => router.visit(route('test-equipment-report.edit', peralatan.id))}>
               Edit
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleDelete}>
+            <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">
               Hapus
             </DropdownMenuItem>
           </DropdownMenuContent>

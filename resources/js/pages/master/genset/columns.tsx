@@ -113,7 +113,7 @@ export const columns: ColumnDef<MasterGenset>[] = [
             <DropdownMenuItem onClick={() => router.visit(route('genset.edit', genset.id))}>
               Edit
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleDelete}>
+            <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">
               Delete
             </DropdownMenuItem>
           </DropdownMenuContent>

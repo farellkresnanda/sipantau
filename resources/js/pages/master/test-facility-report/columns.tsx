@@ -59,7 +59,7 @@ export const columns: ColumnDef<UjiRiksaFasilitas>[] = [
             <DropdownMenuItem onClick={() => router.visit(route('test-facility-report.edit', facility.id))}>
               Edit
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleDelete}>
+            <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">
               Delete
             </DropdownMenuItem>
           </DropdownMenuContent>

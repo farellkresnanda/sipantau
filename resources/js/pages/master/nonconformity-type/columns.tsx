@@ -75,7 +75,7 @@ export const columns: ColumnDef<nonconformityType>[] = [
             <DropdownMenuItem asChild>
               <Link href={`/master/nonconformity-type/${data.id}/edit`}>Edit</Link>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleDelete}>Delete</DropdownMenuItem>
+            <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">Delete</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );

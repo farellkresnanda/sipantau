@@ -96,6 +96,8 @@ class SSOController extends Controller
             'entity_code' => $employeeData['position']['kode_entitas'],
             'entity_name' => $employeeData['position']['nama_entitas'],
             'entity_alias_name' => $employeeData['position']['nama_alias_entitas'],
+            'plant_code' => $employeeData['outlet']['kode_bm'],
+            'plant_name' => $employeeData['outlet']['nama_bm'],
             'directorate_code' => $employeeData['position']['kode_direktorat'],
             'directorate_name' => $employeeData['position']['nama_direktorat'],
             'division_code' => $employeeData['position']['kode_divisi'],
@@ -106,8 +108,6 @@ class SSOController extends Controller
             'sub_unit_name' => $employeeData['position']['nama_sub_unit'],
             'department_code' => $employeeData['position']['kode_bagian'],
             'department_name' => $employeeData['position']['nama_bagian'],
-            'branch_manager_code' => $employeeData['outlet']['kode_bm'],
-            'branch_manager_name' => $employeeData['outlet']['nama_bm'],
             'password' => bcrypt($employeeData['employee']['kode_npp']), // Use NPP as password
         ];
 

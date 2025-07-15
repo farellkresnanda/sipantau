@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Models\Master\MasterEntity;
 use App\Models\Master\MasterNonconformitySubType;
 use App\Models\Master\MasterNonconformityType;
+use App\Models\Master\MasterPlant;
 use Illuminate\Database\Eloquent\Model;
 
 class Finding extends Model
@@ -34,4 +36,15 @@ class Finding extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+
+    public function entity()
+    {
+        return $this->belongsTo(MasterEntity::class, 'entity_code', 'entity_code');
+    }
+
+    public function plant()
+    {
+        return $this->belongsTo(MasterPlant::class, 'plant_code', 'plant_code');
+    }
+
 }

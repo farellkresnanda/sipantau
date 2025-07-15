@@ -14,8 +14,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::with('roles')->latest()->get();
-
+        $users = User::with('roles', 'entity', 'plant')->latest()->get();
         return Inertia::render('users/page', compact('users'));
     }
 
@@ -65,8 +64,8 @@ class UserController extends Controller
             'sub_unit_name' => $request->sub_unit_name,
             'department_code' => $request->department_code,
             'department_name' => $request->department_name,
-            'branch_manager_code' => $request->branch_manager_code,
-            'branch_manager_name' => $request->branch_manager_name,
+            'plant_code' => $request->plant_code,
+            'plant_name' => $request->plant_name,
         ]);
 
         $user->assignRole($request->role);
@@ -134,8 +133,8 @@ class UserController extends Controller
         $user->sub_unit_name = $request->sub_unit_name;
         $user->department_code = $request->department_code;
         $user->department_name = $request->department_name;
-        $user->branch_manager_code = $request->branch_manager_code;
-        $user->branch_manager_name = $request->branch_manager_name;
+        $user->plant_code = $request->plant_code;
+        $user->plant_name = $request->plant_name;
 
         if ($request->filled('password')) {
             $user->password = bcrypt($request->password);
