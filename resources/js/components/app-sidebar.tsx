@@ -53,7 +53,7 @@ const mainNavItems: NavItemWithChildren[] = [
             },
             {
                 title: 'Inspeksi Kotak P3K',
-                href: '/inspeksi/kotak-p3k',
+                href: '/inspection/first-aid',
                 icon: BriefcaseMedical,
             },
             {

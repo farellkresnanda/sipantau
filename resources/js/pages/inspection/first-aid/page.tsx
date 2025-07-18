@@ -1,0 +1,64 @@
+'use client';
+
+import SectionHeader from '@/components/section-header';
+import { Button } from '@/components/ui/button';
+import { DataTable } from '@/components/ui/data-table';
+import { showToast } from '@/components/ui/toast';
+import AppLayout from '@/layouts/app-layout';
+import type { BreadcrumbItem } from '@/types';
+import { Head, Link, usePage } from '@inertiajs/react';
+import { useEffect } from 'react';
+import { columns, type InspectionFirstAidData } from './columns';
+
+// Breadcrumbs untuk navigasi
+const breadcrumbs: BreadcrumbItem[] = [
+  { title: 'Home', href: '/' },
+  { title: 'Inspeksi P3K', href: route('inspection.first-aid.index') },
+];
+
+// Komponen halaman inspeksi P3K
+export default function PageInspectionFirstAid({
+  inspections,
+}: {
+  inspections: InspectionFirstAidData[];
+}) {
+  const { flash } = usePage().props as {
+    flash?: { success?: string; error?: string; message?: string };
+  };
+
+  useEffect(() => {
+    if (flash?.success) {
+      showToast({ type: 'success', message: flash.success });
+    }
+    if (flash?.error) {
+      showToast({ type: 'error', message: flash.error });
+    }
+    if (flash?.message) {
+      showToast({ message: flash.message });
+    }
+  }, [flash]);
+
+  return (
+    <AppLayout breadcrumbs={breadcrumbs}>
+      <Head title="Inspeksi P3K" />
+      <div className="p-4">
+        <div className="mb-3 flex flex-col items-center justify-between gap-4 sm:flex-row">
+          <SectionHeader
+            title="Daftar Inspeksi P3K"
+            subtitle="Kelola dan lihat riwayat semua inspeksi P3K yang telah dilakukan."
+          />
+          <Button asChild className="w-full sm:w-auto">
+            <Link href={route('inspection.first-aid.selectKit')}>
+              Mulai Inspeksi Baru
+            </Link>
+          </Button>
+        </div>
+        <div className="w-full overflow-x-auto">
+          <div className="min-w-[1200px]">
+            <DataTable columns={columns} data={inspections ?? []} />
+          </div>
+        </div>
+      </div>
+    </AppLayout>
+  );
+}
