@@ -229,83 +229,148 @@ class FindingController extends Controller
      */
     public function verify(Request $request, $uuid)
     {
-        $request->validate([
-            'approval_status' => 'required|in:APPROVED,REJECTED',
-            'corrective_plan' => 'required|string',
-            'corrective_due_date' => 'required|string',
-        ]);
+        // Pastikan user sudah login
+        $user = Auth::user();
+        $role = $user->getRoleNames()->first(); // contoh: 'Technician', 'Admin', 'Validator'
 
+        // Validasi UUID
         $finding = Finding::where('uuid', $uuid)
-            ->with(['findingApprovalHistories.findingApprovalAssignment'])
+            ->with(['findingApprovalHistories.findingApprovalAssignment.user'])
             ->firstOrFail();
 
-        // Ensure the finding is in a state that allows verification
-        $finding->update([
-            'corrective_plan' => $request->corrective_plan,
-            'corrective_due_date' => $request->corrective_due_date,
-        ]);
-
         try {
-            DB::transaction(function () use ($request, $finding) {
-                $user = Auth::user();
-
-                // Find current user's assignment
+            // Mulai transaksi untuk memastikan atomicity
+            DB::transaction(function () use ($request, $finding, $user, $role) {
                 $currentHistory = $finding->findingApprovalHistories()
+                    ->with(['findingApprovalAssignment' => function ($query) use ($user) {
+                        $query->where('user_id', $user->id)->where('is_verified', false);
+                    }])
                     ->whereHas('findingApprovalAssignment', function ($query) use ($user) {
-                        $query->where('user_id', $user->id)
-                            ->where('is_verified', false);
-                    })
-                    ->first();
+                        $query->where('user_id', $user->id)->where('is_verified', false);
+                    })->first();
 
                 if (!$currentHistory) {
-                    throw new \Exception('No pending verification found for this user.');
+                    throw new \Exception('Tidak ada verifikasi aktif untuk user ini.');
                 }
 
-                // Update the assignment
+                // Pastikan ada assignment untuk user ini
                 $assignment = $currentHistory->findingApprovalAssignment()
                     ->where('user_id', $user->id)
-                    ->first();
+                    ->firstOrFail();
 
+                // Proses untuk Technician
+                if ($role === 'Technician') {
+                    $request->validate([
+                        'approval_status' => 'required|in:APPROVED,REJECTED',
+                        'corrective_plan' => 'required|string',
+                        'corrective_due_date' => 'required|date',
+                    ]);
+
+                    // Update status finding berdasarkan approval status
+                    $finding->update([
+                        // Jika statusnya APPROVED, set ke SPR (Status Perbaikan)
+                        'finding_status_code' => match ($request->approval_status) {
+                            'APPROVED' => 'SPR', // Approved
+                            'REJECTED' => 'SRE', // Rejected
+                        },
+                        'corrective_plan' => $request->corrective_plan,
+                        'corrective_due_date' => $request->corrective_due_date,
+                    ]);
+                }
+
+                // Proses untuk Admin
+                if ($role === 'Admin') {
+                    $request->validate([
+                        'approval_status' => 'required|in:APPROVED,REJECTED,REVISION',
+                        'corrective_action' => 'required|string',
+                        'car_number_manual' => 'nullable|string',
+                        'note' => 'nullable|string',
+                        'photo_after' => 'nullable|image|max:2048',
+                    ]);
+
+                    // Update status finding berdasarkan approval status
+                    $finding->update([
+                        'corrective_action' => $request->corrective_action,
+                        'car_number_manual' => $request->car_number_manual,
+                    ]);
+
+                    // Jika ada foto setelah tindakan korektif
+                    if ($request->hasFile('photo_after')) {
+                        $photoPath = $request->file('photo_after')->store('finding_photos', 'public');
+                        $finding->update(['photo_after' => $photoPath]);
+                    }
+                }
+
+                // Proses untuk Validator
+                if ($role === 'Validator') {
+                    $request->validate([
+                        'approval_status' => 'required|in:CLOSE,INEFFECTIVE,POSTPONED,REJECTED',
+                        'note' => 'nullable|string',
+                    ]);
+
+                    // Update status finding berdasarkan approval status
+                    $finding->update([
+                        'finding_status_code' => match ($request->approval_status) {
+                            'CLOSE' => 'SCF', // Close/Efektif
+                            'INEFFECTIVE' => 'STF', // Tidak Efektif
+                            'POSTPONED' => 'SDT', // Ditunda
+                            'REJECTED' => 'SRE', // Reject
+                        },
+                    ]);
+
+                }
+
+                // Tandai assignment sebagai sudah diverifikasi
                 $assignment->update([
                     'is_verified' => true,
                     'verified_at' => now(),
-                    'note' => $request->note
+                    'note' => $request->note ?? null,
                 ]);
 
-                // Check if all assignments for this history are verified
+                // Jika semua assignment pada tahap ini sudah diverifikasi
                 $allVerified = $currentHistory->findingApprovalAssignment()
                     ->where('is_verified', false)
                     ->doesntExist();
 
+                // Update status history jika semua assignment sudah diverifikasi
                 if ($allVerified) {
-                    // Update the history status
                     $currentHistory->update([
                         'approval_status' => $request->approval_status,
                         'verified_by' => $user->id,
                         'verified_at' => now(),
-                        'note' => $request->note
+                        'note' => $request->note ?? null,
                     ]);
 
-                    // If rejected, update finding status to rejected
+                    // Update status finding berdasarkan approval status
                     if ($request->approval_status === 'REJECTED') {
-                        $finding->update(['finding_status_code' => 'SRE']); // Status Rejected
+                        $finding->update(['finding_status_code' => 'SRE']); // Rejected
                     }
 
-                    // If approved and this is the last stage, update finding status to approved
+                    // Cek apakah ini adalah tahap terakhir
                     $isLastStage = !FindingApprovalHistory::where('finding_id', $finding->id)
                         ->where('approval_status', 'PENDING')
                         ->exists();
+
+                    // Jika sudah di tahap terakhir dan disetujui
+                    if ($request->approval_status === 'CLOSE' && $isLastStage) {
+                        $finding->update(['finding_status_code' => 'SCF']); // Approved
+                    }
                 }
             });
 
             return redirect()->route('finding.show', $uuid)
-                ->with('success', 'Verification processed successfully.');
+                ->with('success', 'Verifikasi berhasil diproses.');
 
         } catch (\Exception $e) {
-            return redirect()->route('finding.show', $uuid)
-                ->with('error', 'Error processing verification: ' . $e->getMessage());
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'message' => 'Gagal verifikasi: ' . $e->getMessage(),
+                ], 422);
+            } else {
+                return redirect()->route('finding.show', $uuid)
+                    ->with('error', 'Gagal verifikasi: ' . $e->getMessage());
+            }
         }
     }
-
 
 }

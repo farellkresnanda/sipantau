@@ -90,7 +90,7 @@ export default function ShowFinding({ finding }: { finding: any }) {
                                                 <Calendar className="h-4 w-4" />
                                                 Tanggal Temuan
                                             </Label>
-                                            <div className="mt-1 text-sm font-medium">{format(new Date(finding.date), 'dd MMMM yyyy')}</div>
+                                            <div className="mt-1 text-sm">{format(new Date(finding.date), 'dd MMMM yyyy')}</div>
                                         </div>
                                         {/* Lokasi */}
                                         <div>
@@ -109,7 +109,7 @@ export default function ShowFinding({ finding }: { finding: any }) {
                                                 <AlertCircle className="h-4 w-4" />
                                                 Ketidaksesuaian
                                             </Label>
-                                            <div className="mt-1 text-sm font-medium">{finding.nonconformity_type?.name}</div>
+                                            <div className="mt-1 text-sm">{finding.nonconformity_type?.name}</div>
                                         </div>
                                         {/* Sub Ketidaksesuaian */}
                                         <div>
@@ -117,7 +117,7 @@ export default function ShowFinding({ finding }: { finding: any }) {
                                                 <ListTree className="h-4 w-4" />
                                                 Sub Ketidaksesuaian
                                             </Label>
-                                            <div className="mt-1 text-sm font-medium">{finding.nonconformity_sub_type?.name}</div>
+                                            <div className="mt-1 text-sm">{finding.nonconformity_sub_type?.name}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -170,7 +170,7 @@ export default function ShowFinding({ finding }: { finding: any }) {
                                         <FileText className="h-4 w-4" />
                                         Rencana Perbaikan
                                     </Label>
-                                    <p className="mt-1 whitespace-pre-wrap">{finding.corrective_plan || '-'}</p>
+                                    <p className="mt-1 text-sm whitespace-pre-wrap">{finding.corrective_plan || '-'}</p>
                                 </div>
                                 {/* Batas Waktu Perbaikan */}
                                 <div>
@@ -178,7 +178,9 @@ export default function ShowFinding({ finding }: { finding: any }) {
                                         <Calendar className="h-4 w-4" />
                                         Batas Waktu Perbaikan
                                     </Label>
-                                    <div className="mt-1 font-medium">{format(new Date(finding.corrective_due_date), 'dd MMMM yyyy')}</div>
+                                    <div className="mt-1">
+                                        {finding.corrective_due_date ? format(new Date(finding.corrective_due_date), 'dd MMMM yyyy') : '-'}
+                                    </div>
                                 </div>
                             </CardContent>
                         </Card>
@@ -208,7 +210,9 @@ export default function ShowFinding({ finding }: { finding: any }) {
                                         <FileText className="h-4 w-4" />
                                         Catatan
                                     </Label>
-                                    <p className="mt-1 whitespace-pre-wrap">{finding.note_admin || '-'}</p>
+                                    <p className="mt-1 whitespace-pre-wrap">
+                                        {finding.finding_approval_histories?.find((history: any) => history.stage === 'Admin')?.note || '-'}
+                                    </p>
                                 </div>
                                 {finding.photo_after && (
                                     <div>
@@ -237,9 +241,11 @@ export default function ShowFinding({ finding }: { finding: any }) {
                                 <div>
                                     <Label className="text-muted-foreground flex items-center gap-1 text-sm">
                                         <FileText className="h-4 w-4" />
-                                        Komentar Validator
+                                        Catatan
                                     </Label>
-                                    <p className="mt-1 whitespace-pre-wrap">{finding.komentar_validator || '-'}</p>
+                                    <p className="mt-1 whitespace-pre-wrap">
+                                        {finding.finding_approval_histories?.find((history: any) => history.stage === 'Validator')?.note || '-'}
+                                    </p>
                                 </div>
                             </CardContent>
                         </Card>
@@ -258,7 +264,11 @@ export default function ShowFinding({ finding }: { finding: any }) {
                                             const badgeStyleMap = {
                                                 APPROVED: {
                                                     variant: 'secondary',
-                                                    className: 'bg-green-500 hover:bg-green-600 text-white',
+                                                    className: 'bg-green-50 text-green-700 border-green-500 border',
+                                                },
+                                                CLOSE: {
+                                                    variant: 'secondary',
+                                                    className: 'bg-green-50 text-green-700 border-green-500 border',
                                                 },
                                                 REJECTED: {
                                                     variant: 'destructive',
@@ -297,7 +307,6 @@ export default function ShowFinding({ finding }: { finding: any }) {
                                                                     <div className="text-xs">
                                                                         {format(new Date(approval.verified_at), 'HH:mm')} WIB
                                                                     </div>
-                                                                    {approval.note && <div className="mt-1 text-xs italic">{approval.note}</div>}
                                                                 </>
                                                             ) : (
                                                                 <span className="text-gray-400">Belum diverifikasi</span>
