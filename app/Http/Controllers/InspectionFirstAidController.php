@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Master\MasterP3k;
-use App\Models\InspectionFirstAid;
 use App\Models\InspectionCondition;
+use App\Models\InspectionFirstAid;
 use App\Models\InspectionItem;
 use App\Models\InspectionStatus;
+use App\Models\Master\MasterP3k;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -35,7 +35,6 @@ class InspectionFirstAidController extends Controller
     public function selectKit()
     {
         $kits = MasterP3k::with(['entityData', 'plantData'])->get();
-
 
         return Inertia::render('inspection/first-aid/select-kit', [
             'kits' => $kits,
@@ -92,7 +91,8 @@ class InspectionFirstAidController extends Controller
             return redirect()->route('inspection.first-aid.index')->with('success', 'Inspeksi berhasil disimpan.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Gagal menyimpan inspeksi: ' . $e->getMessage());
+
+            return back()->with('error', 'Gagal menyimpan inspeksi: '.$e->getMessage());
         }
     }
 
@@ -170,7 +170,8 @@ class InspectionFirstAidController extends Controller
             return redirect()->route('inspection.first-aid.index')->with('success', 'Data inspeksi berhasil diperbarui.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Gagal memperbarui inspeksi: ' . $e->getMessage());
+
+            return back()->with('error', 'Gagal memperbarui inspeksi: '.$e->getMessage());
         }
     }
 

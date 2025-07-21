@@ -2,14 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Models\Master\MasterEntity;
 use App\Models\Master\MasterPlant;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ModuleManager extends Model
 {
     use SoftDeletes;
+
     protected $fillable = [
         'module_id',
         'module_name',
