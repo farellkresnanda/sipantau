@@ -94,7 +94,7 @@ class PpeInspectionController extends Controller
     public function show($uuid)
     {
         $ppeInspection = PpeInspection::where('uuid', $uuid)
-            ->with('items.ppeCheckItem', 'location', 'createdBy', 'entity', 'plant', 'approvalStatus')
+            ->with('items.ppeCheckItem', 'location', 'createdBy', 'entity', 'plant', 'approvalStatus', 'approvedBy')
             ->firstOrFail();
 
         return Inertia::render('inspection/ppe/show', [
@@ -131,7 +131,6 @@ class PpeInspectionController extends Controller
      */
     public function update(Request $request, $uuid)
     {
-        dd($request);
         // Validate the request data
         $request->validate([
             'inspection_date' => 'required|date',
@@ -179,5 +178,28 @@ class PpeInspectionController extends Controller
         $ppeInspection->delete();
 
         return redirect()->route('inspection.ppe.index')->with('success', 'PPE Inspection deleted successfully.');
+    }
+
+    /**
+     * Approve the specified resource.
+     */
+    public function verify(Request $request, $uuid)
+    {
+        $ppeInspection = PpeInspection::where('uuid', $uuid)->firstOrFail();
+
+        // Check if the inspection is already approved
+        if ($ppeInspection->approval_status_code === 'SAP') {
+            return redirect()->back()->with('error', 'This PPE Inspection has already been approved.');
+        }
+
+        // Update the approval status to 'SAP'
+        $ppeInspection->update([
+            'approval_status_code' => $request->approval_status,
+            'note_validator' => $request->note ?? null,
+            'approved_at' => now(),
+            'approved_by' => auth()->id()
+        ]);
+
+        return redirect()->route('inspection.ppe.index')->with('success', 'PPE Inspection approved successfully.');
     }
 }

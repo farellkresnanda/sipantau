@@ -43,4 +43,9 @@ class PpeInspection extends Model
     {
         return $this->belongsTo(ApprovalStatus::class, 'approval_status_code', 'code');
     }
+
+    public function approvedBy()
+    {
+        return $this->belongsTo(User::class, 'approved_by', 'id');
+    }
 }
