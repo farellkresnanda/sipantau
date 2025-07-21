@@ -2,16 +2,22 @@ import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import {type NavItem, SharedData} from '@/types';
-import {Link, usePage} from '@inertiajs/react';
+import { type NavItem, SharedData } from '@/types';
+import { Link, usePage } from '@inertiajs/react';
 import {
     BackpackIcon,
-    BookOpen, BookUpIcon, BriefcaseMedical,
+    BookOpen,
+    BookUpIcon,
+    BriefcaseMedical,
     Building2,
     ChartBarIcon,
-    ClipboardCheck, ComputerIcon, DoorClosedIcon, FenceIcon,
+    ClipboardCheck,
+    ComputerIcon,
+    DoorClosedIcon,
+    FenceIcon,
     FileUserIcon,
-    HardHat, HotelIcon,
+    HardHat,
+    HotelIcon,
     Info,
     LayoutGrid,
     Power,
@@ -19,7 +25,7 @@ import {
     ShieldCheck,
     TargetIcon,
     UsersIcon,
-    Wind
+    Wind,
 } from 'lucide-react';
 import AppLogo from './app-logo';
 
@@ -48,7 +54,7 @@ const mainNavItems: NavItemWithChildren[] = [
         children: [
             {
                 title: 'Inspeksi APAR',
-                href: '/inspeksi/apar',
+                href: '/inspection/apar',
                 icon: ClipboardCheck,
             },
             {
@@ -283,14 +289,14 @@ const footerNavItems: NavItem[] = [
 
 function filterNavItemsByRole(items: NavItemWithChildren[], role: string): NavItemWithChildren[] {
     return items
-        .filter(item => {
+        .filter((item) => {
             // Jika item tidak punya role, berarti tersedia untuk semua
             return !item.roles || item.roles.includes(role);
         })
-        .map(item => ({
+        .map((item) => ({
             ...item,
             // Jika ada children, filter juga berdasarkan role
-            children: item.children?.filter(child => {
+            children: item.children?.filter((child) => {
                 return !child.roles || child.roles.includes(role);
             }),
         }));
