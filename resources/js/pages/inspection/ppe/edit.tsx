@@ -32,7 +32,7 @@ const formSchema = z.object({
     project_name: z.string().optional(),
     items: z.record(
         z.object({
-            id: z.string().min(1, 'ID is required'),
+            id: z.string().optional(),
             condition: z.string().min(1, 'Condition is required'),
             usage: z.string().min(1, 'Usage is required'),
             quantity: z.number().min(0, 'Quantity must be 0 or greater'),
@@ -44,7 +44,7 @@ const formSchema = z.object({
 export default function EditPpeInspection({ locations, ppeItems, ppeInspection}: any) {
     // Transform backend data
     const ppe_inspection = {
-        id: ppeInspection.uuid,
+        uuid: ppeInspection.uuid,
         inspection_date: ppeInspection.inspection_date,
         location_id: String(ppeInspection.location_id),
         job_description: ppeInspection.job_description,
@@ -61,14 +61,26 @@ export default function EditPpeInspection({ locations, ppeItems, ppeInspection}:
         }, {}),
     };
 
+
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: ppe_inspection,
     });
 
+    console.log('Form State:', form.formState);
+    console.log('Form Values:', form.watch());
+
     const onSubmit = (data: z.infer<typeof formSchema>) => {
         console.log(data)
-        router.put(route('inspection.ppe.update', ppeInspection.uuid), data);
+        router.put(route('inspection.ppe.update', ppeInspection.uuid), data, {
+            onError: (errors) => {
+                console.error('❌ Submit Error:', errors);
+            },
+            onSuccess: () => {
+                console.log('✅ Submit Success');
+            },
+        });
     };
 
     return (
@@ -231,7 +243,11 @@ export default function EditPpeInspection({ locations, ppeItems, ppeInspection}:
                                                         render={({ field }) => (
                                                             <FormItem>
                                                                 <FormControl>
-                                                                    <Input placeholder="Jumlah" {...field} />
+                                                                    <Input
+                                                                        type="number"
+                                                                        value={field.value ?? ''}
+                                                                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                                                                    />
                                                                 </FormControl>
                                                                 <FormMessage />
                                                             </FormItem>

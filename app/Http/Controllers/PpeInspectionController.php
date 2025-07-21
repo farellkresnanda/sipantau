@@ -139,8 +139,6 @@ class PpeInspectionController extends Controller
             'project_name' => 'nullable|string|max:255',
             'location_id' => 'required|exists:master_locations,id',
             'items' => 'required|array',
-            'items.*.id' => 'required|exists:ppe_inspection_items,id',
-            'items.*.quantity' => 'required|integer|min:0',
         ]);
 
         // Find the PPE Inspection record

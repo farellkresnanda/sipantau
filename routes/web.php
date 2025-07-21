@@ -44,21 +44,23 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('finding/verify/{uiid}', [FindingController::class, 'verify'])->name('finding.verify');
     Route::resource('finding', FindingController::class);
 
-    // Detail setelah melakukan QR Code tanpa login
+    // Inspection routes
+    Route::prefix('inspection')->group(function () {
+        // First Aid Inspection routes
+        Route::prefix('first-aid')->name('inspection.first-aid.')->group(function () {
+            Route::get('/', [InspectionFirstAidController::class, 'index'])->name('index');
+            Route::get('/select-kit', [InspectionFirstAidController::class, 'selectKit'])->name('selectKit')->middleware('role:Admin|SuperAdmin');
+            Route::get('/create/{kit}', [InspectionFirstAidController::class, 'create'])->name('create')->middleware('role:Admin|SuperAdmin');
+            Route::post('/', [InspectionFirstAidController::class, 'store'])->name('store')->middleware('role:Admin|SuperAdmin');
+            Route::get('/{inspection}', [InspectionFirstAidController::class, 'show'])->name('show');
+            Route::get('/{inspection}/edit', [InspectionFirstAidController::class, 'edit'])->name('edit')->middleware('role:Admin|SuperAdmin');
+            Route::put('/{inspection}', [InspectionFirstAidController::class, 'update'])->name('update')->middleware('role:Admin|SuperAdmin');
+            Route::patch('/{inspection}/validate', [InspectionFirstAidController::class, 'validateInspection'])->name('validate')->middleware('role:Validator');
+        });
 
-    // Inspection First Aid routes
-    // Inspection First Aid routes
-    Route::prefix('inspection/first-aid')->name('inspection.first-aid.')->group(function () {
-        Route::get('/', [InspectionFirstAidController::class, 'index'])->name('index');
-        Route::get('/select-kit', [InspectionFirstAidController::class, 'selectKit'])->name('selectKit')->middleware('role:Admin|SuperAdmin');
-        Route::get('/create/{kit}', [InspectionFirstAidController::class, 'create'])->name('create')->middleware('role:Admin|SuperAdmin');
-        Route::post('/', [InspectionFirstAidController::class, 'store'])->name('store')->middleware('role:Admin|SuperAdmin');
-        Route::get('/{inspection}', [InspectionFirstAidController::class, 'show'])->name('show');
-        Route::get('/{inspection}/edit', [InspectionFirstAidController::class, 'edit'])->name('edit')->middleware('role:Admin|SuperAdmin');
-        Route::put('/{inspection}', [InspectionFirstAidController::class, 'update'])->name('update')->middleware('role:Admin|SuperAdmin');
-        Route::patch('/{inspection}/validate', [InspectionFirstAidController::class, 'validateInspection'])->name('validate')->middleware('role:Validator');
+        // PPE Inspection routes
+        Route::resource('ppe', PpeInspectionController::class)->names('inspection.ppe');
     });
-
 
     // Analysis routes
     Route::prefix('analysis')->group(function () {
