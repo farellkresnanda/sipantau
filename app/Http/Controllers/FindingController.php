@@ -27,7 +27,7 @@ class FindingController extends Controller
 
         $findings = Finding::latest()
             ->with(['nonconformityType', 'findingStatus', 'entity', 'plant', 'createdBy'])
-            ->when(!in_array($user->role, $rolesCanViewAll), function ($query) use ($user) {
+            ->when(! in_array($user->role, $rolesCanViewAll), function ($query) use ($user) {
                 $query->where(function ($q) use ($user) {
                     // 1. Created by current user
                     $q->where('created_by', $user->id)
@@ -82,7 +82,7 @@ class FindingController extends Controller
             }
 
             // Generate CAR number (you may want to extract this logic into a service later)
-            $carNumber = auth()->user()->plant->alias_name . '/' . sprintf('%03d', Finding::count() + 1) . '/' . now()->format('d/m/Y');
+            $carNumber = auth()->user()->plant->alias_name.'/'.sprintf('%03d', Finding::count() + 1).'/'.now()->format('d/m/Y');
 
             // Create the finding
             $finding = Finding::create(array_merge($data, [
@@ -110,7 +110,7 @@ class FindingController extends Controller
                 ]);
 
                 // Step 3: Cari semua user dengan role sesuai dan entitas yang sama
-                $users  = UserStageHelper::getUsersForStage($stage, $finding);
+                $users = UserStageHelper::getUsersForStage($stage, $finding);
 
                 // Step 4: Assign user ke tahap approval ini
                 foreach ($users as $user) {
@@ -137,7 +137,8 @@ class FindingController extends Controller
      */
     public function show($uuid)
     {
-        $finding = Finding::with(['nonconformityType', 'nonconformitySubType', 'findingApprovalHistories','findingApprovalHistories.findingApprovalAssignment.user', 'findingStatus', 'entity', 'plant', 'createdBy'])->where('uuid', $uuid)->firstOrFail();
+        $finding = Finding::with(['nonconformityType', 'nonconformitySubType', 'findingApprovalHistories', 'findingApprovalHistories.findingApprovalAssignment.user', 'findingStatus', 'entity', 'plant', 'createdBy'])->where('uuid', $uuid)->firstOrFail();
+
         return Inertia::render('finding/show', compact('finding'));
     }
 
@@ -147,6 +148,7 @@ class FindingController extends Controller
     public function edit(string $uuid)
     {
         $finding = Finding::where('uuid', $uuid)->with(['nonconformityType', 'nonconformitySubType', 'findingStatus', 'entity', 'plant', 'createdBy'])->firstOrFail();
+
         return Inertia::render('finding/edit', compact('finding'));
     }
 
@@ -249,7 +251,7 @@ class FindingController extends Controller
                         $query->where('user_id', $user->id)->where('is_verified', false);
                     })->first();
 
-                if (!$currentHistory) {
+                if (! $currentHistory) {
                     throw new \Exception('Tidak ada verifikasi aktif untuk user ini.');
                 }
 
@@ -347,7 +349,7 @@ class FindingController extends Controller
                     }
 
                     // Cek apakah ini adalah tahap terakhir
-                    $isLastStage = !FindingApprovalHistory::where('finding_id', $finding->id)
+                    $isLastStage = ! FindingApprovalHistory::where('finding_id', $finding->id)
                         ->where('approval_status', 'PENDING')
                         ->exists();
 
@@ -364,13 +366,12 @@ class FindingController extends Controller
         } catch (\Exception $e) {
             if ($request->wantsJson()) {
                 return response()->json([
-                    'message' => 'Gagal verifikasi: ' . $e->getMessage(),
+                    'message' => 'Gagal verifikasi: '.$e->getMessage(),
                 ], 422);
             } else {
                 return redirect()->route('finding.show', $uuid)
-                    ->with('error', 'Gagal verifikasi: ' . $e->getMessage());
+                    ->with('error', 'Gagal verifikasi: '.$e->getMessage());
             }
         }
     }
-
 }

@@ -30,6 +30,7 @@ class ModuleManagerController extends Controller
             ->groupBy('user_id')
             ->orderBy('latest_created_at', 'desc')
             ->get();
+
         return Inertia::render('module/page', compact('moduleManagers'));
     }
 
@@ -150,7 +151,6 @@ class ModuleManagerController extends Controller
 
         return redirect()->route('module-managers.index')->with('success', __('Module Manager updated successfully.'));
     }
-
 
     /**
      * Remove the specified resource from storage.

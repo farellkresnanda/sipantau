@@ -18,7 +18,6 @@ class InspectionDetail extends Model
         'condition_id',
     ];
 
-
     public function item()
     {
         return $this->belongsTo(InspectionItem::class, 'item_id');

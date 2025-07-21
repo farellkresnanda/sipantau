@@ -89,7 +89,8 @@ class InspectionFirstAidController extends Controller
             return redirect()->route('inspection.first-aid.index')->with('success', 'Inspeksi berhasil disimpan.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Gagal menyimpan inspeksi: ' . $e->getMessage());
+
+            return back()->with('error', 'Gagal menyimpan inspeksi: '.$e->getMessage());
         }
     }
 
@@ -167,7 +168,8 @@ class InspectionFirstAidController extends Controller
             return redirect()->route('inspection.first-aid.index')->with('success', 'Data inspeksi berhasil diperbarui.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Gagal memperbarui inspeksi: ' . $e->getMessage());
+
+            return back()->with('error', 'Gagal memperbarui inspeksi: '.$e->getMessage());
         }
     }
 

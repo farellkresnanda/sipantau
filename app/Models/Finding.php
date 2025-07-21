@@ -49,5 +49,4 @@ class Finding extends Model
     {
         return $this->belongsTo(MasterPlant::class, 'plant_code', 'plant_code');
     }
-
 }
