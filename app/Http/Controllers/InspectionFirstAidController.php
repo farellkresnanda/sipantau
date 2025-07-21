@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Master\MasterP3k;
+use App\Models\Master\MasterP3kItem;
 use App\Models\InspectionFirstAid;
-use App\Models\InspectionCondition;
-use App\Models\InspectionItem;
+use App\Models\InspectionFirstAidCondition;
 use App\Models\InspectionStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -31,25 +31,22 @@ class InspectionFirstAidController extends Controller
         ]);
     }
 
-    // ✅ SELECT KIT
     public function selectKit()
     {
         $kits = MasterP3k::with(['entityData', 'plantData'])->get();
-
 
         return Inertia::render('inspection/first-aid/select-kit', [
             'kits' => $kits,
         ]);
     }
 
-    // ✅ CREATE DARI KIT
     public function create(MasterP3k $kit)
     {
-        $items = InspectionItem::all();
-        $conditions = InspectionCondition::all();
+        $items = MasterP3kItem::all();
+        $conditions = InspectionFirstAidCondition::all();
 
-        return Inertia::render('inspection/first-aid/Create', [
-            'kit' => $kit->load(['entity', 'plant']),
+        return Inertia::render('inspection/first-aid/create', [
+            'kit' => $kit->load(['entityData', 'plantData']),
             'items' => $items,
             'conditions' => $conditions,
         ]);
@@ -65,7 +62,7 @@ class InspectionFirstAidController extends Controller
             'has_findings' => 'required|boolean',
             'notes' => 'nullable|string',
             'details' => 'required|array',
-            'details.*.item_id' => 'required|exists:inspection_first_aid_items,id',
+            'details.*.item_id' => 'required|exists:master_p3k_items,id',
             'details.*.quantity_found' => 'required|integer|min:0',
             'details.*.condition_id' => 'required|exists:inspection_first_aid_conditions,id',
         ]);
@@ -125,8 +122,8 @@ class InspectionFirstAidController extends Controller
             'details.condition',
         ]);
 
-        $items = InspectionItem::all();
-        $conditions = InspectionCondition::all();
+        $items = MasterP3kItem::all();
+        $conditions = InspectionFirstAidCondition::all();
 
         return Inertia::render('inspection/first-aid/Edit', [
             'inspection' => $inspection,
@@ -145,7 +142,7 @@ class InspectionFirstAidController extends Controller
             'has_findings' => 'required|boolean',
             'notes' => 'nullable|string',
             'details' => 'required|array',
-            'details.*.item_id' => 'required|exists:inspection_first_aid_items,id',
+            'details.*.item_id' => 'required|exists:master_p3k_items,id',
             'details.*.quantity_found' => 'required|integer|min:0',
             'details.*.condition_id' => 'required|exists:inspection_first_aid_conditions,id',
         ]);

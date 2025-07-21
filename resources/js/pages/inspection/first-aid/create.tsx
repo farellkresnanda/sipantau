@@ -20,7 +20,13 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import type { BreadcrumbItem } from '@/types';
 
 const formSchema = z.object({
@@ -35,16 +41,26 @@ const formSchema = z.object({
   ),
 });
 
-export default function CreateInspectionFirstAid() {
-  type KitType = {
-    id: number;
-    location: string;
-    inventory_code: string;
-    entity: { code: string; name: string };
-    plant: { code: string; name: string };
-  };
+type KitType = {
+  id: number;
+  location: string;
+  inventory_code: string;
+  entityData?: { code: string; name: string };
+  plantData?: { code: string; name: string };
+};
 
-  const { kit, items, conditions, errors } = usePage<{ kit: KitType; items: any[]; conditions: any[]; errors?: Record<string, string> }>().props;
+export default function CreateInspectionFirstAid() {
+  const {
+    kit,
+    items,
+    conditions,
+    errors,
+  } = usePage<{
+    kit: KitType;
+    items: any[];
+    conditions: any[];
+    errors?: Record<string, string>;
+  }>().props;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -72,8 +88,8 @@ export default function CreateInspectionFirstAid() {
         location: kit.location,
         inventory_code: kit.inventory_code,
       },
-      entity_code: kit.entity.code,
-      plant_code: kit.plant.code,
+      entity_code: kit.entityData?.code,
+      plant_code: kit.plantData?.code,
     });
   }
 
@@ -99,11 +115,17 @@ export default function CreateInspectionFirstAid() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <FormLabel>Entitas</FormLabel>
-                    <Input value={kit.entity.name} disabled />
+                    <Input
+                      value={kit.entityData?.name ?? '-'}
+                      disabled
+                    />
                   </div>
                   <div>
                     <FormLabel>Plant</FormLabel>
-                    <Input value={kit.plant.name} disabled />
+                    <Input
+                      value={kit.plantData?.name ?? '-'}
+                      disabled
+                    />
                   </div>
                 </div>
 
@@ -147,10 +169,17 @@ export default function CreateInspectionFirstAid() {
                 />
 
                 {form.watch('details').map((_, index) => (
-                  <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-4 border-b py-3">
+                  <div
+                    key={index}
+                    className="grid grid-cols-1 md:grid-cols-3 gap-4 border-b py-3"
+                  >
                     <div>
                       <FormLabel>
-                        {items.find((i) => i.id === form.watch(`details.${index}.item_id`))?.name || '-'}
+                        {
+                          items.find(
+                            (i) => i.id === form.watch(`details.${index}.item_id`)
+                          )?.name ?? '-'
+                        }
                       </FormLabel>
                     </div>
 
@@ -202,7 +231,10 @@ export default function CreateInspectionFirstAid() {
 
             <div className="flex gap-2">
               <Button type="submit">Simpan</Button>
-              <Link href={route('inspection.first-aid.index')} className="text-sm text-muted-foreground hover:underline">
+              <Link
+                href={route('inspection.first-aid.index')}
+                className="text-sm text-muted-foreground hover:underline"
+              >
                 Kembali
               </Link>
             </div>
