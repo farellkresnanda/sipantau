@@ -50,7 +50,7 @@ const mainNavItems: NavItemWithChildren[] = [
         title: 'Inspeksi',
         href: '#',
         icon: ComputerIcon,
-        roles: ['SuperAdmin', 'Admin'],
+        roles: ['SuperAdmin', 'Admin', 'Validator'],
         children: [
             {
                 title: 'Inspeksi APAR',

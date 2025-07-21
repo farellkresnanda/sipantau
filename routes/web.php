@@ -51,6 +51,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
         // PPE Inspection routes
+        Route::post('ppe/verify/{uiid}', [PpeInspectionController::class, 'verify'])->name('inspection.ppe.verify');
         Route::resource('ppe', PpeInspectionController::class)->names('inspection.ppe');
     });
 

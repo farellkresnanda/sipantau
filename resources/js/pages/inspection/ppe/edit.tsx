@@ -18,6 +18,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type {BreadcrumbItem} from "@/types";
+import { useEffect } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Home', href: '/' },
@@ -32,7 +33,7 @@ const formSchema = z.object({
     project_name: z.string().optional(),
     items: z.record(
         z.object({
-            id: z.string().optional(),
+            id: z.number().optional(),
             condition: z.string().min(1, 'Condition is required'),
             usage: z.string().min(1, 'Usage is required'),
             quantity: z.number().min(0, 'Quantity must be 0 or greater'),
@@ -62,17 +63,16 @@ export default function EditPpeInspection({ locations, ppeItems, ppeInspection}:
     };
 
 
-
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: ppe_inspection,
     });
 
-    console.log('Form State:', form.formState);
-    console.log('Form Values:', form.watch());
+    useEffect(() => {
+        console.log('🔍 Form Errors:', form.formState.errors);
+    }, [form.formState.errors]);
 
     const onSubmit = (data: z.infer<typeof formSchema>) => {
-        console.log(data)
         router.put(route('inspection.ppe.update', ppeInspection.uuid), data, {
             onError: (errors) => {
                 console.error('❌ Submit Error:', errors);
