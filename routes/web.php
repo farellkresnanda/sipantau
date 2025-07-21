@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AparInspectionController;
 use App\Http\Controllers\FindingController;
 use App\Http\Controllers\HseInformationController;
 use App\Http\Controllers\InspectionFirstAidController;
@@ -58,6 +59,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::patch('/{inspection}/validate', [InspectionFirstAidController::class, 'validateInspection'])->name('validate')->middleware('role:Validator');
         });
 
+        Route::resource('apar', AparInspectionController::class)->names('inspection.apar');
         // PPE Inspection routes
         Route::post('ppe/verify/{uiid}', [PpeInspectionController::class, 'verify'])->name('inspection.ppe.verify');
         Route::resource('ppe', PpeInspectionController::class)->names('inspection.ppe');
