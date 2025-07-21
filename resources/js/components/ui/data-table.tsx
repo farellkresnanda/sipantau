@@ -69,12 +69,12 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
 
             {/* Tabel */}
             <div className="overflow-auto rounded-md border">
-                <Table className="min-w-full">
+                <Table className="w-full border-collapse whitespace-normal">
                     <TableHeader>
                         {table.getHeaderGroups().map((headerGroup) => (
                             <TableRow key={headerGroup.id}>
                                 {headerGroup.headers.map((header) => (
-                                    <TableHead key={header.id}>
+                                    <TableHead key={header.id} className="break-words whitespace-normal">
                                         {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                                     </TableHead>
                                 ))}
@@ -86,7 +86,7 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
                             table.getRowModel().rows.map((row, index) => (
                                 <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
                                     {row.getVisibleCells().map((cell, cellIndex) => (
-                                        <TableCell key={cell.id}>
+                                        <TableCell key={cell.id} className="break-words whitespace-normal">
                                             {cellIndex === 0
                                                 ? table.getState().pagination.pageIndex * table.getState().pagination.pageSize + index + 1
                                                 : flexRender(cell.column.columnDef.cell, cell.getContext())

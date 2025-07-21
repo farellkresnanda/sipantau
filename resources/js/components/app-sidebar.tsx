@@ -64,7 +64,7 @@ const mainNavItems: NavItemWithChildren[] = [
             },
             {
                 title: 'Inspeksi APD',
-                href: '/inspeksi/apd',
+                href: '/inspection/ppe',
                 icon: HardHat,
             },
             {

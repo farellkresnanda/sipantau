@@ -15,6 +15,7 @@ class UserController extends Controller
     public function index()
     {
         $users = User::with('roles', 'entity', 'plant')->latest()->get();
+
         return Inertia::render('users/page', compact('users'));
     }
 
@@ -74,8 +75,6 @@ class UserController extends Controller
 
         return redirect()->route('users.index')->with('success', 'User created successfully.');
     }
-
-
 
     /**
      * Display the specified resource.
@@ -178,17 +177,17 @@ class UserController extends Controller
         $user = User::findOrFail($id);
 
         // Store original user info in session
-        if (!session()->has('login_as')) {
+        if (! session()->has('login_as')) {
             session()->put('login_as', [
                 'id' => auth()->id(),
                 'name' => auth()->user()->name,
-                'role' => auth()->user()->roles->first()->name ?? null
+                'role' => auth()->user()->roles->first()->name ?? null,
             ]);
         }
 
         auth()->login($user);
 
-        return redirect('/')->with('success', 'You are now logged in as ' . $user->name);
+        return redirect('/')->with('success', 'You are now logged in as '.$user->name);
     }
 
     /**
@@ -206,7 +205,7 @@ class UserController extends Controller
 
             session()->forget('login_as');
 
-            return redirect('/')->with('success', 'Successfully returned to ' . $originalUser->name . ' account');
+            return redirect('/')->with('success', 'Successfully returned to '.$originalUser->name.' account');
         }
 
         return redirect('/');

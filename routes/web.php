@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\FindingController;
 use App\Http\Controllers\HseInformationController;
-use App\Http\Controllers\InspectionFirstAidController; // << TAMBAHAN BARU
+use App\Http\Controllers\InspectionFirstAidController;
 use App\Http\Controllers\Master\MasterAcController;
 use App\Http\Controllers\Master\MasterAparController;
 use App\Http\Controllers\Master\MasterApdController;
@@ -24,10 +24,10 @@ use App\Http\Controllers\Master\MasterProbabilityController;
 use App\Http\Controllers\Master\MasterTestEquipmentReportController;
 use App\Http\Controllers\Master\MasterTestFacilityReportController;
 use App\Http\Controllers\ModuleManagerController;
+use App\Http\Controllers\PpeInspectionController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-
 
 Route::middleware(['auth', 'verified'])->group(function () {
     // Set the title for the home page
@@ -59,10 +59,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::patch('/{inspection}/validate', [InspectionFirstAidController::class, 'validateInspection'])->name('validate')->middleware('role:Validator');
     });
 
-    // inspection routes
-    Route::prefix('inspection')->group(function () {
-        Route::resource('apar', \App\Http\Controllers\AparInspectionController::class);
-    });
 
     // Analysis routes
     Route::prefix('analysis')->group(function () {

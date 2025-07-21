@@ -10,13 +10,13 @@ class MasterGenset extends Model
 {
     protected $guarded = [];
 
-        public function entity()
-        {
-            return $this->belongsTo(MasterEntity::class, 'entity_code', 'entity_code');
-        }
+    public function entity()
+    {
+        return $this->belongsTo(MasterEntity::class, 'entity_code', 'entity_code');
+    }
 
-        public function plant()
-        {
-            return $this->belongsTo(MasterPlant::class, 'plant_code', 'plant_code');
-        }
+    public function plant()
+    {
+        return $this->belongsTo(MasterPlant::class, 'plant_code', 'plant_code');
+    }
 }
