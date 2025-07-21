@@ -48,13 +48,14 @@ export default function PageInspectionFirstAid({
             subtitle="Kelola dan lihat riwayat semua inspeksi P3K yang telah dilakukan."
           />
           <Button asChild className="w-full sm:w-auto">
-            <Link href={route('inspection.first-aid.selectKit')}>
+            <Link href={route('inspection.first-aid.create')}>
               Mulai Inspeksi Baru
             </Link>
           </Button>
         </div>
-        <div className="w-full overflow-x-auto">
-          <div className="min-w-[1200px]">
+
+        <div className="overflow-x-auto">
+          <div className="w-full">
             <DataTable columns={columns} data={inspections ?? []} />
           </div>
         </div>

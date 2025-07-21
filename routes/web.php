@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\FindingController;
 use App\Http\Controllers\HseInformationController;
-use App\Http\Controllers\InspectionFirstAidController;
+use App\Http\Controllers\FirstAidInspectionController;
 use App\Http\Controllers\Master\MasterAcController;
 use App\Http\Controllers\Master\MasterAparController;
 use App\Http\Controllers\Master\MasterApdController;
@@ -47,16 +47,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Inspection routes
     Route::prefix('inspection')->group(function () {
         // First Aid Inspection routes
-        Route::prefix('first-aid')->name('inspection.first-aid.')->group(function () {
-            Route::get('/', [InspectionFirstAidController::class, 'index'])->name('index');
-            Route::get('/select-kit', [InspectionFirstAidController::class, 'selectKit'])->name('selectKit')->middleware('role:Admin|SuperAdmin');
-            Route::get('/create/{kit}', [InspectionFirstAidController::class, 'create'])->name('create')->middleware('role:Admin|SuperAdmin');
-            Route::post('/', [InspectionFirstAidController::class, 'store'])->name('store')->middleware('role:Admin|SuperAdmin');
-            Route::get('/{inspection}', [InspectionFirstAidController::class, 'show'])->name('show');
-            Route::get('/{inspection}/edit', [InspectionFirstAidController::class, 'edit'])->name('edit')->middleware('role:Admin|SuperAdmin');
-            Route::put('/{inspection}', [InspectionFirstAidController::class, 'update'])->name('update')->middleware('role:Admin|SuperAdmin');
-            Route::patch('/{inspection}/validate', [InspectionFirstAidController::class, 'validateInspection'])->name('validate')->middleware('role:Validator');
-        });
+        Route::resource('first-aid', FirstAidInspectionController::class)->names('inspection.first-aid');
+    });
 
         // PPE Inspection routes
         Route::resource('ppe', PpeInspectionController::class)->names('inspection.ppe');
@@ -116,7 +108,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('about-us', function () {
         return Inertia::render('about-us');
     })->name('about-us');
-});
+
 
 Route::get('/test-error', function () {
     abort(500);

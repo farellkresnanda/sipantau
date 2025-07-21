@@ -4,25 +4,13 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Link, router } from '@inertiajs/react';
 import { ColumnDef } from '@tanstack/react-table';
-import { CheckCircle, Clock, Info, MoreHorizontal, XCircle } from 'lucide-react';
-import { format } from 'date-fns';
+import { CalendarDays, CheckCircle, Info, MapPin, MoreVertical, XCircle } from 'lucide-react';
 
-// ✅ Tipe data inspeksi P3K
 export type InspectionFirstAidData = {
   id: number;
   uuid: string;
-  kit: {
-    location: string;
-    inventory_code: string;
-  } | null;
-  status: {
+  approval_status: {
     id: number;
-    name: string;
-  } | null;
-  inspector: {
-    name: string;
-  } | null;
-  validator: {
     name: string;
   } | null;
   entity: {
@@ -31,13 +19,19 @@ export type InspectionFirstAidData = {
   plant: {
     name: string;
   } | null;
-  has_findings: boolean;
+  car_auto_number: string;
   inspection_date: string;
-  validated_at: string | null;
-  notes: string | null;
+  project_name: string;
+  job_description: string;
+  location: {
+    name: string;
+  } | null;
+  created_by: {
+    name: string;
+  } | null;
+  created_at: string;
 };
 
-// ✅ Daftar kolom tabel
 export const columns: ColumnDef<InspectionFirstAidData>[] = [
   {
     accessorKey: 'index',
@@ -45,42 +39,36 @@ export const columns: ColumnDef<InspectionFirstAidData>[] = [
     cell: ({ row }) => row.index + 1,
   },
   {
+    accessorKey: 'approval_status',
     header: 'Status Inspeksi',
-    accessorKey: 'status.name',
     cell: ({ row }) => {
-      const status = row.original.status;
+      const status = row.original.approval_status;
       const statusId = status?.id;
-      const statusName = status?.name ?? 'Tidak Diketahui';
+      const statusName = status?.name || '-';
 
-      let icon: React.ReactNode = null;
-      let colorClasses = '';
+      let icon = null;
+      let color = '';
 
       switch (statusId) {
         case 1:
-          icon = <Clock className="h-4 w-4" />;
-          colorClasses = 'bg-yellow-100 text-yellow-700';
+          icon = <Info className="h-4 w-4" />;
+          color = 'bg-blue-100 text-blue-700';
           break;
         case 2:
           icon = <CheckCircle className="h-4 w-4" />;
-          colorClasses = 'bg-green-100 text-green-700';
+          color = 'bg-green-100 text-green-700';
           break;
         case 3:
           icon = <XCircle className="h-4 w-4" />;
-          colorClasses = 'bg-red-100 text-red-700';
+          color = 'bg-red-100 text-red-700';
           break;
         default:
-          icon = <Info className="h-4 w-4" />;
-          colorClasses = 'bg-gray-100 text-gray-700';
+          color = 'bg-gray-100 text-gray-700';
       }
 
       return (
-        <Link
-          href={route('inspection.first-aid.show', row.original.id)}
-          className="inline-flex items-center gap-2 hover:underline"
-        >
-          <span
-            className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${colorClasses}`}
-          >
+        <Link href={`/inspection/first-aid/${row.original.uuid}`} className="inline-flex items-center gap-2 hover:underline">
+          <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${color}`}>
             {icon}
             {statusName}
           </span>
@@ -89,82 +77,72 @@ export const columns: ColumnDef<InspectionFirstAidData>[] = [
     },
   },
   {
+    accessorKey: 'entity',
     header: 'Entitas & Plant',
-    accessorKey: 'entity.name',
-    cell: ({ row }) => {
-      const entity = row.original.entity?.name ?? '-';
-      const plant = row.original.plant?.name ?? '-';
-
-      return (
-        <div className="flex flex-col">
-          <span className="font-medium">{entity}</span>
-          <span className="text-sm text-gray-500">{plant}</span>
-        </div>
-      );
-    },
+    cell: ({ row }) => (
+      <div className="flex flex-col gap-1">
+        <div>{row.original.entity?.name ?? '-'}</div>
+        <div className="text-sm text-gray-500">{row.original.plant?.name ?? '-'}</div>
+      </div>
+    ),
   },
   {
-    header: 'Lokasi P3K',
-    accessorKey: 'kit.location',
+    accessorKey: 'car_auto_number',
+    header: 'Nomor CAR & Tanggal',
     cell: ({ row }) => {
-      const location = row.original.kit?.location ?? '-';
-      const inventoryCode = row.original.kit?.inventory_code ?? '-';
-      return (
-        <div className="flex flex-col">
-          <span className="font-medium">{location}</span>
-          <span className="text-sm text-gray-500">{inventoryCode}</span>
-        </div>
-      );
-    },
-  },
-  {
-    header: 'Tanggal Inspeksi',
-    accessorKey: 'inspection_date',
-    cell: ({ row }) => {
+      const carNumber = row.original.car_auto_number;
       const date = row.original.inspection_date;
-      return date ? format(new Date(date), 'dd MMM yyyy') : '-';
+      return (
+        <div className="flex flex-col">
+          <span>{carNumber}</span>
+          <span className="flex items-center gap-1 text-sm text-gray-500">
+            <CalendarDays className="h-3 w-3" />
+            {date}
+          </span>
+        </div>
+      );
     },
   },
   {
-    header: 'Hasil',
-    accessorKey: 'has_findings',
-    cell: ({ row }) =>
-      row.original.has_findings ? (
-        <span className="text-orange-600 font-semibold">Ada Temuan</span>
-      ) : (
-        <span className="text-green-600">Sesuai</span>
-      ),
-  },
-  {
-    header: 'Diinspeksi Oleh',
-    accessorKey: 'inspector.name',
-    cell: ({ row }) => row.original.inspector?.name ?? '-',
-  },
-  {
-    header: 'Divalidasi Oleh',
-    accessorKey: 'validator.name',
-    cell: ({ row }) => {
-      const validatorName = row.original.validator?.name ?? '-';
-      const validatedDate = row.original.validated_at
-        ? format(new Date(row.original.validated_at), 'dd MMM yyyy')
-        : null;
-
-      return (
-        <div className="flex flex-col">
-          <span>{validatorName}</span>
-          {validatedDate && <span className="text-sm text-gray-500">{validatedDate}</span>}
+    accessorKey: 'job_description',
+    header: 'Pekerjaan & Proyek',
+    cell: ({ row }) => (
+      <div className="flex flex-col gap-1">
+        <div className="flex items-center gap-1">
+          <Info className="h-3 w-3" />
+          <div className="max-w-[200px] truncate">{row.original.job_description}</div>
         </div>
-      );
+        <div className="flex items-center gap-1 text-sm text-gray-500">
+          <MapPin className="h-3 w-3" />
+          <div className="max-w-[200px] truncate">{row.original.project_name}</div>
+        </div>
+      </div>
+    ),
+  },
+  {
+    accessorKey: 'location',
+    header: 'Lokasi',
+    cell: ({ row }) => row.original.location?.name ?? '-',
+  },
+  {
+    accessorKey: 'created_by',
+    header: 'Dibuat Oleh',
+    cell: ({ row }) => row.original.created_by?.name ?? '-',
+  },
+  {
+    accessorKey: 'created_at',
+    header: 'Tanggal Dibuat',
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
+      return value?.replace('T', ' ').split('.')[0];
     },
   },
   {
     id: 'actions',
     cell: ({ row }) => {
-      const inspection = row.original;
-
       const handleDelete = () => {
-        if (confirm('Apakah Anda yakin ingin menghapus data inspeksi ini?')) {
-          router.delete(route('inspection.first-aid.destroy', inspection.id));
+        if (confirm('Apakah Anda yakin ingin menghapus data ini?')) {
+          router.delete(`/inspection/first-aid/${row.original.id}`);
         }
       };
 
@@ -172,15 +150,15 @@ export const columns: ColumnDef<InspectionFirstAidData>[] = [
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Buka menu</span>
-              <MoreHorizontal className="h-4 w-4" />
+              <span className="sr-only">Open menu</span>
+              <MoreVertical className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem asChild>
-              <Link href={route('inspection.first-aid.show', inspection.id)}>Lihat Detail</Link>
+              <Link href={`/inspection/first-aid/${row.original.uuid}/edit`}>Edit</Link>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleDelete} className="text-red-600">
+            <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">
               Hapus
             </DropdownMenuItem>
           </DropdownMenuContent>
