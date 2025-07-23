@@ -4,9 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class InspectionCondition extends Model {
+    class FirstAidInspectionCondition extends Model {
     
-    protected $table = 'inspection_first_aid_conditions';
+    protected $table = 'first_aid_inspection_conditions';
 
     protected $fillable = ['name'];
 }

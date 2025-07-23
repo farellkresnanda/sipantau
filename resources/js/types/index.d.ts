@@ -12,6 +12,12 @@ export interface BreadcrumbItem {
     href: string;
 }
 
+export interface PaginationLink {
+    url: string | null;
+    label: string;
+    active: boolean;
+}
+
 export interface NavGroup {
     title: string;
     items: NavItem[];
