@@ -2,35 +2,11 @@
 
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Link, router } from '@inertiajs/react';
+import { router, Link } from '@inertiajs/react';
 import { ColumnDef } from '@tanstack/react-table';
-import { CalendarDays, CheckCircle, Info, MapPin, MoreVertical, XCircle } from 'lucide-react';
+import { CalendarDays, CheckCircle, Info, MoreVertical, XCircle } from 'lucide-react';
 
-export const columns: ColumnDef<{
-    id: number;
-    uuid: string;
-    approval_status: {
-        id: number;
-        name: string;
-    } | null;
-    entity: {
-        name: string;
-    } | null;
-    plant: {
-        name: string;
-    } | null;
-    car_auto_number: string;
-    inspection_date: string;
-    location: {
-        name: string;
-    } | null;
-    job_description: string;
-    project_name: string;
-    created_by: {
-        name: string;
-    } | null;
-    created_at: string;
-}>[] = [
+export const columns: ColumnDef<any>[] = [
     {
         accessorKey: 'index',
         header: 'No',
@@ -65,7 +41,7 @@ export const columns: ColumnDef<{
             }
 
             return (
-                <Link href={`/inspection/ppe/${row.original.uuid}`} className="inline-flex items-center gap-2 hover:underline">
+                <Link href={`/inspection/k3l/${row.original.uuid}`} className="inline-flex items-center gap-2 hover:underline">
                     <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${color}`}>
                         {icon}
                         {statusName}
@@ -85,10 +61,10 @@ export const columns: ColumnDef<{
         ),
     },
     {
-        accessorKey: 'car_auto_number',
+        accessorKey: 'car_number_auto',
         header: 'Nomor & Tanggal',
         cell: ({ row }) => {
-            const carNumber = row.original.car_auto_number;
+            const carNumber = row.original.car_number_auto;
             const date = row.original.inspection_date;
             return (
                 <div className="flex flex-col">
@@ -102,45 +78,33 @@ export const columns: ColumnDef<{
         },
     },
     {
-        accessorKey: 'job_description',
-        header: 'Pekerjaan & Proyek',
+        header: 'Lokasi',
+        cell: ({ row }) => row.original.location?.name || '-',
+    },
+    {
+        header: 'Disetujui Oleh & Tanggal',
         cell: ({ row }) => (
             <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-1">
-                    <Info className="h-3 w-3" />
-                    <div className="max-w-[200px] truncate">{row.original.job_description}</div>
-                </div>
-                <div className="flex items-center gap-1 text-sm text-gray-500">
-                    <MapPin className="h-3 w-3" />
-                    <div className="max-w-[200px] truncate">{row.original.project_name}</div>
-                </div>
+                <div>{row.original.approved_by?.name || '-'}</div>
+                <div className="text-sm text-gray-500">{row.original.approved_at || '-'}</div>
             </div>
         ),
     },
     {
-        accessorKey: 'location',
-        header: 'Lokasi',
-        cell: ({ row }) => row.original.location?.name ?? '-',
-    },
-    {
-        accessorKey: 'created_by',
-        header: 'Dibuat Oleh',
-        cell: ({ row }) => row.original.created_by?.name ?? '-',
-    },
-    {
-        accessorKey: 'created_at',
-        header: 'Tanggal Dibuat',
-        cell: ({ getValue }) => {
-            const value = getValue() as string;
-            return value?.replace('T', ' ').split('.')[0];
-        },
+        header: 'Dibuat Oleh & Tanggal',
+        cell: ({ row }) => (
+            <div className="flex flex-col gap-1">
+                <div>{row.original.created_by?.name ?? '-'}</div>
+                <div className="text-sm text-gray-500">{row.original.created_at?.replace('T', ' ').split('.')[0] ?? '-'}</div>
+            </div>
+        ),
     },
     {
         id: 'actions',
         cell: ({ row }) => {
             const handleDelete = () => {
                 if (confirm('Apakah Anda yakin ingin menghapus data ini?')) {
-                    router.delete(`/inspection/ppe/${row.original.id}`);
+                    router.delete(`/inspection/k3l/${row.original.uuid}`);
                 }
             };
 
@@ -148,16 +112,15 @@ export const columns: ColumnDef<{
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
                             <MoreVertical className="h-4 w-4" />
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                         <DropdownMenuItem asChild>
-                            <Link href={`/inspection/ppe/${row.original.uuid}/edit`}>Edit</Link>
+                            <Link href={`/inspection/k3l/${row.original.uuid}/edit`}>Edit</Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">
-                            Delete
+                        <DropdownMenuItem onClick={handleDelete} className="text-red-600">
+                            Hapus
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
@@ -165,4 +128,3 @@ export const columns: ColumnDef<{
         },
     },
 ];
-

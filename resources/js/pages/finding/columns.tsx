@@ -108,7 +108,7 @@ export const columns: ColumnDef<{
     },
     {
         accessorKey: 'car_number_auto',
-        header: 'Nomor CAR & Tanggal',
+        header: 'Nomor & Tanggal',
         cell: ({ row }) => {
             const carNumber = row.original.car_number_auto;
             const date = row.original.date;

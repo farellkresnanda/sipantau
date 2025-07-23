@@ -88,7 +88,7 @@ export const columns: ColumnDef<InspectionFirstAidData>[] = [
   },
   {
     accessorKey: 'car_auto_number',
-    header: 'Nomor CAR & Tanggal',
+    header: 'Nomor & Tanggal',
     cell: ({ row }) => {
       const carNumber = row.original.car_auto_number;
       const date = row.original.inspection_date;

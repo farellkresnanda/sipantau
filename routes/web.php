@@ -4,6 +4,7 @@ use App\Http\Controllers\AparInspectionController;
 use App\Http\Controllers\FindingController;
 use App\Http\Controllers\HseInformationController;
 use App\Http\Controllers\FirstAidInspectionController;
+use App\Http\Controllers\K3lInspectionController;
 use App\Http\Controllers\Master\MasterAcController;
 use App\Http\Controllers\Master\MasterAparController;
 use App\Http\Controllers\Master\MasterApdController;
@@ -54,6 +55,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::post('ppe/verify/{uiid}', [PpeInspectionController::class, 'verify'])->name('inspection.ppe.verify');
         Route::resource('ppe', PpeInspectionController::class)->names('inspection.ppe');
+
+        Route::post('k3l/verify/{uiid}', [K3lInspectionController::class, 'verify'])->name('inspection.k3l.verify');
+        Route::resource('k3l', K3lInspectionController::class)->names('inspection.k3l');
     });
 
 

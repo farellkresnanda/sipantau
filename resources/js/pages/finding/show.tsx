@@ -42,7 +42,7 @@ export default function ShowFinding({ finding }: { finding: any }) {
             <Head title="Detail Temuan" />
             <div className="space-y-6 p-4">
                 <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant="outline" className="flex items-center gap-1" title={`Nomor CAR: ${finding.car_number_auto}`}>
+                    <Badge variant="outline" className="flex items-center gap-1" title={`Nomor: ${finding.car_number_auto}`}>
                         <FileText className="h-4 w-4 text-orange-500" />
                         {finding.car_number_auto}
                     </Badge>
@@ -193,7 +193,7 @@ export default function ShowFinding({ finding }: { finding: any }) {
                                     <div>
                                         <Label className="text-muted-foreground flex items-center gap-1 text-sm">
                                             <FileText className="h-4 w-4" />
-                                            Nomor CAR (Entitas/Plant)
+                                            Nomor (Entitas/Plant)
                                         </Label>
                                         <div className="mt-1 font-medium">{finding.car_number_manual || '-'}</div>
                                     </div>
