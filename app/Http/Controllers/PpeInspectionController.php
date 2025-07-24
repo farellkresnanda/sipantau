@@ -16,7 +16,7 @@ class PpeInspectionController extends Controller
      */
     public function index()
     {
-        $ppeInspections = PpeInspection::with('entity', 'plant', 'location', 'createdBy', 'approvalStatus')->latest()->get();
+        $ppeInspections = PpeInspection::with('entity', 'plant','createdBy', 'approvalStatus')->latest()->get();
 
         return Inertia::render('inspection/ppe/page', compact('ppeInspections'));
     }
@@ -45,43 +45,47 @@ class PpeInspectionController extends Controller
      */
     public function store(Request $request)
     {
-        // Validate the request data
+        // Validasi request
         $request->validate([
             'inspection_date' => 'required|date',
             'job_description' => 'nullable|string|max:255',
             'project_name' => 'nullable|string|max:255',
-            'location_id' => 'required|exists:master_locations,id',
+            'location' => 'required|string|max:255',
             'items' => 'required|array',
-            'items.*.id' => 'required|exists:master_apds,id',
-            'items.*.quantity' => 'required|integer|min:0',
+            'items.*.good_condition' => 'nullable|integer|min:0',
+            'items.*.bad_condition' => 'nullable|integer|min:0',
+            'items.*.used' => 'nullable|integer|min:0',
+            'items.*.unused' => 'nullable|integer|min:0',
+            'items.*.notes' => 'nullable|string|max:1000',
         ]);
 
-        // Generate CAR number (you may want to extract this logic into a service later)
+        // Buat nomor CAR
         $carNumber = auth()->user()->plant->alias_name . '/APD/' . sprintf('%03d', PpeInspection::count() + 1) . '/' . now()->format('d/m/Y');
 
-        // Create the PPE Inspection record
+        // Simpan data inspeksi utama
         $ppeInspection = PpeInspection::create([
             'uuid' => Str::uuid(),
-            'approval_status_code' => 'SOP', // Default status code, adjust as necessary
+            'approval_status_code' => 'SOP',
             'entity_code' => auth()->user()->entity_code,
             'plant_code' => auth()->user()->plant_code,
             'car_auto_number' => $carNumber,
             'inspection_date' => $request->inspection_date,
-            'location_id' => $request->location_id,
+            'location' => $request->location,
             'job_description' => $request->job_description,
             'project_name' => $request->project_name,
             'created_by' => auth()->id()
         ]);
 
-        // Attach the PPE items to the inspection
-        foreach ($request->items as $item) {
+        // Simpan item APD
+        foreach ($request->items as $itemData) {
             $ppeInspection->items()->create([
                 'ppe_inspection_id' => $ppeInspection->id,
-                'ppe_check_item_id' => $item['id'],
-                'condition' => $item['condition'],
-                'usage' => $item['usage'],
-                'quantity' => $item['quantity'],
-                'notes' => $item['notes'],
+                'ppe_check_item_id' => $itemData['id'],
+                'good_condition' => $itemData['good_condition'] ?? 0,
+                'bad_condition' => $itemData['bad_condition'] ?? 0,
+                'used' => $itemData['used'] ?? 0,
+                'unused' => $itemData['unused'] ?? 0,
+                'notes' => $itemData['notes'] ?? null,
             ]);
         }
 
@@ -94,7 +98,7 @@ class PpeInspectionController extends Controller
     public function show($uuid)
     {
         $ppeInspection = PpeInspection::where('uuid', $uuid)
-            ->with('items.ppeCheckItem', 'location', 'createdBy', 'entity', 'plant', 'approvalStatus', 'approvedBy')
+            ->with('items.ppeCheckItem', 'createdBy', 'entity', 'plant', 'approvalStatus', 'approvedBy')
             ->firstOrFail();
 
         return Inertia::render('inspection/ppe/show', [
@@ -108,7 +112,7 @@ class PpeInspectionController extends Controller
     public function edit($uuid)
     {
         $ppeInspection = PpeInspection::where('uuid', $uuid)
-            ->with('items.ppeCheckItem', 'location', 'createdBy', 'entity', 'plant', 'approvalStatus')
+            ->with('items.ppeCheckItem', 'createdBy', 'entity', 'plant', 'approvalStatus')
             ->firstOrFail();
 
         $locations = MasterLocation::whereHas('plants', function ($query) {
@@ -121,7 +125,6 @@ class PpeInspectionController extends Controller
 
         return Inertia::render('inspection/ppe/edit', [
             'ppeInspection' => $ppeInspection,
-            'locations' => $locations,
             'ppeItems' => $ppeItems,
         ]);
     }
@@ -131,35 +134,38 @@ class PpeInspectionController extends Controller
      */
     public function update(Request $request, $uuid)
     {
-        // Validate the request data
         $request->validate([
             'inspection_date' => 'required|date',
             'job_description' => 'nullable|string|max:255',
             'project_name' => 'nullable|string|max:255',
-            'location_id' => 'required|exists:master_locations,id',
+            'location' => 'required|string|max:255',
             'items' => 'required|array',
         ]);
 
-        // Find the PPE Inspection record
         $ppeInspection = PpeInspection::where('uuid', $uuid)->firstOrFail();
 
-        // Update the PPE Inspection record
         $ppeInspection->update([
             'inspection_date' => $request->inspection_date,
-            'location_id' => $request->location_id,
+            'location' => $request->location,
             'job_description' => $request->job_description,
             'project_name' => $request->project_name,
         ]);
 
-        // Update or create the PPE items
-        foreach ($request->items as $item) {
+        foreach ($request->items as $ppeCheckItemId => $item) {
+            $good = (int) ($item['good_condition'] ?? 0);
+            $bad = (int) ($item['bad_condition'] ?? 0);
+            $used = (int) ($item['used'] ?? 0);
+            $unused = (int) ($item['unused'] ?? 0);
+            $notes = $item['notes'] ?? null;
+
             $ppeInspection->items()->updateOrCreate(
-                ['ppe_check_item_id' => $item['id']],
+                ['ppe_check_item_id' => $ppeCheckItemId],
                 [
-                    'condition' => $item['condition'],
-                    'usage' => $item['usage'],
-                    'quantity' => $item['quantity'],
-                    'notes' => $item['notes'],
+                    'good_condition' => $good,
+                    'bad_condition' => $bad,
+                    'used' => $used,
+                    'unused' => $unused,
+                    'notes' => $notes,
                 ]
             );
         }

@@ -46,7 +46,7 @@ export default function PageFinding({ ppeInspections }: { ppeInspections: any[] 
                         subtitle="Kelola data Inspeksi APD di sini. Anda dapat menambah, mengubah, dan menghapus Inspeksi APD."
                     />
                     <Button asChild className="w-full sm:w-auto">
-                        <Link href="/inspection/ppe/create">Buat Inspeksi APD</Link>
+                        <Link href="/inspection/ppe/create">Buat Inspeksi</Link>
                     </Button>
                 </div>
                 <div className="w-full overflow-x-auto">

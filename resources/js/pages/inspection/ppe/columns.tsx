@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Link, router } from '@inertiajs/react';
 import { ColumnDef } from '@tanstack/react-table';
-import { CalendarDays, CheckCircle, Info, MapPin, MoreVertical, XCircle } from 'lucide-react';
+import {CalendarDays, CheckCircle, FolderKanban, Info, MapPin, MoreVertical, XCircle} from 'lucide-react';
 
 export const columns: ColumnDef<{
     id: number;
@@ -21,9 +21,7 @@ export const columns: ColumnDef<{
     } | null;
     car_auto_number: string;
     inspection_date: string;
-    location: {
-        name: string;
-    } | null;
+    location: string;
     job_description: string;
     project_name: string;
     created_by: {
@@ -111,7 +109,7 @@ export const columns: ColumnDef<{
                     <div className="max-w-[200px] truncate">{row.original.job_description}</div>
                 </div>
                 <div className="flex items-center gap-1 text-sm text-gray-500">
-                    <MapPin className="h-3 w-3" />
+                    <FolderKanban className="h-3 w-3" />
                     <div className="max-w-[200px] truncate">{row.original.project_name}</div>
                 </div>
             </div>
@@ -119,8 +117,8 @@ export const columns: ColumnDef<{
     },
     {
         accessorKey: 'location',
-        header: 'Lokasi',
-        cell: ({ row }) => row.original.location?.name ?? '-',
+        header: 'Lokasi/Nama Pemilik',
+        cell: ({ row }) => row.original.location ?? '-',
     },
     {
         accessorKey: 'created_by',
