@@ -57,8 +57,8 @@ export default function VerifyDialog({ finding }: FindingVerifyDialogProps) {
         return allPriorApproved;
     })();
 
-
-    console.log(hasBeenVerified, canVerifyNow)
+    // State untuk menyimpan status izin kerja
+    const [needPermit, setNeedPermit] = useState('');
 
     // Jika user tidak ditugaskan atau sudah melakukan verifikasi, jangan tampilkan tombol
     if (!isUserAssigned || hasBeenVerified || !canVerifyNow) return null;
@@ -78,6 +78,7 @@ export default function VerifyDialog({ finding }: FindingVerifyDialogProps) {
         if (role === 'Technician') {
             payload.corrective_plan = formData.get('corrective_plan');
             payload.corrective_due_date = formData.get('corrective_due_date');
+            payload.need_permit = needPermit === 'ya';
         }
 
         // Tambahkan properti untuk Admin
@@ -118,7 +119,6 @@ export default function VerifyDialog({ finding }: FindingVerifyDialogProps) {
             forceFormData: true,
             onSuccess: () => {
                 setOpen(false);
-                toast.success('Verifikasi berhasil dilakukan');
             },
             onError: (errors) => {
                 toast.error('Gagal verifikasi: ' + errors.message);
@@ -213,6 +213,31 @@ export default function VerifyDialog({ finding }: FindingVerifyDialogProps) {
                                     required
                                     placeholder="Masukkan rencana perbaikan..."
                                 />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="need_permit">Perlu Izin Kerja</Label>
+                                <select
+                                    id="need_permit"
+                                    name="need_permit"
+                                    className="w-full rounded-md border px-3 py-2 text-sm"
+                                    required
+                                    value={needPermit}
+                                    onChange={(e) => setNeedPermit(e.target.value)}
+                                >
+                                    <option value="">Pilih opsi</option>
+                                    <option value="ya">Ya</option>
+                                    <option value="tidak">Tidak</option>
+                                </select>
+                                {needPermit === 'ya' && (
+                                    <a
+                                        href={`/working-permit/create?car_number=${finding.car_number_auto}`}
+                                        className="text-sm text-blue-600 hover:underline"
+                                        target="_blank"
+                                    >
+                                        Form Izin Kerja (Working Permit)
+                                    </a>
+                                )}
                             </div>
 
                             <div className="space-y-2">

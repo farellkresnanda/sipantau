@@ -277,6 +277,7 @@ class FindingController extends Controller
                         },
                         'corrective_plan' => $request->corrective_plan,
                         'corrective_due_date' => $request->corrective_due_date,
+                        'need_permit' => $request->need_permit ?? false,
                     ]);
                 }
 
@@ -364,14 +365,8 @@ class FindingController extends Controller
                 ->with('success', 'Verifikasi berhasil diproses.');
 
         } catch (\Exception $e) {
-            if ($request->wantsJson()) {
-                return response()->json([
-                    'message' => 'Gagal verifikasi: '.$e->getMessage(),
-                ], 422);
-            } else {
-                return redirect()->route('finding.show', $uuid)
-                    ->with('error', 'Gagal verifikasi: '.$e->getMessage());
-            }
+            return redirect()->route('finding.show', $uuid)
+                ->with('error', 'Gagal verifikasi: '.$e->getMessage());
         }
     }
 }

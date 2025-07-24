@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem } from '@/types';
-import {Head} from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import { Avatar } from '@radix-ui/react-avatar';
 import { format } from 'date-fns';
 import VerifyDialog from './verify-dialog';
@@ -20,6 +20,8 @@ import {
     User
 } from 'lucide-react';
 import { AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useEffect } from 'react';
+import { showToast } from '@/components/ui/toast';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -37,6 +39,22 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function ShowFinding({ finding }: { finding: any }) {
+    const { flash } = usePage().props as {
+        flash?: { success?: string; error?: string; message?: string };
+    };
+
+    useEffect(() => {
+        if (flash?.success) {
+            showToast({ type: 'success', message: flash.success });
+        }
+        if (flash?.error) {
+            showToast({ type: 'error', message: flash.error });
+        }
+        if (flash?.message) {
+            showToast({ message: flash.message });
+        }
+    }, [flash]);
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Detail Temuan" />
@@ -164,6 +182,14 @@ export default function ShowFinding({ finding }: { finding: any }) {
                         <Card>
                             <CardContent className="space-y-4 pt-1">
                                 <h3 className="text-lg font-semibold">Teknisi</h3>
+                                {/* Need Permit */}
+                                <div>
+                                    <Label className="text-muted-foreground flex items-center gap-1 text-sm">
+                                        <FileText className="h-4 w-4" />
+                                        Butuh Izin Kerja (Need Permit)
+                                    </Label>
+                                    <div className="mt-1 text-sm">{finding.need_permit ? 'Ya' : 'Tidak'}</div>
+                                </div>
                                 {/* Rencana Perbaikan */}
                                 <div>
                                     <Label className="text-muted-foreground flex items-center gap-1 text-sm">
