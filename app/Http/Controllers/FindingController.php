@@ -8,12 +8,13 @@ use App\Models\FindingApprovalAssignment;
 use App\Models\FindingApprovalHistory;
 use App\Models\FindingApprovalStage;
 use App\Models\Master\MasterNonconformityType;
-use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class FindingController extends Controller
 {
@@ -115,6 +116,7 @@ class FindingController extends Controller
                 // Step 4: Assign user ke tahap approval ini
                 foreach ($users as $user) {
                     FindingApprovalAssignment::create([
+                        'finding_id' => $finding->id,
                         'finding_approval_history_id' => $history->id,
                         'user_id' => $user->id,
                         'is_verified' => false,
@@ -344,6 +346,28 @@ class FindingController extends Controller
                         'note' => $request->note ?? null,
                     ]);
 
+                    // Generate QR Code untuk finding ini
+                    $qrCodeFolder = 'qrcodes/findings';
+                    $qrFileName = 'finding-' . $finding->id . '-approval-' . $currentHistory->id . '.png';
+                    $qrCodePath = $qrCodeFolder . '/' . $qrFileName;
+                    $fullPath = storage_path('app/public/' . $qrCodePath);
+
+                    // Buat folder jika belum ada
+                    if (!file_exists(dirname($fullPath))) {
+                        mkdir(dirname($fullPath), 0755, true);
+                    }
+
+                    // Data yang akan dimasukkan ke QR Code
+                    $qrContent = route('finding.show', $finding->uuid) . '?verified_by=' . $user->id . '&stage=' . $currentHistory->stage;
+
+                    // Generate QR
+                    QrCode::format('png')->size(200)->generate($qrContent, $fullPath);
+
+                    // Simpan path QR code di DB
+                    $currentHistory->update([
+                        'qr_code_path' => $qrCodePath,
+                    ]);
+
                     // Update status finding berdasarkan approval status
                     if ($request->approval_status === 'REJECTED') {
                         $finding->update(['finding_status_code' => 'SRE']); // Rejected
@@ -368,5 +392,30 @@ class FindingController extends Controller
             return redirect()->route('finding.show', $uuid)
                 ->with('error', 'Gagal verifikasi: '.$e->getMessage());
         }
+    }
+
+    /**
+     * Print the finding details.
+     */
+    public function print($uuid)
+    {
+        $finding = Finding::with([
+            'nonconformityType.nonconformitySubType',
+            'findingApprovalHistories.findingApprovalAssignment.user',
+            'createdBy',
+            'findingStatus',
+        ])->where('uuid', $uuid)->firstOrFail();
+
+        $finder = $finding->createdBy?->name;
+        $receiver = $finding->findingApprovalHistories->first()->findingApprovalAssignment->first()->user->name ?? null;
+        $receiverQr = $finding->findingApprovalHistories->first()?->qr_code_path;
+        $personInCharge = $finding->findingApprovalHistories->where('stage', 'Technician')->first()->findingApprovalAssignment->first()->user->name ?? null;
+        $verifier = $finding->findingApprovalHistories->where('stage', 'Validator')->first()->findingApprovalAssignment->first()->user->name ?? null;
+        $verifiedAt = $finding->findingApprovalHistories->where('stage', 'Validator')->first()?->findingApprovalAssignment->first()->verified_at;
+        $verifierNote = $finding->findingApprovalHistories->where('stage', 'Validator')->first()?->findingApprovalAssignment->first()->note;
+        $verifierQR = $finding->findingApprovalHistories->where('stage', 'Validator')->first()?->qr_code_path;
+        $secretary = $finding->findingApprovalHistories->where('stage', 'Admin')->first()->findingApprovalAssignment->first()->user->name ?? null;
+        $pdf = PDF::loadView('pdf.finding', compact('finding', 'finder', 'receiver', 'receiverQr', 'personInCharge', 'verifier', 'verifiedAt', 'secretary', 'verifierNote', 'verifierQR'));
+        return $pdf->stream('CorrectiveActionReport.pdf');
     }
 }

@@ -44,6 +44,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Temuan routes
     Route::post('finding/verify/{uiid}', [FindingController::class, 'verify'])->name('finding.verify');
+    Route::get('/finding/{id}/print', [FindingController::class, 'print'])->name('finding.print');
+
     Route::resource('finding', FindingController::class);
 
     // Inspection routes

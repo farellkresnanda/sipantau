@@ -88,6 +88,13 @@ export default function ShowFinding({ finding }: { finding: any }) {
                         <Calendar className="h-4 w-4 text-yellow-500" />
                         {format(new Date(finding.created_at), 'dd MMMM yyyy')}
                     </Badge>
+                    <button
+                        onClick={() => window.open(`/finding/${finding.uuid}/print`, '_blank')}
+                        className="inline-flex items-center gap-1 rounded-md border border-transparent bg-blue-500 px-2.5 py-0.5 text-xs font-semibold text-white transition-colors hover:bg-blue-600"
+                    >
+                        <FileText className="h-4 w-4" />
+                        Export PDF
+                    </button>
                 </div>
 
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-[2fr_1fr]">
@@ -229,14 +236,14 @@ export default function ShowFinding({ finding }: { finding: any }) {
                                         <ListTree className="h-4 w-4" />
                                         Tindakan Perbaikan yang Dilakukan
                                     </Label>
-                                    <p className="mt-1 whitespace-pre-wrap">{finding.corrective_action || '-'}</p>
+                                    <p className="mt-1 whitespace-pre-wrap text-sm">{finding.corrective_action || '-'}</p>
                                 </div>
                                 <div>
                                     <Label className="text-muted-foreground flex items-center gap-1 text-sm">
                                         <FileText className="h-4 w-4" />
                                         Catatan
                                     </Label>
-                                    <p className="mt-1 whitespace-pre-wrap">
+                                    <p className="mt-1 whitespace-pre-wrap text-sm">
                                         {finding.finding_approval_histories?.find((history: any) => history.stage === 'Admin')?.note || '-'}
                                     </p>
                                 </div>
@@ -269,7 +276,7 @@ export default function ShowFinding({ finding }: { finding: any }) {
                                         <FileText className="h-4 w-4" />
                                         Catatan
                                     </Label>
-                                    <p className="mt-1 whitespace-pre-wrap">
+                                    <p className="mt-1 whitespace-pre-wrap text-sm">
                                         {finding.finding_approval_histories?.find((history: any) => history.stage === 'Validator')?.note || '-'}
                                     </p>
                                 </div>
@@ -348,8 +355,10 @@ export default function ShowFinding({ finding }: { finding: any }) {
                                 </div>
                             </CardContent>
                         </Card>
-                        {/* Tombol Verifikasi */}
-                        <VerifyDialog finding={finding} />
+                        {/* Tombol Verifikasi dan Download */}
+                        <div className="flex gap-2">
+                            <VerifyDialog finding={finding} />
+                        </div>
                     </div>
                 </div>
             </div>
