@@ -228,11 +228,11 @@
 
 <table style="table-layout: fixed; width: 100%; border-collapse: collapse;" border="1">
     <tr>
-        <td style="width: 50%; vertical-align: top; padding: 5px;">
+        <td style="width: 40%; vertical-align: top; padding: 5px;">
             <div class="field-label"><strong>Catatan:</strong></div>
             <div class="field-content">{{ $verifierNote ?? '-' }}</div>
         </td>
-        <td style="width: 25%; padding: 5px; text-align: center; vertical-align: top;">
+        <td style="width: 30%; padding: 5px; text-align: center; vertical-align: top;">
             <div style="text-align: center; margin-bottom: 5px;">
                 <span>Disetujui Oleh:</span>
             </div>
@@ -250,7 +250,7 @@
                 <span>Verifikator</span>
             </div>
         </td>
-        <td style="width: 25%; padding: 5px; text-align: center; vertical-align: top;">
+        <td style="width: 30%; padding: 5px; text-align: center; vertical-align: top;">
             <div style="text-align: center; margin-bottom: 5px;">
                 <span>Disetujui Oleh:</span>
             </div>
