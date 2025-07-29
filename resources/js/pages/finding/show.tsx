@@ -237,9 +237,9 @@ export default function ShowFinding({ finding }: { finding: any }) {
                                     <div>
                                         <Label className="text-muted-foreground flex items-center gap-1 text-sm">
                                             <FileText className="h-4 w-4" />
-                                            Nomor (Entitas/Plant)
+                                            Nomor CAR (Entitas/Plant)
                                         </Label>
-                                        <div className="mt-1 font-medium">{finding.car_number_manual || '-'}</div>
+                                        <div className="mt-1 text-sm">{finding.car_number_manual || '-'}</div>
                                     </div>
                                 </div>
                                 <div>
