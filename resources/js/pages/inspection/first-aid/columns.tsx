@@ -74,81 +74,85 @@ export const columns: ColumnDef<FirstAidInspectionRow>[] = [
                     color = 'bg-gray-100 text-gray-700';
             }
 
-            return (
-                <Link href={`/inspection/first-aid/${row.original.uuid}`} className="inline-flex items-center gap-2 hover:underline">
-                    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${color}`}>
-                        {icon}
-                        {statusName}
-                    </span>
-                </Link>
-            );
-        },
+      return (
+        <Link href={`/inspection/first-aid/${row.original.uuid}`} className="inline-flex items-center gap-2 hover:underline">
+          <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${color}`}>
+            {icon}
+            {statusName}
+          </span>
+        </Link>
+      );
     },
-    {
-        accessorKey: 'entity',
-        header: 'Entitas & Plant',
-        cell: ({ row }) => (
-            <div className="flex flex-col gap-1">
-                <div>{row.original.entity?.name ?? '-'}</div>
-                <div className="text-sm text-gray-500">{row.original.plant?.name ?? '-'}</div>
-            </div>
-        ),
+  },
+  {
+    accessorKey: 'entity',
+    header: 'Entitas & Plant',
+    cell: ({ row }) => (
+      <div className="flex flex-col gap-1">
+        <div>{row.original.entity?.name ?? '-'}</div>
+        <div className="text-sm text-gray-500">{row.original.plant?.name ?? '-'}</div>
+      </div>
+    ),
+  },
+  {
+    accessorKey: 'car_auto_number',
+    header: 'Nomor CAR & Tanggal',
+    cell: ({ row }) => {
+      const carNumber = row.original.car_auto_number;
+      const date = row.original.inspection_date;
+      return (
+        <div className="flex flex-col">
+          <span>{carNumber}</span>
+          <span className="flex items-center gap-1 text-sm text-gray-500">
+            <CalendarDays className="h-3 w-3" />
+            {date}
+          </span>
+        </div>
+      );
     },
-    {
-        accessorKey: 'car_auto_number',
-        header: 'Nomor CAR & Tanggal',
-        cell: ({ row }) => {
-            const carNumber = row.original.car_auto_number;
-            const date = row.original.inspection_date;
-            return (
-                <div className="flex flex-col">
-                    <span>{carNumber}</span>
-                    <span className="flex items-center gap-1 text-sm text-gray-500">
-                        <CalendarDays className="h-3 w-3" />
-                        {date ? format(new Date(date), 'dd MMMM yyyy') : '-'}
-                    </span>
-                </div>
-            );
-        },
+  },
+  {
+    accessorKey: 'job_description',
+    header: 'Pekerjaan & Proyek',
+    cell: ({ row }) => (
+      <div className="flex flex-col gap-1">
+        <div className="flex items-center gap-1">
+          <Info className="h-3 w-3" />
+          <div className="max-w-[200px] truncate">{row.original.job_description}</div>
+        </div>
+        <div className="flex items-center gap-1 text-sm text-gray-500">
+          <MapPin className="h-3 w-3" />
+          <div className="max-w-[200px] truncate">{row.original.project_name}</div>
+        </div>
+      </div>
+    ),
+  },
+  {
+    accessorKey: 'location',
+    header: 'Lokasi',
+    cell: ({ row }) => row.original.location?.name ?? '-',
+  },
+  {
+    accessorKey: 'created_by',
+    header: 'Dibuat Oleh',
+    cell: ({ row }) => row.original.created_by?.name ?? '-',
+  },
+  {
+    accessorKey: 'created_at',
+    header: 'Tanggal Dibuat',
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
+      return value?.replace('T', ' ').split('.')[0];
     },
-    {
-        accessorKey: 'project_name',
-        header: 'Nama Proyek',
-        cell: ({ row }) => (
-            <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-1">
-                    <Info className="h-3 w-3" />
-                    <div className="max-w-[200px] truncate">{row.original.project_name || '-'}</div>
-                </div>
-            </div>
-        ),
-    },
-    {
-        accessorKey: 'location',
-        header: 'Lokasi',
-        cell: ({ row }) => row.original.location?.location ?? '-',
-    },
-    {
-        accessorKey: 'created_by',
-        header: 'Dibuat Oleh',
-        cell: ({ row }) => row.original.created_by?.name ?? '-',
-    },
-    {
-        accessorKey: 'created_at',
-        header: 'Tanggal Dibuat',
-        cell: ({ getValue }) => {
-            const value = getValue() as string;
-            return value ? format(new Date(value), 'dd MMMM yyyy HH:mm') : '-';
-        },
-    },
-    {
-        id: 'actions',
-        cell: ({ row }) => {
-            const handleDelete = () => {
-                if (confirm('Apakah Anda yakin ingin menghapus data ini?')) {
-                    router.delete(route('inspection.first-aid.destroy', row.original.uuid));
-                }
-            };
+  },
+  {
+    id: 'actions',
+    cell: ({ row }) => {
+      const handleDelete = () => {
+        if (confirm('Apakah Anda yakin ingin menghapus data ini?')) {
+          router.delete(`/inspection/first-aid/${row.original.id}`);
+        }
+      };
 
             return (
                 <DropdownMenu>

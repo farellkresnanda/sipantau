@@ -69,7 +69,7 @@ const mainNavItems: NavItemWithChildren[] = [
             },
             {
                 title: 'Inspeksi K3L',
-                href: '/inspeksi/k3l',
+                href: '/inspection/k3l',
                 icon: Recycle,
             },
             {

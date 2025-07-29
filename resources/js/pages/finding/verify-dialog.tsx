@@ -153,7 +153,7 @@ export default function VerifyDialog({ finding }: FindingVerifyDialogProps) {
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="car_number_manual">Nomor CAR (Optional)</Label>
+                                <Label htmlFor="car_number_manual">Nomor (Optional)</Label>
                                 <input
                                     type="text"
                                     id="car_number_manual"
