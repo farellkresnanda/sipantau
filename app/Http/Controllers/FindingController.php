@@ -140,7 +140,6 @@ class FindingController extends Controller
     public function show($uuid)
     {
         $finding = Finding::with(['nonconformityType', 'nonconformitySubType', 'findingApprovalHistories', 'findingApprovalHistories.findingApprovalAssignment.user', 'findingStatus', 'entity', 'plant', 'createdBy'])->where('uuid', $uuid)->firstOrFail();
-
         return Inertia::render('finding/show', compact('finding'));
     }
 
@@ -262,67 +261,91 @@ class FindingController extends Controller
                     ->where('user_id', $user->id)
                     ->firstOrFail();
 
-                // Proses untuk Technician
-                if ($role === 'Technician') {
+                // Validasi input berdasarkan stage
+                $stage = $currentHistory->stage;
+
+                // Proses berdasarkan stage
+                if ($stage === 'Detection') {
                     $request->validate([
                         'approval_status' => 'required|in:APPROVED,REJECTED',
                         'corrective_plan' => 'required|string',
-                        'corrective_due_date' => 'required|date',
                     ]);
 
-                    // Update status finding berdasarkan approval status
                     $finding->update([
-                        // Jika statusnya APPROVED, set ke SPR (Status Perbaikan)
                         'finding_status_code' => match ($request->approval_status) {
-                            'APPROVED' => 'SPR', // Approved
-                            'REJECTED' => 'SRE', // Rejected
+                            'APPROVED' => 'SPR',
+                            'REJECTED' => 'SRE',
                         },
                         'corrective_plan' => $request->corrective_plan,
-                        'corrective_due_date' => $request->corrective_due_date,
-                        'need_permit' => $request->need_permit ?? false,
                     ]);
                 }
 
-                // Proses untuk Admin
-                if ($role === 'Admin') {
+                if ($stage === 'Drafting') {
                     $request->validate([
-                        'approval_status' => 'required|in:APPROVED,REJECTED,REVISION',
+                        'approval_status' => 'required|in:APPROVED,REJECTED',
+                        'car_number_manual' => 'required|string',
+                    ]);
+
+                    $finding->update([
+                        'car_number_manual' => $request->car_number_manual,
+                        'finding_status_code' => match ($request->approval_status) {
+                            'APPROVED' => 'SPR',
+                            'REJECTED' => 'SRE',
+                        },
+                    ]);
+                }
+
+                if ($stage === 'Planning') {
+                    $request->validate([
+                        'approval_status' => 'required|in:ON_PROGRESS,REJECTED',
+                        'corrective_due_date' => 'required|date',
+                    ]);
+
+                    $finding->update([
+                        'corrective_due_date' => $request->corrective_due_date,
+                        'need_permit' => $request->need_permit,
+                        'finding_status_code' => match ($request->approval_status) {
+                            'ON_PROGRESS' => 'SPR',
+                            'REJECTED' => 'SRE',
+                        },
+                    ]);
+                }
+
+                if ($stage === 'On Progress') {
+                    $request->validate([
+                        'approval_status' => 'required|in:FINISHED',
                         'corrective_action' => 'required|string',
-                        'car_number_manual' => 'nullable|string',
+                    ]);
+
+                    $finding->update([
+                        'corrective_action' => $request->corrective_action,
+                        'finding_status_code' => match ($request->approval_status) {
+                            'FINISHED' => 'SPR',
+                        },
+                    ]);
+                }
+
+                if ($stage === 'Finalizing') {
+                    $request->validate([
+                        'approval_status' => 'required|in:EFFECTIVE,INEFFECTIVE,POSTPONED',
                         'note' => 'nullable|string',
                         'photo_after' => 'nullable|image|max:2048',
                     ]);
 
-                    // Update status finding berdasarkan approval status
-                    $finding->update([
-                        'corrective_action' => $request->corrective_action,
-                        'car_number_manual' => $request->car_number_manual,
-                    ]);
-
-                    // Jika ada foto setelah tindakan korektif
                     if ($request->hasFile('photo_after')) {
                         $photoPath = $request->file('photo_after')->store('finding_photos', 'public');
                         $finding->update(['photo_after' => $photoPath]);
                     }
                 }
 
-                // Proses untuk Validator
-                if ($role === 'Validator') {
+                if ($stage === 'Verification') {
                     $request->validate([
-                        'approval_status' => 'required|in:CLOSE,INEFFECTIVE,POSTPONED,REJECTED',
-                        'note' => 'nullable|string',
+                        'approval_status' => 'required|in:CLOSE',
                     ]);
 
-                    // Update status finding berdasarkan approval status
                     $finding->update([
-                        'finding_status_code' => match ($request->approval_status) {
-                            'CLOSE' => 'SCF', // Close/Efektif
-                            'INEFFECTIVE' => 'STF', // Tidak Efektif
-                            'POSTPONED' => 'SDT', // Ditunda
-                            'REJECTED' => 'SRE', // Reject
-                        },
+                        'finding_status_code' => 'SCF',
                     ]);
-
                 }
 
                 // Tandai assignment sebagai sudah diverifikasi
@@ -409,12 +432,12 @@ class FindingController extends Controller
         $finder = $finding->createdBy?->name;
         $receiver = $finding->findingApprovalHistories->first()->findingApprovalAssignment->first()->user->name ?? null;
         $receiverQr = $finding->findingApprovalHistories->first()?->qr_code_path;
-        $personInCharge = $finding->findingApprovalHistories->where('stage', 'Technician')->first()->findingApprovalAssignment->first()->user->name ?? null;
-        $verifier = $finding->findingApprovalHistories->where('stage', 'Validator')->first()->findingApprovalAssignment->first()->user->name ?? null;
-        $verifiedAt = $finding->findingApprovalHistories->where('stage', 'Validator')->first()?->findingApprovalAssignment->first()->verified_at;
-        $verifierNote = $finding->findingApprovalHistories->where('stage', 'Validator')->first()?->findingApprovalAssignment->first()->note;
-        $verifierQR = $finding->findingApprovalHistories->where('stage', 'Validator')->first()?->qr_code_path;
-        $secretary = $finding->findingApprovalHistories->where('stage', 'Admin')->first()->findingApprovalAssignment->first()->user->name ?? null;
+        $personInCharge = $finding->findingApprovalHistories->where('stage', 'Detection')->first()->findingApprovalAssignment->first()->user->name ?? null;
+        $verifier = $finding->findingApprovalHistories->where('stage', 'Verification')->first()->findingApprovalAssignment->first()->user->name ?? null;
+        $verifiedAt = $finding->findingApprovalHistories->where('stage', 'Verification')->first()?->findingApprovalAssignment->first()->verified_at;
+        $verifierNote = $finding->findingApprovalHistories->where('stage', 'Verification')->first()?->findingApprovalAssignment->first()->note;
+        $verifierQR = $finding->findingApprovalHistories->where('stage', 'Verification')->first()?->qr_code_path;
+        $secretary = $finding->findingApprovalHistories->where('stage', 'Finalizing')->first()->findingApprovalAssignment->first()->user->name ?? null;
         $pdf = PDF::loadView('pdf.finding', compact('finding', 'finder', 'receiver', 'receiverQr', 'personInCharge', 'verifier', 'verifiedAt', 'secretary', 'verifierNote', 'verifierQR'));
         return $pdf->stream('CorrectiveActionReport.pdf');
     }

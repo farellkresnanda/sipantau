@@ -22,6 +22,7 @@ import {
 import { AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useEffect } from 'react';
 import { showToast } from '@/components/ui/toast';
+import ApprovalHistorySection from '@/pages/finding/approval-history';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -42,6 +43,7 @@ export default function ShowFinding({ finding }: { finding: any }) {
     const { flash } = usePage().props as {
         flash?: { success?: string; error?: string; message?: string };
     };
+
 
     useEffect(() => {
         if (flash?.success) {
@@ -88,13 +90,15 @@ export default function ShowFinding({ finding }: { finding: any }) {
                         <Calendar className="h-4 w-4 text-yellow-500" />
                         {format(new Date(finding.created_at), 'dd MMMM yyyy')}
                     </Badge>
-                    <button
-                        onClick={() => window.open(`/finding/${finding.uuid}/print`, '_blank')}
-                        className="inline-flex items-center gap-1 rounded-md border border-transparent bg-blue-500 px-2.5 py-0.5 text-xs font-semibold text-white transition-colors hover:bg-blue-600"
-                    >
-                        <FileText className="h-4 w-4" />
-                        Export PDF
-                    </button>
+                    {finding.finding_status?.code === 'SCF' && (
+                        <button
+                            onClick={() => window.open(`/finding/${finding.uuid}/print`, '_blank')}
+                            className="inline-flex items-center gap-1 rounded-md border border-transparent bg-blue-500 px-2.5 py-0.5 text-xs font-semibold text-white transition-colors hover:bg-blue-600"
+                        >
+                            <FileText className="h-4 w-4" />
+                            Export PDF
+                        </button>
+                    )}
                 </div>
 
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-[2fr_1fr]">
@@ -205,6 +209,13 @@ export default function ShowFinding({ finding }: { finding: any }) {
                                     </Label>
                                     <p className="mt-1 text-sm whitespace-pre-wrap">{finding.corrective_plan || '-'}</p>
                                 </div>
+                                <div>
+                                    <Label className="text-muted-foreground flex items-center gap-1 text-sm">
+                                        <ListTree className="h-4 w-4" />
+                                        Tindakan Perbaikan yang Dilakukan
+                                    </Label>
+                                    <p className="mt-1 text-sm whitespace-pre-wrap">{finding.corrective_action || '-'}</p>
+                                </div>
                                 {/* Batas Waktu Perbaikan */}
                                 <div>
                                     <Label className="text-muted-foreground flex items-center gap-1 text-sm">
@@ -233,17 +244,10 @@ export default function ShowFinding({ finding }: { finding: any }) {
                                 </div>
                                 <div>
                                     <Label className="text-muted-foreground flex items-center gap-1 text-sm">
-                                        <ListTree className="h-4 w-4" />
-                                        Tindakan Perbaikan yang Dilakukan
-                                    </Label>
-                                    <p className="mt-1 whitespace-pre-wrap text-sm">{finding.corrective_action || '-'}</p>
-                                </div>
-                                <div>
-                                    <Label className="text-muted-foreground flex items-center gap-1 text-sm">
                                         <FileText className="h-4 w-4" />
                                         Catatan
                                     </Label>
-                                    <p className="mt-1 whitespace-pre-wrap text-sm">
+                                    <p className="mt-1 text-sm whitespace-pre-wrap">
                                         {finding.finding_approval_histories?.find((history: any) => history.stage === 'Admin')?.note || '-'}
                                     </p>
                                 </div>
@@ -276,7 +280,7 @@ export default function ShowFinding({ finding }: { finding: any }) {
                                         <FileText className="h-4 w-4" />
                                         Catatan
                                     </Label>
-                                    <p className="mt-1 whitespace-pre-wrap text-sm">
+                                    <p className="mt-1 text-sm whitespace-pre-wrap">
                                         {finding.finding_approval_histories?.find((history: any) => history.stage === 'Validator')?.note || '-'}
                                     </p>
                                 </div>
@@ -284,82 +288,7 @@ export default function ShowFinding({ finding }: { finding: any }) {
                         </Card>
                     </div>
                     {/* Kolom 2: Riwayat Approval Temuan */}
-                    <div className="space-y-3">
-                        <Card>
-                            <CardContent className="space-y-4">
-                                <h3 className="text-lg font-semibold">Riwayat Approval</h3>
-                                <div className="grid gap-6">
-                                    {finding.finding_approval_histories && finding.finding_approval_histories.length > 0 ? (
-                                        finding.finding_approval_histories.map((approval: any, index: number) => {
-                                            const assignment = approval.finding_approval_assignment?.[0]; // ambil yang pertama jika hasMany
-                                            const userName = assignment?.user?.name ?? '-';
-
-                                            const badgeStyleMap = {
-                                                APPROVED: {
-                                                    variant: 'secondary',
-                                                    className: 'bg-green-50 text-green-700 border-green-500 border',
-                                                },
-                                                CLOSE: {
-                                                    variant: 'secondary',
-                                                    className: 'bg-green-50 text-green-700 border-green-500 border',
-                                                },
-                                                REJECTED: {
-                                                    variant: 'destructive',
-                                                    className: 'bg-red-500 hover:bg-red-600 text-white',
-                                                },
-                                                DEFAULT: {
-                                                    variant: 'default',
-                                                    className: 'bg-gray-500 hover:bg-gray-600 text-white',
-                                                },
-                                            };
-
-                                            const { variant, className } =
-                                                badgeStyleMap[approval.approval_status as keyof typeof badgeStyleMap] || badgeStyleMap.DEFAULT;
-
-                                            return (
-                                                <div key={index} className="flex items-center gap-4">
-                                                    <Avatar className="h-9 w-9">
-                                                        <AvatarImage src={`https://api.dicebear.com/7.x/micah/svg?seed=${approval.stage}`} />
-                                                        <AvatarFallback>{approval.stage[0]}</AvatarFallback>
-                                                    </Avatar>
-                                                    <div className="flex flex-1 items-start justify-between gap-4">
-                                                        <div className="space-y-1">
-                                                            <p className="text-sm leading-none font-medium">{userName}</p>
-                                                            <p className="text-muted-foreground text-sm italic">({approval.stage})</p>
-                                                            <Badge variant={variant as any} className={`text-xs ${className}`}>
-                                                                {approval.approval_status}
-                                                            </Badge>
-                                                        </div>
-                                                        <div className="text-muted-foreground ml-auto text-right text-sm whitespace-nowrap">
-                                                            {approval.verified_at ? (
-                                                                <>
-                                                                    <div className="flex items-center justify-end gap-1">
-                                                                        <CheckCircle className="h-4 w-4" />
-                                                                        {format(new Date(approval.verified_at), 'dd-MM-yyyy')}
-                                                                    </div>
-                                                                    <div className="text-xs">
-                                                                        {format(new Date(approval.verified_at), 'HH:mm')} WIB
-                                                                    </div>
-                                                                </>
-                                                            ) : (
-                                                                <span className="text-gray-400">Belum diverifikasi</span>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            );
-                                        })
-                                    ) : (
-                                        <p className="text-muted-foreground text-sm">Tidak ada riwayat approval.</p>
-                                    )}
-                                </div>
-                            </CardContent>
-                        </Card>
-                        {/* Tombol Verifikasi dan Download */}
-                        <div className="flex gap-2">
-                            <VerifyDialog finding={finding} />
-                        </div>
-                    </div>
+                    <ApprovalHistorySection finding={finding} />
                 </div>
             </div>
         </AppLayout>

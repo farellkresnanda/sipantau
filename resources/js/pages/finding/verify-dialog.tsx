@@ -5,6 +5,7 @@ import { FormEvent, useState } from 'react';
 import { router, usePage } from '@inertiajs/react';
 import { toast } from 'sonner';
 import { SharedData } from '@/types';
+import { getCurrentStage } from "@/lib/stages";
 
 interface FindingVerifyDialogProps {
     finding: any;
@@ -16,6 +17,7 @@ export default function VerifyDialog({ finding }: FindingVerifyDialogProps) {
     const { auth } = usePage<SharedData>().props;
     const userId = auth.user?.id;
     const role = auth.role;
+    const stageName = getCurrentStage(finding);
 
     // Cek apakah user sudah ditugaskan untuk verifikasi
     const isUserAssigned = finding.finding_approval_histories?.some(
@@ -25,12 +27,16 @@ export default function VerifyDialog({ finding }: FindingVerifyDialogProps) {
     );
 
     // Cek apakah user sudah melakukan verifikasi sebelumnya
-    const hasBeenVerified = finding.finding_approval_histories?.some(
-        (history: { verified_at: any; finding_approval_assignment: any[] }) =>
-            history.verified_at &&
-            Array.isArray(history.finding_approval_assignment) &&
-            history.finding_approval_assignment.some((assignment) => Number(assignment.user_id) === Number(userId)),
-    );
+    const currentHistory = finding.finding_approval_histories?.[finding.finding_approval_histories.length - 1];
+
+    // Cek apakah user sudah melakukan verifikasi pada tahap ini
+    const hasBeenVerified = currentHistory
+        ? Boolean(currentHistory.verified_at) &&
+        Array.isArray(currentHistory.finding_approval_assignment) &&
+        currentHistory.finding_approval_assignment.some(
+            (assignment: { user_id: number | string }) => Number(assignment.user_id) === Number(userId)
+        )
+        : false;
 
     // Cek apakah user bisa melakukan verifikasi sekarang
     const canVerifyNow = (() => {
@@ -43,7 +49,6 @@ export default function VerifyDialog({ finding }: FindingVerifyDialogProps) {
                 history.finding_approval_assignment.some((assignment: { user_id: any }) => Number(assignment.user_id) === Number(userId)),
         );
 
-        console.log('userIndex:', userIndex);
         if (userIndex === -1) return false;
 
         const priorStages = histories.slice(0, userIndex);
@@ -59,6 +64,13 @@ export default function VerifyDialog({ finding }: FindingVerifyDialogProps) {
 
     // State untuk menyimpan status izin kerja
     const [needPermit, setNeedPermit] = useState('');
+
+    // Debugging output
+    console.log('Assign:', !isUserAssigned);
+    console.log('hasBeenVerified', hasBeenVerified);
+    console.log('Not hasBeenVerified:', !hasBeenVerified);
+    console.log('canVerifyNow:', !canVerifyNow);
+    console.log('Stage Name:', stageName);
 
     // Jika user tidak ditugaskan atau sudah melakukan verifikasi, jangan tampilkan tombol
     if (!isUserAssigned || hasBeenVerified || !canVerifyNow) return null;
@@ -78,13 +90,13 @@ export default function VerifyDialog({ finding }: FindingVerifyDialogProps) {
         if (role === 'Technician') {
             payload.corrective_plan = formData.get('corrective_plan');
             payload.corrective_due_date = formData.get('corrective_due_date');
+            payload.corrective_action = formData.get('corrective_action');
             payload.need_permit = needPermit === 'ya';
         }
 
         // Tambahkan properti untuk Admin
         if (role === 'Admin') {
             payload.car_number_manual = formData.get('car_number_manual');
-            payload.corrective_action = formData.get('corrective_action');
             payload.note = formData.get('note');
 
             const photoFile = formData.get('photo_after') as File;
@@ -140,66 +152,14 @@ export default function VerifyDialog({ finding }: FindingVerifyDialogProps) {
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit} className="mt-4 space-y-4">
-                    {role === 'Admin' && (
+                    {role === 'Technician' && stageName === 'Detection' && (
                         <>
                             <div className="space-y-2">
                                 <Label htmlFor="approval_status">Status Verifikasi</Label>
                                 <select id="approval_status" name="approval_status" className="w-full rounded-md border px-3 py-2 text-sm" required>
                                     <option value="">Pilih status</option>
-                                    <option value="APPROVED">Setuju</option>
-                                    <option value="REJECTED">Tolak</option>
-                                    <option value="REVISION">Revisi</option>
-                                </select>
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="car_number_manual">Nomor (Optional)</Label>
-                                <input
-                                    type="text"
-                                    id="car_number_manual"
-                                    name="car_number_manual"
-                                    className="w-full rounded-md border px-3 py-2 text-sm"
-                                    placeholder="Masukkan nomor CAR (Optional)"
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="corrective_action">Tindakan Perbaikan</Label>
-                                <textarea
-                                    id="corrective_action"
-                                    name="corrective_action"
-                                    rows={3}
-                                    className="w-full rounded-md border px-3 py-2 text-sm"
-                                    placeholder="Tindakan perbaikan yang dilakukan..."
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="note">Catatan</Label>
-                                <textarea
-                                    id="note"
-                                    name="note"
-                                    rows={2}
-                                    className="w-full rounded-md border px-3 py-2 text-sm"
-                                    placeholder="Catatan tambahan..."
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="photo_after">Foto Temuan (Setelah Perbaikan)</Label>
-                                <input type="file" id="photo_after" name="photo_after" accept="image/*" className="w-full text-sm" />
-                            </div>
-                        </>
-                    )}
-
-                    {role === 'Technician' && (
-                        <>
-                            <div className="space-y-2">
-                                <Label htmlFor="approval_status">Status Verifikasi</Label>
-                                <select id="approval_status" name="approval_status" className="w-full rounded-md border px-3 py-2 text-sm" required>
-                                    <option value="">Pilih status</option>
-                                    <option value="APPROVED">Setuju</option>
-                                    <option value="REJECTED">Tolak</option>
+                                    <option value="APPROVED">Approve</option>
+                                    <option value="REJECTED">Reject</option>
                                 </select>
                             </div>
 
@@ -211,33 +171,45 @@ export default function VerifyDialog({ finding }: FindingVerifyDialogProps) {
                                     rows={3}
                                     className="w-full rounded-md border px-3 py-2 text-sm"
                                     required
-                                    placeholder="Masukkan rencana perbaikan..."
+                                    placeholder="Rencana perbaikan..."
                                 />
+                            </div>
+                        </>
+                    )}
+
+                    {role === 'Admin' && stageName === 'Drafting' && (
+                        <>
+                            <div className="space-y-2">
+                                <Label htmlFor="approval_status">Status Verifikasi</Label>
+                                <select id="approval_status" name="approval_status" className="w-full rounded-md border px-3 py-2 text-sm" required>
+                                    <option value="">Pilih status</option>
+                                    <option value="APPROVED">Approve</option>
+                                    <option value="REJECTED">Reject</option>
+                                </select>
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="need_permit">Perlu Izin Kerja</Label>
-                                <select
-                                    id="need_permit"
-                                    name="need_permit"
+                                <Label htmlFor="car_number_manual">Nomor CAR</Label>
+                                <input
+                                    type="text"
+                                    id="car_number_manual"
+                                    name="car_number_manual"
                                     className="w-full rounded-md border px-3 py-2 text-sm"
+                                    placeholder="Contoh: CAR-2025-001"
                                     required
-                                    value={needPermit}
-                                    onChange={(e) => setNeedPermit(e.target.value)}
-                                >
-                                    <option value="">Pilih opsi</option>
-                                    <option value="ya">Ya</option>
-                                    <option value="tidak">Tidak</option>
+                                />
+                            </div>
+                        </>
+                    )}
+
+                    {role === 'Technician' && stageName === 'Planning' && (
+                        <>
+                            <div className="space-y-2">
+                                <Label htmlFor="approval_status">Status Verifikasi</Label>
+                                <select id="approval_status" name="approval_status" className="w-full rounded-md border px-3 py-2 text-sm" required>
+                                    <option value="">Pilih status</option>
+                                    <option value="ON_PROGRESS">On Progress</option>
                                 </select>
-                                {needPermit === 'ya' && (
-                                    <a
-                                        href={`/working-permit/create?car_number=${finding.car_number_auto}`}
-                                        className="text-sm text-blue-600 hover:underline"
-                                        target="_blank"
-                                    >
-                                        Form Izin Kerja (Working Permit)
-                                    </a>
-                                )}
                             </div>
 
                             <div className="space-y-2">
@@ -250,19 +222,68 @@ export default function VerifyDialog({ finding }: FindingVerifyDialogProps) {
                                     required
                                 />
                             </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="need_permit">Perlu Izin Permit?</Label>
+                                <select
+                                    id="need_permit"
+                                    name="need_permit"
+                                    className="w-full rounded-md border px-3 py-2 text-sm"
+                                    value={needPermit}
+                                    onChange={(e) => setNeedPermit(e.target.value)}
+                                    required
+                                >
+                                    <option value="">Pilih</option>
+                                    <option value="ya">Ya</option>
+                                    <option value="tidak">Tidak</option>
+                                </select>
+
+                                {needPermit === 'ya' && (
+                                    <a
+                                        href={`/working-permit/create?car_number=${finding.car_number_auto}`}
+                                        className="text-sm text-blue-600 hover:underline"
+                                        target="_blank"
+                                    >
+                                        Buat Izin Kerja (Working Permit)
+                                    </a>
+                                )}
+                            </div>
                         </>
                     )}
 
-                    {role === 'Validator' && (
+                    {role === 'Technician' && stageName === 'On Progress' && (
                         <>
                             <div className="space-y-2">
                                 <Label htmlFor="approval_status">Status Verifikasi</Label>
                                 <select id="approval_status" name="approval_status" className="w-full rounded-md border px-3 py-2 text-sm" required>
                                     <option value="">Pilih status</option>
-                                    <option value="CLOSE">Close/Efektif</option>
+                                    <option value="FINISHED">Selesai</option>
+                                </select>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="corrective_action">Tindakan Perbaikan</Label>
+                                <textarea
+                                    id="corrective_action"
+                                    name="corrective_action"
+                                    rows={3}
+                                    className="w-full rounded-md border px-3 py-2 text-sm"
+                                    placeholder="Tindakan perbaikan yang dilakukan..."
+                                    required
+                                />
+                            </div>
+                        </>
+                    )}
+
+                    {role === 'Admin' && stageName === 'Finalizing' && (
+                        <>
+                            <div className="space-y-2">
+                                <Label htmlFor="approval_status">Status Verifikasi</Label>
+                                <select id="approval_status" name="approval_status" className="w-full rounded-md border px-3 py-2 text-sm" required>
+                                    <option value="">Pilih status</option>
+                                    <option value="EFFECTIVE">Efektif</option>
                                     <option value="INEFFECTIVE">Tidak Efektif</option>
                                     <option value="POSTPONED">Ditunda</option>
-                                    <option value="REJECTED">Reject</option>
                                 </select>
                             </div>
 
@@ -275,6 +296,23 @@ export default function VerifyDialog({ finding }: FindingVerifyDialogProps) {
                                     className="w-full rounded-md border px-3 py-2 text-sm"
                                     placeholder="Catatan tambahan..."
                                 />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="photo_after">Foto Setelah Perbaikan</Label>
+                                <input type="file" id="photo_after" name="photo_after" accept="image/*" className="w-full text-sm" />
+                            </div>
+                        </>
+                    )}
+
+                    {role === 'Validator' && stageName === 'Verification' && (
+                        <>
+                            <div className="space-y-2">
+                                <Label htmlFor="approval_status">Status Verifikasi</Label>
+                                <select id="approval_status" name="approval_status" className="w-full rounded-md border px-3 py-2 text-sm" required>
+                                    <option value="">Pilih status</option>
+                                    <option value="CLOSE">Close</option>
+                                </select>
                             </div>
                         </>
                     )}
