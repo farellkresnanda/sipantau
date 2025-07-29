@@ -4,13 +4,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Head, router, usePage } from '@inertiajs/react';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import type { BreadcrumbItem } from '@/types';
+import { useWatch } from 'react-hook-form';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -21,25 +21,26 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 const formSchema = z.object({
     inspection_date: z.string().min(1, { message: 'Inspection date is required' }),
-    location_id: z.string().min(1, { message: 'Location must be selected' }),
+    location: z.string().min(1, { message: 'Location is required' }),
     job_description: z.string().min(1, { message: 'Job description is required' }),
     project_name: z.string().min(1, { message: 'Project name is required' }),
-    items: z.record(z.object({
-        condition: z.string().optional(),
-        usage: z.string().optional(),
-        quantity: z.string().optional(),
-        notes: z.string().optional(),
-    }))
+    items: z.record(
+        z.object({
+            good_condition: z.string().optional(),   // Kondisi: Baik
+            bad_condition: z.string().optional(),    // Kondisi: Rusak
+            used: z.string().optional(),             // Pemakaian: Terpakai
+            unused: z.string().optional(),           // Pemakaian: Tidak Terpakai
+            notes: z.string().optional(),            // Keterangan
+        })
+    ),
 });
 
 export default function CreatePpeInspection() {
     const {
         errors = {},
-        locations = [],
         ppeItems = [],
     } = usePage().props as unknown as {
         errors: Record<string, string>;
-        locations: Array<{ id: string; name: string }>;
         ppeItems: Array<{ id: string; apd_name: string; inspection_criteria: string }>;
     };
 
@@ -47,15 +48,44 @@ export default function CreatePpeInspection() {
         resolver: zodResolver(formSchema),
         defaultValues: {
             inspection_date: '',
-            location_id: '',
+            location: '',
             job_description: '',
             project_name: '',
             items: ppeItems.reduce((acc, item) => {
-                acc[item.id] = { condition: '', usage: '', quantity: '', notes: '' };
+                acc[item.id] = {
+                    good_condition: '',     // input Kondisi: Baik
+                    bad_condition: '',      // input Kondisi: Rusak
+                    used: '',               // input Terpakai
+                    unused: '',             // input Tidak Terpakai
+                    notes: ''               // input Keterangan
+                };
                 return acc;
-            }, {} as Record<string, { condition: string; usage: string; quantity: string; notes: string }>)
+            }, {} as Record<
+                string,
+                {
+                    good_condition: string;
+                    bad_condition: string;
+                    used: string;
+                    unused: string;
+                    notes: string;
+                }
+            >)
         },
     });
+
+
+    const JumlahCell = ({ control, itemId }: { control: any; itemId: number }) => {
+        const watched = useWatch({
+            control,
+            name: `items.${itemId}`,
+        });
+
+        const good = parseInt(watched?.good_condition || 0, 10);
+        const bad = parseInt(watched?.bad_condition || 0, 10);
+        const total = good + bad;
+
+        return <span className="text-sm font-semibold">{total}</span>;
+    };
 
     // Handle error dari server (validasi Laravel)
     useEffect(() => {
@@ -106,26 +136,15 @@ export default function CreatePpeInspection() {
                                     )}
                                 />
 
-                                {/* Lokasi */}
+                                {/* Lokasi/Nama Pemilik */}
                                 <FormField
                                     control={form.control}
-                                    name="location_id"
+                                    name="location"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Lokasi</FormLabel>
+                                            <FormLabel>Lokasi/Nama Pemilik</FormLabel>
                                             <FormControl>
-                                                <Select value={field.value} onValueChange={field.onChange}>
-                                                    <SelectTrigger className="w-full">
-                                                        <SelectValue placeholder="Pilih lokasi" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {locations.map((loc) => (
-                                                            <SelectItem key={loc.id} value={String(loc.id)}>
-                                                                {loc.name}
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
+                                                <Input {...field} placeholder="Masukkan lokasi / nama pemilik" />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -167,79 +186,156 @@ export default function CreatePpeInspection() {
                         <Card className="overflow-hidden">
                             <CardContent className="overflow-x-auto">
                                 <div className="w-full">
-                                    <Table className="w-full table-fixed border-collapse whitespace-normal">
+                                    <Table className="w-full table-auto border-collapse text-sm whitespace-normal">
                                         <TableHeader>
                                             <TableRow>
-                                                <TableHead className="w-14">No</TableHead>
-                                                <TableHead className="w-32">Nama APD</TableHead>
-                                                <TableHead className="w-48">Kriteria Inspeksi</TableHead>
-                                                <TableHead className="w-28">Kondisi</TableHead>
-                                                <TableHead className="w-28">Pemakaian</TableHead>
-                                                <TableHead className="w-24">Jumlah</TableHead>
-                                                <TableHead className="w-40">Keterangan</TableHead>
+                                                <TableHead rowSpan={2} className="w-14 border bg-gray-100 text-center align-middle text-sm leading-tight p-1">
+                                                    No
+                                                </TableHead>
+                                                <TableHead rowSpan={2} className="w-32 border bg-gray-100 text-center align-middle text-sm leading-tight p-1">
+                                                    Nama APD
+                                                </TableHead>
+                                                <TableHead rowSpan={2} className="w-48 border bg-gray-100 text-center align-middle text-sm leading-tight p-1">
+                                                    Kriteria Inspeksi
+                                                </TableHead>
+
+                                                {/* Kondisi */}
+                                                <TableHead colSpan={2} className="w-32 border bg-gray-100 text-center align-middle text-sm leading-tight p-1">
+                                                    Kondisi
+                                                </TableHead>
+
+                                                {/* Pemakaian APD */}
+                                                <TableHead colSpan={2} className="w-32 border bg-gray-100 text-center align-middle text-sm leading-tight p-1">
+                                                    Pemakaian APD
+                                                </TableHead>
+
+                                                <TableHead rowSpan={2} className="w-20 border bg-gray-100 text-center align-middle text-sm leading-tight p-1">
+                                                    Jumlah
+                                                </TableHead>
+                                                <TableHead rowSpan={2} className="w-64 border bg-gray-100 text-center align-middle text-sm leading-tight p-1">
+                                                    Keterangan
+                                                </TableHead>
+                                            </TableRow>
+
+                                            <TableRow>
+                                                {/* Subkolom Kondisi */}
+                                                <TableHead className="w-16 border bg-green-100 text-center text-sm leading-tight p-1">
+                                                    Baik
+                                                </TableHead>
+                                                <TableHead className="w-16 border bg-red-100 text-center text-sm leading-tight p-1">
+                                                    Rusak
+                                                </TableHead>
+
+                                                {/* Subkolom Pemakaian */}
+                                                <TableHead className="w-16 border bg-yellow-100 text-center text-sm leading-tight p-1">
+                                                    Terpakai
+                                                </TableHead>
+                                                <TableHead className="w-16 border bg-blue-100 text-center text-sm leading-tight p-1">
+                                                    Tidak Terpakai
+                                                </TableHead>
                                             </TableRow>
                                         </TableHeader>
+
                                         <TableBody>
                                             {ppeItems.map((item, index) => (
                                                 <TableRow key={item.id}>
-                                                    <TableCell>{index + 1}</TableCell>
-                                                    <TableCell className="break-words whitespace-normal">{item.apd_name}</TableCell>
-                                                    <TableCell className="break-words whitespace-normal">{item.inspection_criteria}</TableCell>
-                                                    <TableCell>
+                                                    {/* No */}
+                                                    <TableCell className="border text-center align-middle">{index + 1}</TableCell>
+
+                                                    {/* Nama APD */}
+                                                    <TableCell className="border whitespace-normal align-middle">{item.apd_name}</TableCell>
+
+                                                    {/* Kriteria Inspeksi */}
+                                                    <TableCell className="border whitespace-normal align-middle">{item.inspection_criteria}</TableCell>
+
+                                                    {/* Kondisi: Baik */}
+                                                    <TableCell className="border text-center align-middle">
                                                         <FormField
                                                             control={form.control}
-                                                            name={`items.${String(item.id)}.condition`}
+                                                            name={`items.${item.id}.good_condition`}
                                                             render={({ field }) => (
-                                                                <Select onValueChange={field.onChange}>
-                                                                    <SelectTrigger>
-                                                                        <SelectValue placeholder="Pilih" />
-                                                                    </SelectTrigger>
-                                                                    <SelectContent>
-                                                                        <SelectItem value="Baik">Baik</SelectItem>
-                                                                        <SelectItem value="Rusak">Rusak</SelectItem>
-                                                                    </SelectContent>
-                                                                </Select>
+                                                                <Input
+                                                                    type="number"
+                                                                    {...field}
+                                                                    className="w-16 h-9 text-sm px-2 py-1 leading-tight min-w-0"
+                                                                    placeholder="0"
+                                                                />
                                                             )}
                                                         />
                                                     </TableCell>
-                                                    <TableCell>
+
+                                                    {/* Kondisi: Rusak */}
+                                                    <TableCell className="border text-center align-middle">
                                                         <FormField
                                                             control={form.control}
-                                                            name={`items.${item.id}.usage`}
+                                                            name={`items.${item.id}.bad_condition`}
                                                             render={({ field }) => (
-                                                                <Select onValueChange={field.onChange}>
-                                                                    <SelectTrigger>
-                                                                        <SelectValue placeholder="Pilih" />
-                                                                    </SelectTrigger>
-                                                                    <SelectContent>
-                                                                        <SelectItem value="Ya">Ya</SelectItem>
-                                                                        <SelectItem value="Tidak">Tidak</SelectItem>
-                                                                    </SelectContent>
-                                                                </Select>
+                                                                <Input
+                                                                    type="number"
+                                                                    {...field}
+                                                                    className="w-16 h-9 text-sm px-2 py-1 leading-tight min-w-0"
+                                                                    placeholder="0"
+                                                                />
                                                             )}
                                                         />
                                                     </TableCell>
-                                                    <TableCell>
+
+                                                    {/* Pemakaian: Terpakai */}
+                                                    <TableCell className="border text-center align-middle">
                                                         <FormField
                                                             control={form.control}
-                                                            name={`items.${item.id}.quantity`}
+                                                            name={`items.${item.id}.used`}
                                                             render={({ field }) => (
-                                                                <Input type="number" {...field} className="w-full" placeholder="0" />
+                                                                <Input
+                                                                    type="number"
+                                                                    {...field}
+                                                                    className="w-16 h-9 text-sm px-2 py-1 leading-tight min-w-0"
+                                                                    placeholder="0"
+                                                                />
                                                             )}
                                                         />
                                                     </TableCell>
-                                                    <TableCell>
+
+                                                    {/* Pemakaian: Tidak Terpakai */}
+                                                    <TableCell className="border text-center align-middle">
+                                                        <FormField
+                                                            control={form.control}
+                                                            name={`items.${item.id}.unused`}
+                                                            render={({ field }) => (
+                                                                <Input
+                                                                    type="number"
+                                                                    {...field}
+                                                                    className="w-16 h-9 text-sm px-2 py-1 leading-tight min-w-0"
+                                                                    placeholder="0"
+                                                                />
+                                                            )}
+                                                        />
+                                                    </TableCell>
+
+                                                    {/* Jumlah */}
+                                                    <TableCell className="border text-center align-middle">
+                                                        <JumlahCell control={form.control} itemId={parseInt(item.id, 10)} />
+                                                    </TableCell>
+
+                                                    {/* Keterangan */}
+                                                    <TableCell className="border align-middle">
                                                         <FormField
                                                             control={form.control}
                                                             name={`items.${item.id}.notes`}
                                                             render={({ field }) => (
-                                                                <Input type="text" {...field} className="w-full" placeholder="Keterangan..." />
+                                                                <Input
+                                                                    type="text"
+                                                                    {...field}
+                                                                    className="w-full h-9 text-sm px-2 py-1 leading-tight"
+                                                                    placeholder="Keterangan..."
+                                                                />
                                                             )}
                                                         />
                                                     </TableCell>
                                                 </TableRow>
                                             ))}
                                         </TableBody>
+
                                     </Table>
                                 </div>
                             </CardContent>

@@ -25,9 +25,9 @@ export default function ShowPpeInspection({ ppeInspection }: { ppeInspection: an
                         <Calendar className="mr-1 h-4 w-4" />
                         {format(new Date(ppeInspection.inspection_date), 'dd MMMM yyyy')}
                     </Badge>
-                    <Badge variant="outline" title="Lokasi">
+                    <Badge variant="outline" title="Lokasi / Nama Pemilik">
                         <MapPin className="mr-1 h-4 w-4" />
-                        {ppeInspection.location?.name}
+                        {ppeInspection.location || '-'}
                     </Badge>
                     <Badge variant="outline" title="Entitas">
                         <Building2 className="mr-1 h-4 w-4" />
@@ -80,33 +80,73 @@ export default function ShowPpeInspection({ ppeInspection }: { ppeInspection: an
                 {/* Tabel Hasil Inspeksi */}
                 <Card className="overflow-hidden">
                     <CardContent className="overflow-x-auto pt-4">
-                        <Table className="w-full table-fixed border-collapse whitespace-normal">
+                        <Table className="w-full table-auto border-collapse whitespace-normal">
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead className="w-12">No</TableHead>
-                                    <TableHead className="w-40">Nama APD</TableHead>
-                                    <TableHead className="w-52">Kriteria Inspeksi</TableHead>
-                                    <TableHead className="w-24">Kondisi</TableHead>
-                                    <TableHead className="w-24">Pemakaian</TableHead>
-                                    <TableHead className="w-20">Jumlah</TableHead>
-                                    <TableHead className="w-48">Keterangan</TableHead>
+                                    <TableHead rowSpan={2} className="w-14 border bg-gray-100 text-center align-middle text-sm leading-tight p-1">
+                                        No
+                                    </TableHead>
+                                    <TableHead rowSpan={2} className="w-32 border bg-gray-100 text-center align-middle text-sm leading-tight p-1">
+                                        Nama APD
+                                    </TableHead>
+                                    <TableHead rowSpan={2} className="w-48 border bg-gray-100 text-center align-middle text-sm leading-tight p-1">
+                                        Kriteria Inspeksi
+                                    </TableHead>
+
+                                    {/* Kondisi */}
+                                    <TableHead colSpan={2} className="w-32 border bg-gray-100 text-center align-middle text-sm leading-tight p-1">
+                                        Kondisi
+                                    </TableHead>
+
+                                    {/* Pemakaian APD */}
+                                    <TableHead colSpan={2} className="w-32 border bg-gray-100 text-center align-middle text-sm leading-tight p-1">
+                                        Pemakaian APD
+                                    </TableHead>
+
+                                    <TableHead rowSpan={2} className="w-20 border bg-gray-100 text-center align-middle text-sm leading-tight p-1">
+                                        Jumlah
+                                    </TableHead>
+                                    <TableHead rowSpan={2} className="w-64 border bg-gray-100 text-center align-middle text-sm leading-tight p-1">
+                                        Keterangan
+                                    </TableHead>
+                                </TableRow>
+
+                                <TableRow>
+                                    {/* Subkolom Kondisi */}
+                                    <TableHead className="w-16 border bg-green-100 text-center text-sm leading-tight p-1">
+                                        Baik
+                                    </TableHead>
+                                    <TableHead className="w-16 border bg-red-100 text-center text-sm leading-tight p-1">
+                                        Rusak
+                                    </TableHead>
+
+                                    {/* Subkolom Pemakaian */}
+                                    <TableHead className="w-16 border bg-yellow-100 text-center text-sm leading-tight p-1">
+                                        Terpakai
+                                    </TableHead>
+                                    <TableHead className="w-16 border bg-blue-100 text-center text-sm leading-tight p-1">
+                                        Tidak Terpakai
+                                    </TableHead>
                                 </TableRow>
                             </TableHeader>
+
                             <TableBody>
                                 {ppeInspection.items?.map((item: any, index: number) => (
                                     <TableRow key={item.id}>
-                                        <TableCell>{index + 1}</TableCell>
-                                        <TableCell className="break-words whitespace-normal">{item.ppe_check_item?.apd_name}</TableCell>
-                                        <TableCell className="break-words whitespace-normal">{item.ppe_check_item?.inspection_criteria}</TableCell>
-                                        <TableCell>{item.condition}</TableCell>
-                                        <TableCell>{item.usage}</TableCell>
-                                        <TableCell>{item.quantity}</TableCell>
-                                        <TableCell>{item.notes}</TableCell>
+                                        <TableCell className="border text-center">{index + 1}</TableCell>
+                                        <TableCell className="border break-words whitespace-normal">{item.ppe_check_item?.apd_name}</TableCell>
+                                        <TableCell className="border break-words whitespace-normal">{item.ppe_check_item?.inspection_criteria}</TableCell>
+                                        <TableCell className="border text-center">{item.good_condition ?? 0}</TableCell>
+                                        <TableCell className="border text-center">{item.bad_condition ?? 0}</TableCell>
+                                        <TableCell className="border text-center">{item.used ?? 0}</TableCell>
+                                        <TableCell className="border text-center">{item.unused ?? 0}</TableCell>
+                                        <TableCell className="border text-center font-semibold">{(item.good_condition ?? 0) + (item.bad_condition ?? 0)}</TableCell>
+                                        <TableCell>{item.notes || '-'}</TableCell>
                                     </TableRow>
                                 ))}
                                 {ppeInspection.items?.length === 0 && (
                                     <TableRow>
-                                        <TableCell colSpan={7} className="text-muted-foreground text-center">
+                                        <TableCell colSpan={9} className="text-muted-foreground text-center">
                                             Tidak ada data inspeksi.
                                         </TableCell>
                                     </TableRow>

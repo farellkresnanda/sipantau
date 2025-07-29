@@ -25,4 +25,9 @@ class FindingApprovalHistory extends Model
     {
         return $this->hasMany(FindingApprovalAssignment::class);
     }
+
+    public function verifiedBy()
+    {
+        return $this->belongsTo(User::class, 'verified_by');
+    }
 }
