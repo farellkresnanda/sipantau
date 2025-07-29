@@ -10,7 +10,7 @@ import { format } from 'date-fns';
 // Definisi Tipe Data untuk baris tabel (sesuai data dari controller index)
 export type FirstAidInspectionRow = {
     id: number;
-    uuid: string;
+    uuid: string; // Pastikan ini ada dan berisi UUID dari backend
     approval_status_code: string;
     approval_status: {
         id: number;
@@ -82,7 +82,7 @@ export const columns: ColumnDef<FirstAidInspectionRow>[] = [
           </span>
         </Link>
       );
-    },
+        },
   },
   {
     accessorKey: 'entity',
@@ -96,7 +96,7 @@ export const columns: ColumnDef<FirstAidInspectionRow>[] = [
   },
   {
     accessorKey: 'car_auto_number',
-    header: 'Nomor CAR & Tanggal',
+    header: 'Nomor & Tanggal',
     cell: ({ row }) => {
       const carNumber = row.original.car_auto_number;
       const date = row.original.inspection_date;
@@ -112,14 +112,10 @@ export const columns: ColumnDef<FirstAidInspectionRow>[] = [
     },
   },
   {
-    accessorKey: 'job_description',
-    header: 'Pekerjaan & Proyek',
+    accessorKey: 'project_name',
+    header: 'Proyek',
     cell: ({ row }) => (
       <div className="flex flex-col gap-1">
-        <div className="flex items-center gap-1">
-          <Info className="h-3 w-3" />
-          <div className="max-w-[200px] truncate">{row.original.job_description}</div>
-        </div>
         <div className="flex items-center gap-1 text-sm text-gray-500">
           <MapPin className="h-3 w-3" />
           <div className="max-w-[200px] truncate">{row.original.project_name}</div>
@@ -130,7 +126,7 @@ export const columns: ColumnDef<FirstAidInspectionRow>[] = [
   {
     accessorKey: 'location',
     header: 'Lokasi',
-    cell: ({ row }) => row.original.location?.name ?? '-',
+    cell: ({ row }) => row.original.location?.location ?? '-',
   },
   {
     accessorKey: 'created_by',
@@ -150,28 +146,29 @@ export const columns: ColumnDef<FirstAidInspectionRow>[] = [
     cell: ({ row }) => {
       const handleDelete = () => {
         if (confirm('Apakah Anda yakin ingin menghapus data ini?')) {
-          router.delete(`/inspection/first-aid/${row.original.id}`);
+-          router.delete(`/inspection/first-aid/${row.original.id}`); // <--- INI MASALAHNYA
++          router.delete(`/inspection/first-aid/${row.original.uuid}`); // <--- SOLUSINYA
         }
       };
 
-            return (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreVertical className="h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuItem asChild>
-                            <Link href={route('inspection.first-aid.edit', row.original.uuid)}>Edit</Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">
-                            Delete
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            );
-        },
+                return (
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                                <span className="sr-only">Open menu</span>
+                                <MoreVertical className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem asChild>
+                                <Link href={route('inspection.first-aid.edit', row.original.uuid)}>Edit</Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">
+                                Delete
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                );
+            },
     },
 ];

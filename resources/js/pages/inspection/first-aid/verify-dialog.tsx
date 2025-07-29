@@ -1,6 +1,5 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
 import {
     Dialog,
     DialogContent,
@@ -10,52 +9,56 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { SharedData } from '@/types';
-import { router, usePage } from '@inertiajs/react';
 import { FormEvent, useState } from 'react';
+import { router, usePage } from '@inertiajs/react';
 import { toast } from 'sonner';
-import { type InspectionFirstAidData } from './columns';
+import { SharedData } from '@/types';
 
-interface InspectionVerifyDialogProps {
-    inspection: InspectionFirstAidData;
+interface ValidatorVerifyFirstAidDialogProps {
+    inspection: {
+        uuid: string;
+        approval_status_code: string;
+    };
 }
 
-export default function InspectionVerifyDialog({ inspection }: InspectionVerifyDialogProps) {
+export default function ValidatorVerifyFirstAidDialog({ inspection }: ValidatorVerifyFirstAidDialogProps) {
     const [open, setOpen] = useState(false);
     const { auth } = usePage<SharedData>().props;
+    const role = auth.role;
 
-    // Logika untuk menampilkan tombol verifikasi:
-    // 1. Status inspeksi harus 'Pending'.
-    // 2. Pengguna yang login harus memiliki peran 'Validator'.
-    const canVerify = inspection.status?.name === 'Pending' && auth.user?.role === 'Validator';
+    const isValidator = role === 'Validator';
+    const isAlreadyVerified = ['SAP', 'SRE'].includes(inspection.approval_status_code);
 
-    // Jika pengguna tidak bisa verifikasi, jangan tampilkan tombol sama sekali.
-    if (!canVerify) {
-        return null;
-    }
+    if (!isValidator || isAlreadyVerified) return null;
 
     const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const formData = new FormData(e.currentTarget);
+        const form = e.currentTarget;
+        const formData = new FormData(form);
 
-        const payload = {
-            status: formData.get('status'),
-            notes: formData.get('notes'), // Tambahan jika validator perlu memberi catatan
-        };
+        const finalFormData = new FormData();
+        const approvalStatus = formData.get('approval_status');
+        const noteValidator = formData.get('note_validator');
 
-        // Menggunakan route 'inspections.validate' yang sudah kita definisikan
-        router.patch(route('inspections.validate', inspection.id), payload, {
+        if (!approvalStatus) {
+            toast.error('Status verifikasi harus dipilih.');
+            return;
+        }
+
+        finalFormData.set('approval_status', approvalStatus);
+        finalFormData.set('note_validator', noteValidator?.toString() || '');
+
+        router.post(route('inspection.first-aid.verify', inspection.uuid), finalFormData, {
             preserveScroll: true,
+            forceFormData: true,
             onSuccess: () => {
                 setOpen(false);
-                toast.success('Laporan inspeksi berhasil diverifikasi.');
+                toast.success('Inspeksi P3K berhasil diverifikasi.');
             },
             onError: (errors) => {
-                // Menampilkan error jika ada dari backend
-                const errorMessages = Object.values(errors).join(' ');
-                toast.error(`Gagal verifikasi: ${errorMessages}`);
+                toast.error('Gagal verifikasi: ' + (errors?.message || 'Terjadi kesalahan.'));
             },
         });
     };
@@ -63,47 +66,49 @@ export default function InspectionVerifyDialog({ inspection }: InspectionVerifyD
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button className="w-full">Verifikasi Laporan</Button>
+                <Button type="button">Verifikasi</Button>
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Verifikasi Laporan Inspeksi</DialogTitle>
+                    <DialogTitle>Verifikasi Inspeksi P3K</DialogTitle>
                     <DialogDescription>
-                        Setujui atau tolak laporan inspeksi P3K ini. Aksi ini tidak dapat diubah.
+                        Form ini hanya untuk Validator dalam memverifikasi hasil inspeksi P3K.
                     </DialogDescription>
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit} className="mt-4 space-y-4">
                     <div className="space-y-2">
-                        <Label htmlFor="status">Status Verifikasi</Label>
+                        <Label htmlFor="approval_status">Status Verifikasi</Label>
                         <select
-                            id="status"
-                            name="status"
+                            id="approval_status"
+                            name="approval_status"
                             className="w-full rounded-md border px-3 py-2 text-sm"
                             required
                         >
                             <option value="">Pilih status</option>
-                            <option value="approved">Setuju (Approve)</option>
-                            <option value="rejected">Tolak (Reject)</option>
+                            <option value="SAP">Setuju</option>
+                            <option value="SRE">Tolak</option>
                         </select>
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="notes">Catatan (Opsional)</Label>
-                        <Textarea
-                            id="notes"
-                            name="notes"
+                        <Label htmlFor="note_validator">Catatan</Label>
+                        <textarea
+                            id="note_validator"
+                            name="note_validator"
                             rows={3}
                             className="w-full rounded-md border px-3 py-2 text-sm"
-                            placeholder="Tambahkan catatan jika diperlukan..."
+                            placeholder="Tuliskan catatan tambahan jika diperlukan"
                         />
                     </div>
 
                     <DialogFooter className="pt-4">
-                        <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-                            Batal
-                        </Button>
-                        <Button type="submit">Kirim Verifikasi</Button>
+                        <DialogTrigger asChild>
+                            <Button type="button" variant="outline">
+                                Batal
+                            </Button>
+                        </DialogTrigger>
+                        <Button type="submit">Verifikasi</Button>
                     </DialogFooter>
                 </form>
             </DialogContent>

@@ -16,7 +16,7 @@ class FirstAidInspectionItem extends Model
         'first_aid_check_item_id',
         'quantity_found',
         'condition_id',
-        'noted', // <-- Menggunakan 'noted'
+        'note', // <-- DIUBAH DARI 'noted' MENJADI 'note'
         'expired_at',
     ];
 
@@ -24,7 +24,7 @@ class FirstAidInspectionItem extends Model
         'expired_at' => 'date',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-        'noted' => 'string', // <-- Menggunakan 'noted'
+        'note' => 'string',
     ];
 
     public function inspection() { return $this->belongsTo(FirstAidInspection::class, 'inspection_id'); }

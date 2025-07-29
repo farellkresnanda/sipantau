@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
 import { showToast } from '@/components/ui/toast';
 import AppLayout from '@/layouts/app-layout';
-// --- PENTING: Pastikan semua tipe ini tersedia dan diekspor dari '@/types/index.ts' atau types.d.ts ---
+import type { PageProps } from '@/types';
 import type { BreadcrumbItem } from '@/types'; 
 import { Head, Link, usePage } from '@inertiajs/react';
 import { useEffect } from 'react';
@@ -52,7 +52,7 @@ interface CurrentPageProps extends PageProps {
 export default function Page({ inspections }: CurrentPageProps) {
     // Destrukturisasi `flash` dari `usePage().props`. Karena CurrentPageProps extend PageProps,
     // `flash` dan `errors` sudah menjadi bagian dari `usePage().props`.
-    const { flash } = usePage().props as CurrentPageProps; 
+    const { flash } = usePage().props as unknown as PageProps;
 
     useEffect(() => {
         if (flash?.success) {

@@ -7,6 +7,19 @@ export interface Auth {
     login_as: login_as
 }
 
+export interface FlashProps {
+    success?: string;
+    error?: string;
+    message?: string;
+}
+
+export interface PageProps extends Record<string, unknown> {
+    auth: Auth;
+    errors: Record<string, string>;
+    flash: FlashProps;
+    ziggy?: Config & { location: string };
+}
+
 export interface BreadcrumbItem {
     title: string;
     href: string;

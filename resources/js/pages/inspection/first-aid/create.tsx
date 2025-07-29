@@ -1,7 +1,7 @@
 'use client';
 
 import { Head, router, usePage } from '@inertiajs/react';
-import { useEffect } from 'react'; 
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -39,33 +39,40 @@ const formSchema = z.object({
     inspection_date: z.string().min(1, { message: 'Tanggal inspeksi harus diisi' }),
     location_id: z.string().min(1, { message: 'Lokasi harus dipilih' }),
     project_name: z.string().nullable(),
-    entity_code: z.string().nullable(), // <-- Pastikan ini ada di schema
-    plant_code: z.string().nullable(),  // <-- Pastikan ini ada di schema
+    entity_code: z.string().nullable(), // Ini akan diisi dari selectedLocation.entityData?.entity_code
+    plant_code: z.string().nullable(),  // Ini akan diisi dari selectedLocation.plantData?.plant_code
     items: z.record(
         z.object({
             quantity: z.preprocess(
-                    (val) => {
-                        if (val === '' || val === null) return null;
-                        const num = Number(val);
-                        return isNaN(num) ? null : num;
-                    },
-                    z.number().nullable().refine(val => val === null || val >= 0, {
-                        message: 'Jumlah harus angka positif atau nol.',
-                    })
-                ) as z.ZodType<number | null | undefined>,
+                (val) => {
+                    if (val === '' || val === null) return null;
+                    const num = Number(val);
+                    return isNaN(num) ? null : num;
+                },
+                z.number().nullable().refine(val => val === null || val >= 0, {
+                    message: 'Jumlah harus angka positif atau nol.',
+                })
+            ) as z.ZodType<number | null | undefined>,
 
             condition: z.string().nullable(),
             expired_at: z.string().nullable(),
-            noted: z.string().nullable(),
+            note: z.string().nullable(),
         }).partial()
-    ), // <-- Tidak ada 'as z.ZodType<...>' di sini
+    ),
 });
-
 
 export default function CreateFirstAidInspection() {
     const { errors = {}, locations = [], firstAidItems = [], conditions = [] } = usePage().props as unknown as {
         errors: Record<string, string>;
-        locations: Array<{ id: number; location: string; inventory_code: string; entity_code: string; plant_code: string }>;
+        locations: Array<{
+            id: number;
+            location: string;
+            inventory_code: string;
+            entity_code: string; // Ini adalah entity_code di tabel master_p3ks
+            plant_code: string;  // Ini adalah plant_code di tabel master_p3ks
+            entityData?: { id: number; entity_code: string; name?: string }; // Tipe untuk relasi eager-loaded
+            plantData?: { id: number; plant_code: string; name?: string };   // Tipe untuk relasi eager-loaded
+        }>;
         firstAidItems: Array<{ id: number; item_name: string; standard_quantity: string; unit?: string }>;
         conditions: Array<{ id: number; name: string }>;
     };
@@ -76,17 +83,17 @@ export default function CreateFirstAidInspection() {
             inspection_date: '',
             location_id: '',
             project_name: '',
-            entity_code: null, // <-- Inisialisasi sebagai null
-            plant_code: null,  // <-- Inisialisasi sebagai null
+            entity_code: null,
+            plant_code: null,
             items: firstAidItems.reduce((acc, item) => {
                 acc[item.id] = {
                     quantity: null,
                     condition: null,
                     expired_at: null,
-                    noted: null,
+                    note: null,
                 };
                 return acc;
-            }, {} as Record<string, { quantity: number | null; condition: string | null; expired_at: string | null; noted: string | null }>)
+            }, {} as Record<string, { quantity: number | null; condition: string | null; expired_at: string | null; note: string | null }>),
         },
     });
 
@@ -94,11 +101,25 @@ export default function CreateFirstAidInspection() {
 
     useEffect(() => {
         if (selectedLocation) {
-            form.setValue('entity_code', selectedLocation.entity_code);
-            form.setValue('plant_code', selectedLocation.plant_code);
+            // === REVISI DI SINI ===
+            // Ambil entity_code/plant_code dari relasi eager loaded
+            // Gunakan optional chaining (?.) untuk mencegah error jika relasi null
+            // Gunakan nullish coalescing (??) untuk fallback ke kolom langsung (entity_code/plant_code dari master_p3ks)
+            // jika relasi tidak ditemukan atau propertinya null.
+            form.setValue('entity_code', selectedLocation.entityData?.entity_code ?? selectedLocation.entity_code);
+            form.setValue('plant_code', selectedLocation.plantData?.plant_code ?? selectedLocation.plant_code);
+
+            // === DEBUG POINT DI FRONTEND ===
+            // Periksa di konsol browser (F12) setelah memilih lokasi
+            console.log("Selected Location Data:", selectedLocation);
+            console.log("Setting entity_code to:", selectedLocation.entityData?.entity_code ?? selectedLocation.entity_code);
+            console.log("Setting plant_code to:", selectedLocation.plantData?.plant_code ?? selectedLocation.plant_code);
+            // ===============================
+
         } else {
             form.setValue('entity_code', null);
             form.setValue('plant_code', null);
+            console.log("Resetting entity_code and plant_code to null.");
         }
     }, [selectedLocation, form]);
 
@@ -110,12 +131,13 @@ export default function CreateFirstAidInspection() {
                     const itemIndex = Number(pathParts[1]);
                     const propName = pathParts[2];
 
-                    const masterItemId = firstAidItems[itemIndex]?.id;
+                    const masterItemId = firstAidItems.find(item => item.id === itemIndex)?.id || firstAidItems[itemIndex]?.id;
 
                     if (masterItemId !== undefined) {
                         let frontendPropName = propName;
                         if (propName === 'quantity_found') frontendPropName = 'quantity';
                         if (propName === 'condition_id') frontendPropName = 'condition';
+                        if (propName === 'noted') frontendPropName = 'note';
 
                         const formPath = `items.${masterItemId}.${frontendPropName}` as keyof typeof formSchema._type;
                         form.setError(formPath, { type: 'manual', message });
@@ -134,13 +156,13 @@ export default function CreateFirstAidInspection() {
                 quantity_found: data.quantity ?? 0,
                 condition_id: data.condition ? conditions.find(cond => cond.name === data.condition)?.id : null,
                 expired_at: data.expired_at || null,
-                noted: data.noted || null,
+                note: data.note || null,
             }))
             .filter(item =>
                 item.quantity_found > 0 ||
                 item.condition_id !== null ||
                 item.expired_at !== null ||
-                item.noted !== null
+                item.note !== null
             );
 
         if (!transformedItems || transformedItems.length === 0) {
@@ -152,8 +174,8 @@ export default function CreateFirstAidInspection() {
             inspection_date: values.inspection_date,
             location_id: Number(values.location_id),
             project_name: values.project_name,
-            entity_code: selectedLocation?.entity_code, // Ambil dari lokasi yang dipilih
-            plant_code: selectedLocation?.plant_code,   // Ambil dari lokasi yang dipilih
+            entity_code: values.entity_code, // Ini akan menggunakan nilai yang sudah di-set ke form dari relasi (KFHO)
+            plant_code: values.plant_code,   // Ini akan menggunakan nilai yang sudah di-set ke form dari relasi (KFO)
             items: transformedItems,
         }, {
             onSuccess: () => {
@@ -317,12 +339,12 @@ export default function CreateFirstAidInspection() {
                                                     <TableCell>
                                                         <FormField
                                                             control={form.control}
-                                                            name={`items.${item.id}.noted`}
+                                                            name={`items.${item.id}.note`}
                                                             render={({ field }) => (
                                                                 <Input {...field} value={field.value ?? ''} placeholder="Keterangan" />
                                                             )}
                                                         />
-                                                        <FormMessage>{form.formState.errors.items?.[item.id]?.noted?.message}</FormMessage>
+                                                        <FormMessage>{form.formState.errors.items?.[item.id]?.note?.message}</FormMessage>
                                                     </TableCell>
                                                 </TableRow>
                                             ))}
