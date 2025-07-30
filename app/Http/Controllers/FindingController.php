@@ -139,7 +139,7 @@ class FindingController extends Controller
      */
     public function show($uuid)
     {
-        $finding = Finding::with(['nonconformityType', 'nonconformitySubType', 'findingApprovalHistories', 'findingApprovalHistories.findingApprovalAssignment.user', 'findingStatus', 'entity', 'plant', 'createdBy'])->where('uuid', $uuid)->firstOrFail();
+        $finding = Finding::with(['nonconformityType', 'nonconformitySubType', 'findingApprovalHistories', 'findingApprovalHistories.findingApprovalAssignment.user.role', 'findingStatus', 'entity', 'plant', 'createdBy'])->where('uuid', $uuid)->firstOrFail();
         return Inertia::render('finding/show', compact('finding'));
     }
 

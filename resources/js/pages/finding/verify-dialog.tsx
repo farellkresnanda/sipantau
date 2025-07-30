@@ -43,16 +43,20 @@ export default function VerifyDialog({ finding }: FindingVerifyDialogProps) {
         const histories = finding.finding_approval_histories;
         if (!Array.isArray(histories)) return false;
 
-        const userIndex = histories.findIndex(
-            (history) =>
-                Array.isArray(history.finding_approval_assignment) &&
-                history.finding_approval_assignment.some((assignment: { user_id: any }) => Number(assignment.user_id) === Number(userId)),
-        );
+        // 1. Cari stage yang BELUM diverifikasi
+        const currentIndex = histories.findIndex((history) => !history.verified_at);
+        if (currentIndex === -1) return false; // Semua sudah diverifikasi
 
-        if (userIndex === -1) return false;
+        const currentStage = histories[currentIndex];
 
-        const priorStages = histories.slice(0, userIndex);
-        const allPriorApproved = priorStages.every((history, i) => {
+        // 2. Cek apakah user termasuk yang bertugas di stage saat ini
+        const isUserAssigned = Array.isArray(currentStage.finding_approval_assignment) &&
+            currentStage.finding_approval_assignment.some((assignment: { user_id: any }) => Number(assignment.user_id) === Number(userId));
+
+        if (!isUserAssigned) return false;
+
+        // 3. Pastikan semua stage sebelumnya sudah diverifikasi
+        const allPriorApproved = histories.slice(0, currentIndex).every((history, i) => {
             const result = Boolean(history.verified_at);
             console.log(`Prior stage [${i}] verified_at = ${history.verified_at} →`, result);
             return result;
@@ -61,6 +65,7 @@ export default function VerifyDialog({ finding }: FindingVerifyDialogProps) {
         console.log('canVerifyNow result:', allPriorApproved);
         return allPriorApproved;
     })();
+
 
     // State untuk menyimpan status izin kerja
     const [needPermit, setNeedPermit] = useState('');
@@ -140,7 +145,7 @@ export default function VerifyDialog({ finding }: FindingVerifyDialogProps) {
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            {!hasBeenVerified && (
+            {!hasBeenVerified && isUserAssigned && (
                 <DialogTrigger asChild>
                     <Button className="w-full">Tombol Verifikasi</Button>
                 </DialogTrigger>
@@ -313,6 +318,16 @@ export default function VerifyDialog({ finding }: FindingVerifyDialogProps) {
                                     <option value="">Pilih status</option>
                                     <option value="CLOSE">Close</option>
                                 </select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="note">Catatan</Label>
+                                <textarea
+                                    id="note"
+                                    name="note"
+                                    rows={2}
+                                    className="w-full rounded-md border px-3 py-2 text-sm"
+                                    placeholder="Catatan tambahan..."
+                                />
                             </div>
                         </>
                     )}

@@ -248,7 +248,7 @@ export default function ShowFinding({ finding }: { finding: any }) {
                                         Catatan
                                     </Label>
                                     <p className="mt-1 text-sm whitespace-pre-wrap">
-                                        {finding.finding_approval_histories?.find((history: any) => history.stage === 'Admin')?.note || '-'}
+                                        {finding.finding_approval_histories?.find((history: any) => history.stage === 'Finalizing')?.note || '-'}
                                     </p>
                                 </div>
                                 {finding.photo_after && (
@@ -281,7 +281,7 @@ export default function ShowFinding({ finding }: { finding: any }) {
                                         Catatan
                                     </Label>
                                     <p className="mt-1 text-sm whitespace-pre-wrap">
-                                        {finding.finding_approval_histories?.find((history: any) => history.stage === 'Validator')?.note || '-'}
+                                        {finding.finding_approval_histories?.find((history: any) => history.stage === 'Verification')?.note || '-'}
                                     </p>
                                 </div>
                             </CardContent>

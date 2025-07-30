@@ -84,4 +84,10 @@ class User extends Authenticatable
     {
         return $this->belongsTo(MasterPlant::class, 'plant_code', 'plant_code');
     }
+
+    public function role()
+    {
+        return $this->morphToMany('Spatie\Permission\Models\Role', 'model', 'model_has_roles', 'model_id', 'role_id');
+    }
+
 }

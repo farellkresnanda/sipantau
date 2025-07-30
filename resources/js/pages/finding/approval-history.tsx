@@ -7,6 +7,7 @@ import { CheckCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { useMemo } from 'react';
 import VerifyDialog from '@/pages/finding/verify-dialog';
+import {getCurrentStage} from "@/lib/stages";
 
 type ApprovalHistorySectionProps = {
     finding: any; // Ganti dengan tipe yang tepat
@@ -14,39 +15,42 @@ type ApprovalHistorySectionProps = {
 
 const ApprovalHistorySection = ({ finding }: ApprovalHistorySectionProps) => {
     const filteredApprovals = useMemo(() => {
-        const userMap = new Map<string, any[]>();
+        const approvals = [...(finding.finding_approval_histories || [])].sort(
+            (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+        );
 
-        for (const approval of finding.finding_approval_histories || []) {
-            const assignment = approval.finding_approval_assignment?.[0];
-            const userId = assignment?.user?.id;
+        const skipMap = new Set();
 
-            if (!userId) continue;
+        // Cari semua yang sudah ON_PROGRESS
+        approvals.forEach((a) => {
+            if (a.approval_status === 'ON_PROGRESS') {
+                const assignment = a.finding_approval_assignment?.[0];
+                if (assignment) {
+                    const key = `${assignment.user?.id}-${assignment.role}-${a.stage}`;
+                    skipMap.add(key);
+                }
+            }
+        });
 
-            if (!userMap.has(userId)) {
-                userMap.set(userId, []);
+        // Filter ulang: hilangkan status ON_PROGRESS kalau sudah ada FINISHED dengan kombinasi yang sama
+        return approvals.filter((a) => {
+            const assignment = a.finding_approval_assignment?.[0];
+            if (!assignment) return true;
+
+            const key = `${assignment.user?.id}-${assignment.role}-${a.stage}`;
+
+            if (
+                a.approval_status === 'ON_PROGRESS' &&
+                skipMap.has(key)
+            ) {
+                return false;
             }
 
-            userMap.get(userId)?.push(approval);
-        }
-
-        const result: any[] = [];
-
-        for (const [_, approvals] of userMap) {
-            const verified = approvals.filter((a) => a.verified_at != null);
-            const sorted = approvals.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-
-            if (verified.length > 0) {
-                // Tampilkan approval terakhir yang sudah diverifikasi
-                const latestVerified = verified.sort((a, b) => new Date(b.verified_at).getTime() - new Date(a.verified_at).getTime())[0];
-                result.push(latestVerified);
-            } else {
-                // Tampilkan approval paling awal
-                result.push(sorted[0]);
-            }
-        }
-
-        return result;
+            return true;
+        });
     }, [finding.finding_approval_histories]);
+
+    console.log(filteredApprovals)
 
     const badgeStyleMap: Record<string, { variant: 'default' | 'secondary' | 'destructive'; className: string }> = {
         APPROVED: {
@@ -69,13 +73,17 @@ const ApprovalHistorySection = ({ finding }: ApprovalHistorySectionProps) => {
             variant: 'secondary',
             className: 'bg-green-50 text-green-700 border-green-500 border',
         },
+        WAITING: {
+            variant: 'secondary',
+            className: 'bg-purple-50 text-purple-700 border-purple-500 border',
+        },
         REJECTED: {
             variant: 'destructive',
             className: 'bg-red-500 hover:bg-red-600 text-white',
         },
         DEFAULT: {
             variant: 'default',
-            className: 'bg-gray-500 hover:bg-gray-600 text-white',
+            className: 'bg-gray-50 text-gray-700 border-gray-500 border',
         },
     };
 
@@ -89,21 +97,23 @@ const ApprovalHistorySection = ({ finding }: ApprovalHistorySectionProps) => {
                             filteredApprovals.map((approval, index) => {
                                 const assignment = approval.finding_approval_assignment?.[0];
                                 const userName = assignment?.user?.name ?? '-';
-                                const status = approval.approval_status || 'DEFAULT';
+                                const roleName = assignment?.user.role[0].name
+                                const stageName = getCurrentStage(finding);
+                                const status = stageName === approval.stage ? 'WAITING' : approval.approval_status || 'DEFAULT';
                                 const { variant, className } = badgeStyleMap[status] ?? badgeStyleMap.DEFAULT;
 
                                 return (
                                     <div key={index} className="flex items-center gap-4">
                                         <Avatar className="h-9 w-9">
-                                            <AvatarImage src={`https://api.dicebear.com/7.x/micah/svg?seed=${approval.stage}`} />
+                                            <AvatarImage src={`https://api.dicebear.com/7.x/micah/svg?seed=${encodeURIComponent(userName || '')}`} />
                                             <AvatarFallback>{userName?.[0] ?? '?'}</AvatarFallback>
                                         </Avatar>
                                         <div className="flex flex-1 items-start justify-between gap-4">
                                             <div className="space-y-1">
                                                 <p className="text-sm leading-none font-medium">{userName}</p>
-                                                <p className="text-muted-foreground text-sm italic">({approval.stage})</p>
+                                                <p className="text-muted-foreground text-xs">({roleName}) - ({approval.stage})</p>
                                                 <Badge variant={variant} className={`text-xs ${className}`}>
-                                                    {approval.approval_status}
+                                                    {stageName === approval.stage ? 'WAITING' : approval.approval_status}
                                                 </Badge>
                                             </div>
                                             <div className="text-muted-foreground ml-auto text-right text-sm whitespace-nowrap">
@@ -118,7 +128,7 @@ const ApprovalHistorySection = ({ finding }: ApprovalHistorySectionProps) => {
                                                         </div>
                                                     </>
                                                 ) : (
-                                                    <span className="text-gray-400">Belum diverifikasi</span>
+                                                    <span className="text-gray-400">Menunggu..</span>
                                                 )}
                                             </div>
                                         </div>
