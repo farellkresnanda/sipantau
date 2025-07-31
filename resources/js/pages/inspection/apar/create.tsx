@@ -1,292 +1,318 @@
-import SectionHeader from '@/components/section-header';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import AppLayout from '@/layouts/app-layout';
-import type { BreadcrumbItem } from '@/types';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { Button } from '@/components/ui/button';
 import { Head, Link, router, usePage } from '@inertiajs/react';
+import SectionHeader from '@/components/section-header';
+import type { BreadcrumbItem } from '@/types';
+import AppLayout from '@/layouts/app-layout';
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
 import * as z from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Textarea } from '@/components/ui/textarea';
+import React from 'react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { toast } from 'sonner';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Home', href: '/' },
-    { title: 'Master APAR', href: '/master/apar' },
-    { title: 'Create Master APAR', href: '/master/apar/create' },
+    { title: 'Inspeksi APAR', href: '/inspection/apar' },
+    { title: 'Buat Inspeksi', href: '/inspection/apar' },
 ];
 
 const formSchema = z.object({
-    entity_code: z.string().min(1, { message: 'Kode entity is required' }).max(255),
-    plant_code: z.string().min(1, { message: 'Kode plant is required' }).max(255),
-    apar_no: z.string().min(1, { message: 'No APAR is required' }).max(255),
-    room_code: z.string().min(1, { message: 'Kode room is required' }).max(255),
-    location: z.string().min(1, { message: 'Lokasi is required' }).max(255),
-    type: z.string().min(1, { message: 'Jenis is required' }).max(255),
-    apar: z.string().min(1, { message: 'APAR is required' }).max(255),
-    inventory_code: z.string().min(1, { message: 'Kode inventaris is required' }).max(255),
+    date: z.string().min(1, { message: 'Tanggal is required' }),
+    location: z.string().optional(),
+    apar_id: z.string().min(1, { message: 'APAR is required' }),
+    expired_year: z.string().min(1, { message: 'Tahun kadaluarsa is required' }),
 });
 
-type Entitas = {
-    id: number;
-    name: string;
-    entity_code: string;
-};
+const months = [
+    "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+    "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+];
 
-type Plant = {
-    id: number;
-    name: string;
-    entity_code: string;
-    plant_code: string;
-};
+const inspectionFields = ["Segel", "Hose", "Tekanan", "Bohlam", "Berat (CO₂)"];
 
-type Props = {
-    entityList: Entitas[];
-    plantList: Plant[];
-};
-
-export default function CreateMasterApar({ entityList, plantList }: Props) {
-    const { errors } = usePage().props as {
+export default function CreateInspectionApar() {
+    const { errors = {}, apars = [] } = usePage().props as unknown as {
         errors: Record<string, string>;
+        apars: { id: number; inventory_code: string; apar: string; location: string }[];
     };
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
-        defaultValues: {
-            entity_code: '',
-            plant_code: '',
-            apar_no: '',
-            room_code: '',
-            location: '',
-            type: '',
-            apar: '',
-            inventory_code: '',
-        },
+        defaultValues: {},
     });
 
-    const [filteredPlants, setFilteredPlants] = useState<Plant[]>([]);
+    const [inspectionState, setInspectionState] = useState<Record<string, Record<string, 'baik' | 'tidak_baik' | null> & { note?: string }>>(() => {
+        const initial: Record<string, Record<string, 'baik' | 'tidak_baik' | null> & { note?: string }> = {};
+        months.forEach((month) => {
+            initial[month] = { note: '' } as Record<string, 'baik' | 'tidak_baik' | null> & { note: string };
+            inspectionFields.forEach((field) => {
+                initial[month][field] = null;
+            });
+        });
+        return initial;
+    });
+
+    const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
+
+    const handleCheck = (month: string, field: string, value: 'baik' | 'tidak_baik') => {
+        setInspectionState((prev) => ({
+            ...prev,
+            [month]: {
+                ...prev[month],
+                [field]: prev[month][field] === value ? null : value,
+            },
+        }));
+    };
+
+    const handleNoteChange = (month: string, value: string) => {
+        setInspectionState((prev) => ({
+            ...prev,
+            [month]: {
+                ...prev[month],
+                note: value,
+            } as Record<string, 'baik' | 'tidak_baik' | null> & { note: string },
+        }));
+    };
 
     useEffect(() => {
         if (Object.keys(errors).length > 0) {
             Object.entries(errors).forEach(([key, message]) => {
-                form.setError(key as keyof typeof formSchema._type, {
-                    type: 'manual',
-                    message: message,
-                });
+                if (key !== 'message' && key !== 'error') {
+                    // Cek apakah key ada di formSchema
+                    if (key in form.getValues()) {
+                        form.setError(key as keyof typeof formSchema._type, {
+                            type: 'manual',
+                            message: message as string,
+                        });
+                    } else {
+                        // Kalau tidak, tampilkan sebagai toast error
+                        toast.error(message as string);
+                    }
+                }
             });
         }
+
+        if (errors.message) toast.error(errors.message);
+        if (errors.error) toast.error(errors.error);
     }, [errors, form]);
 
     function onSubmit(values: z.infer<typeof formSchema>) {
-        router.post(route('apar.store'), values, {
-            onSuccess: () => {
-                form.reset();
-                setFilteredPlants([]);
-            },
-            onError: (errors) => {
-                Object.entries(errors).forEach(([key, message]) => {
-                    form.setError(key as keyof typeof formSchema._type, {
-                        type: 'manual',
-                        message: message as string,
-                    });
-                });
-            },
+        if (!selectedMonth) {
+            toast.error('Pilih tanggal inspeksi terlebih dahulu');
+            return;
+        }
+
+        const inspectionItems = inspectionFields.map((field) => ({
+            month: selectedMonth,
+            field,
+            value: inspectionState[selectedMonth]?.[field] ?? null,
+        }));
+
+        const formData = new FormData();
+
+        Object.entries(values).forEach(([key, value]) => {
+            if (value !== null && value !== undefined) {
+                formData.append(key, value.toString());
+            }
         });
+
+        formData.append('note', inspectionState[selectedMonth]?.note || '');
+        formData.append('apar_inspection_items', JSON.stringify(inspectionItems));
+
+        router.post(route('inspection.apar.store'), formData);
     }
+
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Create Master APAR" />
+            <Head title="Create Inspection" />
             <div className="space-y-6 p-4">
-                <SectionHeader title="Buat Data Master APAR" subtitle="Buat note data master APAR baru untuk mengelola data inspeksi APAR" />
-                <Card>
-                    <CardContent className="p-6">
-                        <Form {...form}>
-                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                    <FormField
-                                        control={form.control}
-                                        name="entity_code"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Pilih Entitas</FormLabel>
-                                                <Select
-                                                    onValueChange={(value) => {
-                                                        form.setValue('entity_code', value);
-                                                        form.setValue('plant_code', '');
-                                                        const filtered = plantList.filter((plant) => plant.entity_code === value);
-                                                        setFilteredPlants(filtered);
+                <SectionHeader
+                    title="Buat Inspeksi APAR Baru"
+                    subtitle="Buat data temuan baru dan lengkapi formulir di bawah ini dengan data yang dibutuhkan"
+                />
+
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                        <Card>
+                            <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                                <FormField
+                                    control={form.control}
+                                    name="date"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Tanggal Inspeksi</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    type="date"
+                                                    className="w-full min-w-0"
+                                                    {...field}
+                                                    onChange={(e) => {
+                                                        const value = e.target.value;
+                                                        field.onChange(value);
+
+                                                        const date = new Date(value);
+                                                        const monthIndex = date.getMonth();
+                                                        const monthName = months[monthIndex];
+                                                        setSelectedMonth(monthName);
                                                     }}
-                                                    value={field.value}
-                                                >
-                                                    <FormControl>
-                                                        <SelectTrigger className="w-full">
-                                                            <SelectValue placeholder="Pilih entity" />
-                                                        </SelectTrigger>
-                                                    </FormControl>
-                                                    <SelectContent>
-                                                        {entityList.map((entity) => (
-                                                            <SelectItem key={entity.id} value={entity.entity_code}>
-                                                                {entity.name}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <FormField
+                                    control={form.control}
+                                    name="apar_id"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>APAR</FormLabel>
+                                            <FormControl>
+                                                <Select value={field.value} onValueChange={field.onChange}>
+                                                    <SelectTrigger className="w-full">
+                                                        <SelectValue placeholder="Pilih APAR" />
+                                                    </SelectTrigger>
+                                                    <SelectContent className="max-h-[200px]">
+                                                        <input
+                                                            className="border-input placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-sm transition-colors"
+                                                            placeholder="Search APAR..."
+                                                            onChange={(e) => {
+                                                                const value = e.target.value.toLowerCase();
+                                                                const items = document.querySelectorAll('[role="option"]');
+                                                                items.forEach((item) => {
+                                                                    const text = item.textContent?.toLowerCase() || '';
+                                                                    if (text.includes(value)) {
+                                                                        item.classList.remove('hidden');
+                                                                    } else {
+                                                                        item.classList.add('hidden');
+                                                                    }
+                                                                });
+                                                            }}
+                                                        />
+                                                        {apars.map((apar) => (
+                                                            <SelectItem key={apar.id} value={String(apar.id)}>
+                                                                {apar.inventory_code} - {apar.apar} - {apar.location}
                                                             </SelectItem>
                                                         ))}
                                                     </SelectContent>
                                                 </Select>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
 
-                                    <FormField
-                                        control={form.control}
-                                        name="plant_code"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Pilih Plant</FormLabel>
-                                                <Select
-                                                    onValueChange={field.onChange}
-                                                    value={field.value}
-                                                    disabled={filteredPlants.length === 0}
-                                                >
-                                                    <FormControl>
-                                                        <SelectTrigger className="w-full">
-                                                            <SelectValue placeholder="Pilih plant" />
-                                                        </SelectTrigger>
-                                                    </FormControl>
-                                                    <SelectContent>
-                                                        {filteredPlants.map((plant) => (
-                                                            <SelectItem key={plant.id} value={plant.plant_code}>
-                                                                {plant.name}
-                                                            </SelectItem>
+                                <FormField
+                                    control={form.control}
+                                    name="expired_year"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Tahun Kadaluarsa</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    type="number"
+                                                    min="2024"
+                                                    className="w-full min-w-0"
+                                                    {...field}
+                                                    placeholder="Tahun Kadaluarsa"
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </CardContent>
+                        </Card>
+
+                        <Card>
+                            <CardContent className="space-y-4">
+                                <div className="overflow-x-auto rounded-md border">
+                                    <Table className="w-full table-auto border-collapse text-sm whitespace-normal">
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead rowSpan={2} className="w-28 border bg-yellow-300 p-1 text-center text-sm">Bulan</TableHead>
+                                                {inspectionFields.map((field) => (
+                                                    <TableHead key={field} colSpan={2} className="border bg-yellow-300 p-1 text-center text-sm">
+                                                        {field}
+                                                    </TableHead>
+                                                ))}
+                                            </TableRow>
+                                            <TableRow>
+                                                {inspectionFields.map((field, idx) => (
+                                                    <React.Fragment key={`${field}-${idx}`}>
+                                                        <TableHead className="w-16 border bg-yellow-100 p-1 text-center text-xs">Baik</TableHead>
+                                                        <TableHead className="w-16 border bg-yellow-100 p-1 text-center text-xs">Tidak Baik</TableHead>
+                                                    </React.Fragment>
+                                                ))}
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {months
+                                                .filter((month) => !selectedMonth || month === selectedMonth)
+                                                .map((month) => (
+                                                    <TableRow key={month}>
+                                                        <TableCell className="border px-2 py-1">{month}</TableCell>
+                                                        {inspectionFields.map((field, index) => (
+                                                            <React.Fragment key={`${month}-${field}-${index}`}>
+                                                                <TableCell className="border text-center">
+                                                                    <Checkbox
+                                                                        className="mx-auto h-4 w-4 border-2 border-gray-400 rounded-sm data-[state=checked]:bg-green-500 data-[state=checked]:border-green-600"
+                                                                        checked={inspectionState[month][field] === 'baik'}
+                                                                        onCheckedChange={() => handleCheck(month, field, 'baik')}
+                                                                    />
+                                                                </TableCell>
+                                                                <TableCell className="border text-center">
+                                                                    <Checkbox
+                                                                        className="mx-auto h-4 w-4 border-2 border-gray-400 rounded-sm data-[state=checked]:bg-red-500 data-[state=checked]:border-red-600"
+                                                                        checked={inspectionState[month][field] === 'tidak_baik'}
+                                                                        onCheckedChange={() => handleCheck(month, field, 'tidak_baik')}
+                                                                    />
+                                                                </TableCell>
+                                                            </React.Fragment>
                                                         ))}
-                                                    </SelectContent>
-                                                </Select>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                    <FormField
-                                        control={form.control}
-                                        name="apar_no"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>No APAR / No APAB</FormLabel>
-                                                <FormControl>
-                                                    <Input placeholder="Enter no APAR / no APAB" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                    <FormField
-                                        control={form.control}
-                                        name="room_code"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Kode Ruang</FormLabel>
-                                                <FormControl>
-                                                    <Input placeholder="Enter kode room" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                    <FormField
-                                        control={form.control}
-                                        name="location"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Lokasi</FormLabel>
-                                                <FormControl>
-                                                    <Input placeholder="Enter location" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                    <FormField
-                                        control={form.control}
-                                        name="type"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Jenis</FormLabel>
-                                                <FormControl>
-                                                    <Select
-                                                        onValueChange={field.onChange}
-                                                        value={field.value}
-                                                    >
-                                                        <SelectTrigger className="w-full">
-                                                            <SelectValue placeholder="Pilih type" />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            <SelectItem value="Non Halon">Non Halon</SelectItem>
-                                                            <SelectItem value="Dry Powder">Dry Powder</SelectItem>
-                                                        </SelectContent>
-                                                    </Select>
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                    <FormField
-                                        control={form.control}
-                                        name="apar"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Type</FormLabel>
-                                                <FormControl>
-                                                    <Select
-                                                        onValueChange={field.onChange}
-                                                        value={field.value}
-                                                    >
-                                                        <SelectTrigger className="w-full">
-                                                            <SelectValue placeholder="Pilih type" />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            <SelectItem value="APAR">APAR</SelectItem>
-                                                            <SelectItem value="APAB">APAB</SelectItem>
-                                                        </SelectContent>
-                                                    </Select>
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                    <FormField
-                                        control={form.control}
-                                        name="inventory_code"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Kode Inventaris</FormLabel>
-                                                <FormControl>
-                                                    <Input placeholder="Enter kode inventaris" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
+                                                    </TableRow>
+                                                ))}
+                                        </TableBody>
+                                    </Table>
                                 </div>
 
-                                <div className="flex items-center gap-2">
-                                    <Button type="submit" disabled={form.formState.isSubmitting}>
-                                        {form.formState.isSubmitting ? 'Creating...' : 'Submit Data'}
-                                    </Button>
-                                    <Link href={route('apar.index')} className="text-muted-foreground text-sm hover:underline">
-                                        Cancel
-                                    </Link>
-                                </div>
-                            </form>
-                        </Form>
-                    </CardContent>
-                </Card>
+                                {/* Catatan di luar tabel */}
+                                {selectedMonth && (
+                                    <div className="space-y-1">
+                                        <label className="text-sm font-medium text-gray-700">
+                                            Catatan untuk bulan {selectedMonth}
+                                        </label>
+                                        <Textarea
+                                            className="w-full text-sm mt-1"
+                                            placeholder={`Tulis catatan untuk bulan ${selectedMonth}...`}
+                                            value={inspectionState[selectedMonth]?.note || ''}
+                                            onChange={(e) => handleNoteChange(selectedMonth, e.target.value)}
+                                        />
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+
+
+                        <div className="flex items-center gap-2">
+                            <Button type="submit" disabled={form.formState.isSubmitting}>
+                                {form.formState.isSubmitting ? 'Creating...' : 'Submit Data'}
+                            </Button>
+                            <Link href={route('finding.index')} className="text-muted-foreground text-sm hover:underline">
+                                Cancel
+                            </Link>
+                        </div>
+                    </form>
+                </Form>
             </div>
         </AppLayout>
     );

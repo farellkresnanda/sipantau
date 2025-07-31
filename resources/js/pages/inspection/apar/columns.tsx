@@ -1,70 +1,145 @@
-'use client';
-
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Link, router } from '@inertiajs/react';
 import { ColumnDef } from '@tanstack/react-table';
-import { MoreHorizontal } from 'lucide-react';
+import {
+    CalendarDays, CheckCircle,
+    Info,
+    MoreVertical, XCircle,
+} from 'lucide-react';
 
-export type MasterEntity = {
-    name: string;
-};
-
-export type MasterPlant = {
-    name: string;
-};
-export type MasterApar = {
-    name: string;
-};
-
-// export type MasterItem = {
-//     name: string;
-// };
-
-export type AparInspections = {
+export const columns: ColumnDef<{
     id: string;
-    entity: MasterEntity;
-    plant: MasterPlant;
-    apars: MasterApar[];
-    status: string;
-    car_number_auto: string;
-};
-
-export const columns: ColumnDef<AparInspections>[] = [
+    approval_status: {
+        id: number;
+        name: string;
+    } | null;
+    uuid: string;
+    code: string;
+    date_inspection: string;
+    expired_year: number;
+    entity: {
+        name: string;
+    } | null;
+    plant: {
+        name: string;
+    } | null;
+    apar: {
+        apar_no: string;
+        type: string;
+        location: string;
+    } | null;
+    created_by: {
+        name: string;
+    } | null;
+    created_at: string;
+}>[] = [
     {
-        accessorKey: 'no',
+        accessorKey: 'index',
         header: 'No',
+        cell: ({ row }) => row.index + 1,
     },
     {
-        header: 'Entitas',
-        accessorFn: (row) => row.entity?.name ?? '-',
-    },
-    {
-        header: 'Plant',
-        accessorFn: (row) => row.plant?.name ?? '-',
-    },
+        accessorKey: 'approval_status',
+        header: 'Status Inspeksi',
+        cell: ({ row }) => {
+            const status = row.original.approval_status;
+            const statusId = status?.id;
+            const statusName = status?.name || '-';
 
-    {
-        accessorKey: 'status',
-        header: 'Status',
+            let icon = null;
+            let color = null;
+
+            switch (statusId) {
+                case 1:
+                    icon = <Info className="h-4 w-4" />;
+                    color = 'bg-blue-100 text-blue-700';
+                    break;
+                case 2:
+                    icon = <CheckCircle className="h-4 w-4" />;
+                    color = 'bg-green-100 text-green-700';
+                    break;
+                case 3:
+                    icon = <XCircle className="h-4 w-4" />;
+                    color = 'bg-red-100 text-red-700';
+                    break;
+                default:
+                    color = 'bg-gray-100 text-gray-700';
+            }
+
+            return (
+                <Link href={`/inspection/apar/${row.original.uuid}`} className="inline-flex items-center gap-2 hover:underline">
+                    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${color}`}>
+                        {icon}
+                        {statusName}
+                    </span>
+                </Link>
+            );
+        },
     },
     {
-        accessorKey: 'car_number_auto',
-        header: 'Nomor Mobil Otomatis',
+        header: 'Entitas & Plant',
+        accessorKey: 'entity',
+        cell: ({ row }) => (
+            <div className="flex flex-col gap-1">
+                <div>{row.original.entity?.name ?? '-'}</div>
+                <div className="text-sm text-gray-500">{row.original.plant?.name ?? '-'}</div>
+            </div>
+        ),
+    },
+    {
+        header: 'Nomor & Tipe APAR',
+        accessorKey: 'apar',
+        cell: ({ row }) => (
+            <div className="flex flex-col gap-1">
+                <div className="font-medium">{row.original.code ?? '-'}</div>
+                <div className="text-sm text-gray-500">{row.original.apar?.type ?? '-'}</div>
+            </div>
+        ),
+    },
+    {
+        header: 'Tanggal Inspeksi',
+        accessorKey: 'date_inspection',
+        cell: ({ row }) => (
+            <div className="flex flex-col">
+                <span className="flex items-center gap-1 text-sm">
+                    <CalendarDays className="h-3 w-3" />
+                    {new Date(row.original.date_inspection).toLocaleDateString('id-ID')}
+                </span>
+                <span className="text-xs text-gray-500">
+                    Expired: {row.original.expired_year}
+                </span>
+            </div>
+        ),
+    },
+    {
+        header: 'Lokasi APAR',
+        accessorKey: 'location',
+        cell: ({ row }) => row.original.apar?.location ?? '-',
+    },
+    {
+        header: 'Dibuat Oleh',
+        accessorKey: 'created_by',
+        cell: ({ row }) => row.original.created_by?.name ?? '-',
+    },
+    {
+        header: 'Tanggal Dibuat',
+        accessorKey: 'created_at',
+        cell: ({ getValue }) => {
+            const value = getValue() as string;
+            return value?.replace('T', ' ').split('.')[0];
+        },
     },
     {
         id: 'actions',
-        header: '#',
         cell: ({ row }) => {
             const handleDelete = () => {
-                if (confirm('Are you sure you want to delete this Master APAR?')) {
+                if (confirm('Apakah Anda yakin ingin menghapus data ini?')) {
                     router.delete(`/inspection/apar/${row.original.id}`);
                 }
             };
@@ -74,16 +149,17 @@ export const columns: ColumnDef<AparInspections>[] = [
                     <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="h-8 w-8 p-0">
                             <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
+                            <MoreVertical className="h-4 w-4" />
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
                         <DropdownMenuItem asChild>
-                            <Link href={`/inspection/apar/${row.original.id}/edit`}>Edit</Link>
+                            <Link href={`/inspection/apar/${row.original.uuid}/edit`}>Edit</Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">
+                        <DropdownMenuItem
+                            onClick={handleDelete}
+                            className="w-full text-left text-red-600 hover:text-red-700"
+                        >
                             Delete
                         </DropdownMenuItem>
                     </DropdownMenuContent>

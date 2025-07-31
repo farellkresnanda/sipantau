@@ -49,15 +49,9 @@ export default function PageAparInspection({ aparInspections }: { aparInspection
                     />
 
                     {/* Tombol Aksi */}
-                    <div className="flex flex-wrap items-center justify-start gap-2 sm:justify-end">
-                        {/* Tombol Create (utama - biru/primary) */}
-                        <Button asChild>
-                            <Link href="/master/apar/create">
-                                <Plus className="mr-1 h-4 w-4" />
-                                Create
-                            </Link>
-                        </Button>
-                    </div>
+                    <Button asChild className="w-full sm:w-auto">
+                        <Link href="/inspection/apar/create">Buat Inspeksi</Link>
+                    </Button>
                 </div>
 
                 <div className="w-full">
