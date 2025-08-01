@@ -1,45 +1,20 @@
-'use client';
-
+import { ColumnDef } from '@tanstack/react-table';
+import { Link, router } from '@inertiajs/react';
+import { CalendarDays, CheckCircle, Info, MapPin, MoreVertical, Wrench, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Link, router } from '@inertiajs/react';
-import { ColumnDef } from '@tanstack/react-table';
-import { CalendarDays, CheckCircle, Info, MapPin, MoreVertical, Wrench, XCircle } from 'lucide-react';
 
-export const columns: ColumnDef<{
-    uuid: string;
-    finding_status: {
-        id: number;
-        name: string;
-    } | null;
-    entity: {
-        entity_code: string;
-        name: string;
-    } | null;
-    plant: {
-        plant_code: string;
-        name: string;
-    } | null;
-    car_number_auto: string;
-    date: string;
-    nonconformity_type: {
-        id: number;
-        name: string;
-    } | null;
-    finding_description: string;
-    location_details: string;
-    created_by: {
-        name: string;
-    } | null;
-}>[] = [
+export const columns: ColumnDef<any>[] = [
     {
-        accessorKey: 'index',
         header: 'No',
+        id: 'index',
         cell: ({ row }) => row.index + 1,
     },
     {
         header: 'Status Temuan',
-        accessorKey: 'finding_status.name',
+        id: 'finding_status',
+        accessorFn: row => row.finding_status?.name ?? '',
+        enableGlobalFilter: true,
         cell: ({ row }) => {
             const status = row.original.finding_status;
             const statusId = status?.id;
@@ -93,46 +68,44 @@ export const columns: ColumnDef<{
         },
     },
     {
-        accessorKey: 'entity',
         header: 'Entitas & Plant',
-        cell: ({ row }) => {
-            const entityName = row.original.entity?.name ?? '-';
-            const plantName = row.original.plant?.name ?? '-';
-            return (
-                <div className="flex flex-col">
-                    <span>{entityName}</span>
-                    <span className="text-sm text-gray-500">{plantName}</span>
-                </div>
-            );
-        },
+        id: 'entity_plant',
+        accessorFn: row => `${row.entity?.name ?? ''} ${row.plant?.name ?? ''}`,
+        enableGlobalFilter: true,
+        cell: ({ row }) => (
+            <div className="flex flex-col">
+                <span>{row.original.entity?.name ?? '-'}</span>
+                <span className="text-sm text-gray-500">{row.original.plant?.name ?? '-'}</span>
+            </div>
+        ),
     },
     {
-        accessorKey: 'car_number_auto',
         header: 'Nomor & Tanggal',
-        cell: ({ row }) => {
-            const carNumber = row.original.car_number_auto;
-            const date = row.original.date;
-            return (
-                <div className="flex flex-col">
-                    <span>{carNumber}</span>
-                    <span className="flex items-center gap-1 text-sm text-gray-500">
-                        <CalendarDays className="h-3 w-3" />
-                        {date}
-                    </span>
-                </div>
-            );
-        },
+        id: 'car_date',
+        accessorFn: row => `${row.car_number_auto} ${row.date}`,
+        enableGlobalFilter: true,
+        cell: ({ row }) => (
+            <div className="flex flex-col">
+                <span>{row.original.car_number_auto}</span>
+                <span className="flex items-center gap-1 text-sm text-gray-500">
+                    <CalendarDays className="h-3 w-3" />
+                    {row.original.date}
+                </span>
+            </div>
+        ),
     },
     {
-        accessorKey: 'nonconformity_type',
         header: 'Ketidaksesuaian',
-        cell: ({ row }) => {
-            return row.original.nonconformity_type?.name ?? '-';
-        },
+        id: 'nonconformity_type',
+        accessorFn: row => row.nonconformity_type?.name ?? '',
+        enableGlobalFilter: true,
+        cell: ({ row }) => row.original.nonconformity_type?.name ?? '-',
     },
     {
-        accessorKey: 'finding_description',
         header: 'Deskripsi & Lokasi',
+        id: 'desc_location',
+        accessorFn: row => `${row.finding_description} ${row.location_details}`,
+        enableGlobalFilter: true,
         cell: ({ row }) => (
             <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-1">
@@ -147,21 +120,20 @@ export const columns: ColumnDef<{
         ),
     },
     {
-        accessorKey: 'created_by',
         header: 'Dibuat Oleh',
-        cell: ({ row }) => {
-            return row.original.created_by?.name ?? '-';
-        },
+        id: 'created_by',
+        accessorFn: row => row.created_by?.name ?? '',
+        enableGlobalFilter: true,
+        cell: ({ row }) => row.original.created_by?.name ?? '-',
     },
     {
-        id: 'uuid',
+        id: 'actions',
         cell: ({ row }) => {
             const handleDelete = () => {
                 if (confirm('Are you sure you want to delete this data?')) {
                     router.delete(`/finding/${row.original.uuid}`);
                 }
             };
-            const finding = row.original;
             return (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -172,7 +144,7 @@ export const columns: ColumnDef<{
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                         <DropdownMenuItem asChild>
-                            <Link href={`/finding/${finding.uuid}/edit`}>Edit</Link>
+                            <Link href={`/finding/${row.original.uuid}/edit`}>Edit</Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">
                             Delete

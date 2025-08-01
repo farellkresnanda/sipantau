@@ -21,6 +21,24 @@ interface DataTableProps<TData, TValue> {
 
 export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValue>) {
     const [globalFilter, setGlobalFilter] = useState('');
+    function fuzzyFilter(
+        row: any,
+        columnId: string,
+        value: string
+    ) {
+        const rowValue = row.getValue(columnId);
+        const match = String(rowValue).toLowerCase().includes(value.toLowerCase());
+
+        console.log('Filtering row:', {
+            columnId,
+            rowValue,
+            filterValue: value,
+            match,
+        });
+
+        return match;
+    }
+
 
     const table = useReactTable({
         data,
@@ -29,15 +47,17 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
         getPaginationRowModel: getPaginationRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         state: {
-            globalFilter
+            globalFilter,
         },
         onGlobalFilterChange: setGlobalFilter,
+        globalFilterFn: fuzzyFilter,
         initialState: {
             pagination: {
-                pageSize: 10
-            }
-        }
+                pageSize: 10,
+            },
+        },
     });
+
 
     return (
         <div className="w-full space-y-4">
@@ -108,8 +128,13 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
 
             {/* Bagian Pagination */}
             <div className="flex flex-col gap-2 items-center justify-between md:flex-row">
-                <div className="text-sm text-muted-foreground">
-                    Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+                <div className="text-sm text-muted-foreground flex gap-4">
+                    <span>
+                        Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+                    </span>
+                    <span>
+                        Total: {table.getPreFilteredRowModel().rows.length} records
+                    </span>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                     <Button

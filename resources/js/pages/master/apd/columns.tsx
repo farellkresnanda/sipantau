@@ -28,29 +28,29 @@ export const columns: ColumnDef<masterApd, unknown>[] = [
         cell: ({ row }) => row.index + 1,
     },
     {
-        accessorKey: 'apd_name',
         header: 'Nama APD',
+        id: 'apd_name',
+        accessorFn: (row) => row.apd_name,
+        enableGlobalFilter: true,
     },
     {
-        accessorKey: 'inspection_criteria',
         header: 'Kriteria Inspeksi',
+        id: 'inspection_criteria',
+        accessorFn: (row) => row.inspection_criteria,
         cell: ({ row }) => <div className="whitespace-pre-wrap">{row.original.inspection_criteria}</div>,
+        enableGlobalFilter: true,
     },
     {
-        accessorKey: 'created_at',
         header: 'Dibuat',
-        cell: ({ getValue }) => {
-            const value = getValue() as string;
-            return value?.replace('T', ' ').split('.')[0];
-        },
+        id: 'created_at',
+        accessorFn: (row) => row.created_at?.replace('T', ' ').split('.')[0],
+        enableGlobalFilter: true,
     },
     {
-        accessorKey: 'updated_at',
         header: 'Diubah',
-        cell: ({ getValue }) => {
-            const value = getValue() as string;
-            return value?.replace('T', ' ').split('.')[0];
-        },
+        id: 'updated_at',
+        accessorFn: (row) => row.updated_at?.replace('T', ' ').split('.')[0],
+        enableGlobalFilter: true,
     },
     {
         id: 'actions',
@@ -81,7 +81,9 @@ export const columns: ColumnDef<masterApd, unknown>[] = [
                         <DropdownMenuItem asChild>
                             <Link href={`/master/apd/${row.original.id}/edit`}>Edit</Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">Delete</DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">
+                            Delete
+                        </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             );

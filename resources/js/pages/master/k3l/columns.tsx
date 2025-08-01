@@ -32,13 +32,17 @@ export const columns: ColumnDef<MasterK3l>[] = [
         header: 'No',
     },
     {
-        accessorKey: 'objective',
         header: 'Tujuan',
+        id: 'objective',
+        accessorFn: (row) => row.objective,
+        enableGlobalFilter: true,
     },
     {
-        id: 'description',
         header: 'Deskripsi',
+        id: 'description',
+        accessorFn: (row) => row.description?.map((d) => d.description).join(', '),
         cell: ({ row }) => <ul className="list-disc pl-4">{row.original.description?.map((d) => <li key={d.id}>{d.description}</li>)}</ul>,
+        enableGlobalFilter: true,
     },
     {
         id: 'actions',
@@ -64,7 +68,9 @@ export const columns: ColumnDef<MasterK3l>[] = [
                         <DropdownMenuItem asChild>
                             <Link href={`/master/k3l/${row.original.id}/edit`}>Edit</Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">Delete</DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">
+                            Delete
+                        </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             );

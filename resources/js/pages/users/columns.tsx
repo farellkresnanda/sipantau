@@ -15,6 +15,7 @@ import { IdCard, LogIn, Mail, MoreHorizontal, PencilIcon, Trash2, User } from 'l
 
 // You can use a Zod schema here if you want.
 export type User = {
+    updated_at: unknown;
     roles: Array<{
         id: number;
         name: string;
@@ -42,8 +43,10 @@ export const columns: ColumnDef<User>[] = [
         header: 'No',
     },
     {
-        accessorKey: 'name',
         header: 'Nama Pegawai',
+        id: 'name',
+        accessorFn: (row) => `${row.name} ${row.position_name || ''}`,
+        enableGlobalFilter: true,
         cell: ({ row }) => (
             <Link href={`/users/${row.original.id}`} className="inline-flex items-center gap-2 hover:underline">
                 <User className="h-4 w-4" />
@@ -59,8 +62,10 @@ export const columns: ColumnDef<User>[] = [
         ),
     },
     {
-        accessorKey: 'npp_email',
         header: 'NPP & Email',
+        id: 'npp_email',
+        accessorFn: (row) => `${row.npp} ${row.email}`,
+        enableGlobalFilter: true,
         cell: ({ row }) => (
             <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-1">
@@ -75,8 +80,10 @@ export const columns: ColumnDef<User>[] = [
         ),
     },
     {
-        accessorKey: 'roles',
         header: 'Role',
+        id: 'roles',
+        accessorFn: (row) => row.roles[0]?.name || '',
+        enableGlobalFilter: true,
         cell: ({ row }) => {
             const role = row.original.roles[0]?.name;
             const badgeStyles = {
@@ -108,8 +115,10 @@ export const columns: ColumnDef<User>[] = [
         },
     },
     {
-        accessorKey: 'entity_plant',
         header: 'Entitas & Plant',
+        id: 'entity_plant',
+        accessorFn: (row) => `${row.entity?.name || ''} ${row.entity?.entity_code || ''} ${row.plant?.name || ''} ${row.plant?.plant_code || ''}`,
+        enableGlobalFilter: true,
         cell: ({ row }) => {
             const entity = row.original.entity;
             const plant = row.original.plant;
@@ -122,8 +131,10 @@ export const columns: ColumnDef<User>[] = [
         },
     },
     {
-        accessorKey: 'updated_at',
         header: 'Diubah',
+        id: 'updated_at',
+        accessorFn: (row) => row.updated_at,
+        enableGlobalFilter: true,
         cell: ({ getValue }) => {
             const value = getValue() as string;
             return value?.replace('T', ' ').split('.')[0];

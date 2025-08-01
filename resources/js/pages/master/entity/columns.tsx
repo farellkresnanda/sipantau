@@ -30,36 +30,40 @@ export const columns: ColumnDef<MasterEntity>[] = [
         header: 'No.',
     },
     {
-        accessorKey: 'entity_code',
         header: 'Kode Entitas',
+        id: 'entity_code',
+        accessorFn: (row) => row.entity_code,
+        enableGlobalFilter: true,
     },
     {
-        accessorKey: 'group_code',
         header: 'Kode Group',
+        id: 'group_code',
+        accessorFn: (row) => row.group_code,
+        enableGlobalFilter: true,
     },
     {
-        accessorKey: 'name',
         header: 'Nama',
+        id: 'name',
+        accessorFn: (row) => row.name,
+        enableGlobalFilter: true,
     },
     {
-        accessorKey: 'alias_name',
         header: 'Nama Alias',
+        id: 'alias_name',
+        accessorFn: (row) => row.alias_name,
+        enableGlobalFilter: true,
     },
     {
-        accessorKey: 'created_at',
         header: 'Dibuat',
-        cell: ({ getValue }) => {
-            const value = getValue() as string;
-            return value?.replace('T', ' ').split('.')[0];
-        },
+        id: 'created_at',
+        accessorFn: (row) => row.created_at?.replace('T', ' ').split('.')[0],
+        enableGlobalFilter: true,
     },
     {
-        accessorKey: 'updated_at',
         header: 'Diubah',
-        cell: ({ getValue }) => {
-            const value = getValue() as string;
-            return value?.replace('T', ' ').split('.')[0];
-        },
+        id: 'updated_at',
+        accessorFn: (row) => row.updated_at?.replace('T', ' ').split('.')[0],
+        enableGlobalFilter: true,
     },
     {
         id: 'actions',
@@ -85,7 +89,9 @@ export const columns: ColumnDef<MasterEntity>[] = [
                         <DropdownMenuItem asChild>
                             <Link href={`/master/entity/${row.original.id}/edit`}>Edit</Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">Delete</DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">
+                            Delete
+                        </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             );

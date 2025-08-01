@@ -40,35 +40,51 @@ export const columns: ColumnDef<InspeksiApar>[] = [
     },
     {
         header: 'Entitas',
-        accessorFn: (row) => (row.entity && row.entity.length > 0 ? row.entity.map((e) => e.name).join(', ') : '-'), // tergantung struktur datamu
+        id: 'entity',
+        accessorFn: (row) => (row.entity && row.entity.length > 0 ? row.entity.map((e) => e.name).join(', ') : '-'),
+        enableGlobalFilter: true,
     },
     {
         header: 'Plant',
-        accessorFn: (row) => (row.plants && row.plants.length > 0 ? row.plants.map((p) => p.name).join(', ') : '-'), // tergantung struktur datamu
+        id: 'plants',
+        accessorFn: (row) => (row.plants && row.plants.length > 0 ? row.plants.map((p) => p.name).join(', ') : '-'),
+        enableGlobalFilter: true,
     },
     {
-        accessorKey: 'apar_no',
         header: 'No APAR / No APAB',
+        id: 'apar_no',
+        accessorFn: (row) => row.apar_no,
+        enableGlobalFilter: true,
     },
     {
-        accessorKey: 'room_code',
         header: 'Kode Ruang',
+        id: 'room_code',
+        accessorFn: (row) => row.room_code,
+        enableGlobalFilter: true,
     },
     {
-        accessorKey: 'location',
         header: 'Lokasi',
+        id: 'location',
+        accessorFn: (row) => row.location,
+        enableGlobalFilter: true,
     },
     {
-        accessorKey: 'type',
         header: 'Jenis',
+        id: 'type',
+        accessorFn: (row) => row.type,
+        enableGlobalFilter: true,
     },
     {
-        accessorKey: 'apar',
         header: 'Type',
+        id: 'apar',
+        accessorFn: (row) => row.apar,
+        enableGlobalFilter: true,
     },
     {
-        accessorKey: 'inventory_code',
         header: 'Kode Inventaris',
+        id: 'inventory_code',
+        accessorFn: (row) => row.inventory_code,
+        enableGlobalFilter: true,
     },
     {
         id: 'actions',
@@ -94,7 +110,9 @@ export const columns: ColumnDef<InspeksiApar>[] = [
                         <DropdownMenuItem asChild>
                             <Link href={`/master/apar/${row.original.id}/edit`}>Edit</Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">Delete</DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">
+                            Delete
+                        </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             );

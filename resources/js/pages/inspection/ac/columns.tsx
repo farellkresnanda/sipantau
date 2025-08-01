@@ -46,46 +46,59 @@ export const columns: ColumnDef<AcInspectionRow>[] = [
         cell: ({ row }) => row.index + 1,
     },
     {
-        accessorKey: 'ac_inspection_number', // Kolom nomor inspeksi AC
         header: 'Nomor Inspeksi',
+        id: 'ac_inspection_number',
+        accessorFn: (row) => row.ac_inspection_number,
+        enableGlobalFilter: true,
         cell: ({ row }) => (
-            // Link ke halaman detail
             <Link href={route('inspection.ac.show', row.original.uuid)} className="text-blue-600 hover:underline">
                 {row.original.ac_inspection_number}
             </Link>
         ),
     },
     {
-        accessorKey: 'inspection_date',
         header: 'Tanggal Inspeksi',
+        id: 'inspection_date',
+        accessorFn: (row) => row.inspection_date,
+        enableGlobalFilter: true,
         cell: ({ getValue }) => {
             const date = getValue() as string;
             return date ? format(new Date(date), 'dd MMMM yyyy') : '-';
         },
     },
     {
-        accessorKey: 'location.location', // Akses nama lokasi melalui relasi
         header: 'Lokasi',
+        id: 'location',
+        accessorFn: (row) => row.location?.location,
+        enableGlobalFilter: true,
         cell: ({ row }) => row.original.location?.location ?? '-',
     },
     {
-        accessorKey: 'entity.name', // Akses nama entitas melalui relasi
         header: 'Entitas',
+        id: 'entity',
+        accessorFn: (row) => row.entity?.name,
+        enableGlobalFilter: true,
         cell: ({ row }) => row.original.entity?.name ?? '-',
     },
     {
-        accessorKey: 'plant.name', // Akses nama plant melalui relasi
         header: 'Plant',
+        id: 'plant',
+        accessorFn: (row) => row.plant?.name,
+        enableGlobalFilter: true,
         cell: ({ row }) => row.original.plant?.name ?? '-',
     },
     {
-        accessorKey: 'createdBy.name', // Akses nama pembuat melalui relasi
         header: 'Dibuat Oleh',
+        id: 'createdBy',
+        accessorFn: (row) => row.createdBy?.name,
+        enableGlobalFilter: true,
         cell: ({ row }) => row.original.createdBy?.name ?? '-',
     },
     {
-        accessorKey: 'approvalStatus.name', // Akses nama status melalui relasi
         header: 'Status',
+        id: 'approvalStatus',
+        accessorFn: (row) => row.approvalStatus?.name,
+        enableGlobalFilter: true,
         cell: ({ row }) => {
             const status = row.original.approvalStatus;
             const statusCode = status?.code || row.original.approval_status_code;
@@ -93,17 +106,20 @@ export const columns: ColumnDef<AcInspectionRow>[] = [
 
             let color = 'bg-gray-100 text-gray-700';
             switch (statusCode) {
-                case 'SOP': color = 'bg-blue-100 text-blue-700'; break;
-                case 'SAP': color = 'bg-green-100 text-green-700'; break;
-                case 'SRE': color = 'bg-red-100 text-red-700'; break;
-                default: break;
+                case 'SOP':
+                    color = 'bg-blue-100 text-blue-700';
+                    break;
+                case 'SAP':
+                    color = 'bg-green-100 text-green-700';
+                    break;
+                case 'SRE':
+                    color = 'bg-red-100 text-red-700';
+                    break;
+                default:
+                    break;
             }
 
-            return (
-                <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${color}`}>
-                    {statusName}
-                </span>
-            );
+            return <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${color}`}>{statusName}</span>;
         },
     },
     {
@@ -136,14 +152,10 @@ export const columns: ColumnDef<AcInspectionRow>[] = [
                     <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Aksi</DropdownMenuLabel>
                         <DropdownMenuItem asChild>
-                            <Link href={route('inspection.ac.show', inspection.uuid)}>
-                                Lihat Detail
-                            </Link>
+                            <Link href={route('inspection.ac.show', inspection.uuid)}>Lihat Detail</Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                            <Link href={route('inspection.ac.edit', inspection.uuid)}>
-                                Edit
-                            </Link>
+                            <Link href={route('inspection.ac.edit', inspection.uuid)}>Edit</Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={handleDelete} className="text-red-600">

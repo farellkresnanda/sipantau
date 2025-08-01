@@ -35,44 +35,47 @@ export const columns: ColumnDef<MasterP3k>[] = [
         cell: ({ row }) => row.index + 1,
     },
     {
-        accessorKey: 'entity.name', // Langsung akses nested property
         header: 'Nama Entitas',
-        cell: ({ row }) => {
-            const entityNama = row.original.entity?.name; // Gunakan optional chaining untuk keamanan
-            return entityNama ? entityNama : '-'; // Tampilkan name entity atau '-' jika null
-        },
+        id: 'entity_name',
+        accessorFn: (row) => row.entity?.name || '-',
+        enableGlobalFilter: true,
     },
     {
-        accessorKey: 'plant_name',
         header: 'Plant',
-        cell: ({ row }) => {
-            const plantNama = row.original.plant_name;
-            return plantNama ? plantNama : row.original.plant_code;
-
-        },
+        id: 'plant',
+        accessorFn: (row) => row.plant_name || row.plant_code,
+        enableGlobalFilter: true,
     },
     {
-        accessorKey: 'no_p3k',
         header: 'No P3K',
+        id: 'no_p3k',
+        accessorFn: (row) => row.no_p3k,
+        enableGlobalFilter: true,
     },
     {
-        accessorKey: 'room_code',
         header: 'Kode Ruang',
+        id: 'room_code',
+        accessorFn: (row) => row.room_code,
+        enableGlobalFilter: true,
     },
     {
-        accessorKey: 'location',
         header: 'Lokasi',
-        cell: ({ row }) => (
-            <div className="whitespace-pre-wrap">{row.original.location}</div>
-        ),
+        id: 'location',
+        accessorFn: (row) => row.location,
+        enableGlobalFilter: true,
+        cell: ({ row }) => <div className="whitespace-pre-wrap">{row.original.location}</div>,
     },
     {
-        accessorKey: 'type',
         header: 'Jenis',
+        id: 'type',
+        accessorFn: (row) => row.type,
+        enableGlobalFilter: true,
     },
     {
-        accessorKey: 'inventory_code',
         header: 'Kode Inventaris',
+        id: 'inventory_code',
+        accessorFn: (row) => row.inventory_code,
+        enableGlobalFilter: true,
     },
     {
         id: 'actions',
@@ -98,7 +101,9 @@ export const columns: ColumnDef<MasterP3k>[] = [
                         <DropdownMenuItem asChild>
                             <Link href={route('p3k.edit', row.original.id)}>Edit</Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">Hapus</DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">
+                            Hapus
+                        </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             );

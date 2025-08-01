@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Link, router } from '@inertiajs/react';
 import { ColumnDef } from '@tanstack/react-table';
-import {CalendarDays, CheckCircle, FolderKanban, Info, MapPin, MoreVertical, XCircle} from 'lucide-react';
+import {CalendarDays, CheckCircle, FolderKanban, Info, MoreVertical, XCircle} from 'lucide-react';
 
 export const columns: ColumnDef<{
     id: number;
@@ -35,8 +35,12 @@ export const columns: ColumnDef<{
         cell: ({ row }) => row.index + 1,
     },
     {
-        accessorKey: 'approval_status',
         header: 'Status Inspeksi',
+        id: 'approval_status',
+        accessorFn: (row) => ({
+            status: row.approval_status,
+            uuid: row.uuid,
+        }),
         cell: ({ row }) => {
             const status = row.original.approval_status;
             const statusId = status?.id;
@@ -71,20 +75,24 @@ export const columns: ColumnDef<{
                 </Link>
             );
         },
+        enableGlobalFilter: true,
     },
     {
-        accessorKey: 'entity',
         header: 'Entitas & Plant',
+        id: 'entity',
+        accessorFn: (row) => `${row.entity?.name ?? '-'} - ${row.plant?.name ?? '-'}`,
         cell: ({ row }) => (
             <div className="flex flex-col gap-1">
                 <div>{row.original.entity?.name ?? '-'}</div>
                 <div className="text-sm text-gray-500">{row.original.plant?.name ?? '-'}</div>
             </div>
         ),
+        enableGlobalFilter: true,
     },
     {
-        accessorKey: 'car_auto_number',
         header: 'Nomor & Tanggal',
+        id: 'car_auto_number',
+        accessorFn: (row) => `${row.car_auto_number} - ${row.inspection_date}`,
         cell: ({ row }) => {
             const carNumber = row.original.car_auto_number;
             const date = row.original.inspection_date;
@@ -98,10 +106,12 @@ export const columns: ColumnDef<{
                 </div>
             );
         },
+        enableGlobalFilter: true,
     },
     {
-        accessorKey: 'job_description',
         header: 'Pekerjaan & Proyek',
+        id: 'job_description',
+        accessorFn: (row) => `${row.job_description} - ${row.project_name}`,
         cell: ({ row }) => (
             <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-1">
@@ -114,24 +124,31 @@ export const columns: ColumnDef<{
                 </div>
             </div>
         ),
+        enableGlobalFilter: true,
     },
     {
-        accessorKey: 'location',
         header: 'Lokasi/Nama Pemilik',
+        id: 'location',
+        accessorFn: (row) => row.location ?? '-',
         cell: ({ row }) => row.original.location ?? '-',
+        enableGlobalFilter: true,
     },
     {
-        accessorKey: 'created_by',
         header: 'Dibuat Oleh',
+        id: 'created_by',
+        accessorFn: (row) => row.created_by?.name ?? '-',
         cell: ({ row }) => row.original.created_by?.name ?? '-',
+        enableGlobalFilter: true,
     },
     {
-        accessorKey: 'created_at',
         header: 'Tanggal Dibuat',
+        id: 'created_at',
+        accessorFn: (row) => row.created_at?.replace('T', ' ').split('.')[0],
         cell: ({ getValue }) => {
             const value = getValue() as string;
             return value?.replace('T', ' ').split('.')[0];
         },
+        enableGlobalFilter: true,
     },
     {
         id: 'actions',

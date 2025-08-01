@@ -35,30 +35,26 @@ export const columns: ColumnDef<MasterPlant>[] = [
     {
         header: 'Entitas',
         id: 'entity',
-        cell: ({ row }) => {
-            return row.original.join_entity?.name ?? '-'; // PAKAI UNDERSCORE
-        },
+        accessorFn: (row) => row.join_entity?.name ?? '-',
+        enableGlobalFilter: true,
     },
-
     {
-        accessorKey: 'name',
         header: 'Plant',
+        id: 'name',
+        accessorFn: (row) => row.name,
+        enableGlobalFilter: true,
     },
     {
-        accessorKey: 'created_at',
         header: 'Created At',
-        cell: ({ getValue }) => {
-            const value = getValue() as string;
-            return value?.replace('T', ' ').split('.')[0];
-        },
+        id: 'created_at',
+        accessorFn: (row) => row.created_at?.replace('T', ' ').split('.')[0],
+        enableGlobalFilter: true,
     },
     {
-        accessorKey: 'updated_at',
         header: 'Updated At',
-        cell: ({ getValue }) => {
-            const value = getValue() as string;
-            return value?.replace('T', ' ').split('.')[0];
-        },
+        id: 'updated_at',
+        accessorFn: (row) => row.updated_at?.replace('T', ' ').split('.')[0],
+        enableGlobalFilter: true,
     },
     {
         id: 'actions',
@@ -84,7 +80,9 @@ export const columns: ColumnDef<MasterPlant>[] = [
                         <DropdownMenuItem asChild>
                             <Link href={`/master/plant/${row.original.id}/edit`}>Edit</Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">Delete</DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">
+                            Delete
+                        </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             );

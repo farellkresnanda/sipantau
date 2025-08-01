@@ -45,15 +45,17 @@ export const columns: ColumnDef<{
         cell: ({ row }) => row.index + 1,
     },
     {
-        accessorKey: 'approval_status',
         header: 'Status Inspeksi',
+        id: 'approval_status',
+        enableGlobalFilter: true,
+        accessorFn: (row) => row.approval_status?.name,
         cell: ({ row }) => {
             const status = row.original.approval_status;
             const statusId = status?.id;
             const statusName = status?.name || '-';
 
             let icon = null;
-            let color = null;
+            let color: any;
 
             switch (statusId) {
                 case 1:
@@ -84,7 +86,9 @@ export const columns: ColumnDef<{
     },
     {
         header: 'Entitas & Plant',
-        accessorKey: 'entity',
+        id: 'entity',
+        enableGlobalFilter: true,
+        accessorFn: (row) => `${row.entity?.name ?? '-'} - ${row.plant?.name ?? '-'}`,
         cell: ({ row }) => (
             <div className="flex flex-col gap-1">
                 <div>{row.original.entity?.name ?? '-'}</div>
@@ -94,7 +98,9 @@ export const columns: ColumnDef<{
     },
     {
         header: 'Nomor & Tipe APAR',
-        accessorKey: 'apar',
+        id: 'apar',
+        enableGlobalFilter: true,
+        accessorFn: (row) => `${row.apar?.type ?? '-'} - ${row.code ?? '-'}`,
         cell: ({ row }) => (
             <div className="flex flex-col gap-1">
                 <div className="font-medium">{row.original.code ?? '-'}</div>
@@ -104,36 +110,38 @@ export const columns: ColumnDef<{
     },
     {
         header: 'Tanggal Inspeksi',
-        accessorKey: 'date_inspection',
+        id: 'date_inspection',
+        accessorFn: (row) => new Date(row.date_inspection).toLocaleDateString('id-ID'),
+        enableGlobalFilter: true,
         cell: ({ row }) => (
             <div className="flex flex-col">
                 <span className="flex items-center gap-1 text-sm">
                     <CalendarDays className="h-3 w-3" />
                     {new Date(row.original.date_inspection).toLocaleDateString('id-ID')}
                 </span>
-                <span className="text-xs text-gray-500">
-                    Expired: {row.original.expired_year}
-                </span>
+                <span className="text-xs text-gray-500">Expired: {row.original.expired_year}</span>
             </div>
         ),
     },
     {
         header: 'Lokasi APAR',
-        accessorKey: 'location',
+        id: 'location',
+        accessorFn: (row) => row.apar?.location,
+        enableGlobalFilter: true,
         cell: ({ row }) => row.original.apar?.location ?? '-',
     },
     {
         header: 'Dibuat Oleh',
-        accessorKey: 'created_by',
+        id: 'created_by',
+        accessorFn: (row) => row.created_by?.name,
+        enableGlobalFilter: true,
         cell: ({ row }) => row.original.created_by?.name ?? '-',
     },
     {
         header: 'Tanggal Dibuat',
-        accessorKey: 'created_at',
-        cell: ({ getValue }) => {
-            const value = getValue() as string;
-            return value?.replace('T', ' ').split('.')[0];
-        },
+        id: 'created_at',
+        accessorFn: (row) => row.created_at?.replace('T', ' ').split('.')[0],
+        enableGlobalFilter: true,
     },
     {
         id: 'actions',
@@ -156,10 +164,7 @@ export const columns: ColumnDef<{
                         <DropdownMenuItem asChild>
                             <Link href={`/inspection/apar/${row.original.uuid}/edit`}>Edit</Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem
-                            onClick={handleDelete}
-                            className="w-full text-left text-red-600 hover:text-red-700"
-                        >
+                        <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">
                             Delete
                         </DropdownMenuItem>
                     </DropdownMenuContent>

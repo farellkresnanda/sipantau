@@ -13,8 +13,12 @@ export const columns: ColumnDef<any>[] = [
         cell: ({ row }) => row.index + 1,
     },
     {
-        accessorKey: 'approval_status',
         header: 'Status Inspeksi',
+        id: 'approval_status',
+        accessorFn: (row) => ({
+            status: row.approval_status,
+            uuid: row.uuid,
+        }),
         cell: ({ row }) => {
             const status = row.original.approval_status;
             const statusId = status?.id;
@@ -49,20 +53,24 @@ export const columns: ColumnDef<any>[] = [
                 </Link>
             );
         },
+        enableGlobalFilter: true,
     },
     {
-        accessorKey: 'entity',
         header: 'Entitas & Plant',
+        id: 'entity',
+        accessorFn: (row) => `${row.entity?.name ?? '-'} - ${row.plant?.name ?? '-'}`,
         cell: ({ row }) => (
             <div className="flex flex-col gap-1">
                 <div>{row.original.entity?.name ?? '-'}</div>
                 <div className="text-sm text-gray-500">{row.original.plant?.name ?? '-'}</div>
             </div>
         ),
+        enableGlobalFilter: true,
     },
     {
-        accessorKey: 'car_number_auto',
         header: 'Nomor & Tanggal',
+        id: 'car_auto_number',
+        accessorFn: (row) => `${row.car_number_auto} - ${row.inspection_date}`,
         cell: ({ row }) => {
             const carNumber = row.original.car_number_auto;
             const date = row.original.inspection_date;
@@ -76,28 +84,37 @@ export const columns: ColumnDef<any>[] = [
                 </div>
             );
         },
+        enableGlobalFilter: true,
     },
     {
         header: 'Lokasi',
-        cell: ({ row }) => row.original.location?.name || '-',
+        id: 'location',
+        accessorFn: (row) => row.location?.name?.toString() || '-',
+        enableGlobalFilter: true,
     },
     {
         header: 'Disetujui Oleh & Tanggal',
+        id: 'approved',
+        accessorFn: (row) => `${row.approved_by?.name || '-'} - ${row.approved_at || '-'}`,
         cell: ({ row }) => (
             <div className="flex flex-col gap-1">
                 <div>{row.original.approved_by?.name || '-'}</div>
                 <div className="text-sm text-gray-500">{row.original.approved_at || '-'}</div>
             </div>
         ),
+        enableGlobalFilter: true,
     },
     {
         header: 'Dibuat Oleh & Tanggal',
+        id: 'created',
+        accessorFn: (row) => `${row.created_by?.name || '-'} - ${row.created_at?.replace('T', ' ').split('.')[0] || '-'}`,
         cell: ({ row }) => (
             <div className="flex flex-col gap-1">
-                <div>{row.original.created_by?.name ?? '-'}</div>
-                <div className="text-sm text-gray-500">{row.original.created_at?.replace('T', ' ').split('.')[0] ?? '-'}</div>
+                <div>{row.original.created_by?.name || '-'}</div>
+                <div className="text-sm text-gray-500">{row.original.created_at?.replace('T', ' ').split('.')[0] || '-'}</div>
             </div>
         ),
+        enableGlobalFilter: true,
     },
     {
         id: 'actions',

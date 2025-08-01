@@ -30,28 +30,22 @@ export const columns: ColumnDef<MasterBuilding>[] = [
         cell: ({ row }) => row.index + 1,
     },
     {
-        accessorKey: 'entity_name',
         header: 'Nama Entitas',
-        cell: ({ row }) => {
-
-            return row.original.entity_name || '-';
-        },
+        id: 'entity_name',
+        accessorFn: (row) => row.entity_name || '-',
+        enableGlobalFilter: true,
     },
     {
-        accessorKey: 'plant_name',
         header: 'Nama Plant',
-        cell: ({ row }) => {
-
-            return row.original.plant_name || '-';
-        },
+        id: 'plant_name',
+        accessorFn: (row) => row.plant_name || '-',
+        enableGlobalFilter: true,
     },
     {
-        accessorKey: 'location_name',
         header: 'Nama Lokasi',
-        cell: ({ row }) => (
-
-            <div className="whitespace-pre-wrap">{row.original.location_name}</div>
-        ),
+        id: 'location_name',
+        accessorFn: (row) => row.location_name,
+        enableGlobalFilter: true,
     },
     {
         id: 'actions',
@@ -79,7 +73,9 @@ export const columns: ColumnDef<MasterBuilding>[] = [
                             {/* Menggunakan route helper untuk navigasi ke halaman edit */}
                             <Link href={route('building.edit', row.original.id)}>Edit</Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">Hapus</DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">
+                            Hapus
+                        </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             );

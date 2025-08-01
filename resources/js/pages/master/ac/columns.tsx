@@ -39,38 +39,40 @@ export const columns: ColumnDef<MasterAc>[] = [
     },
     {
         header: 'Entitas',
-        accessorFn: (row) =>
-            row.entity?.length > 0
-                ? row.entity.map((e) => e.name).join(', ')
-                : '-',
+        id: 'entity',
+        accessorFn: (row) => (row.entity?.length > 0 ? row.entity.map((e) => e.name).join(', ') : '-'),
+        enableGlobalFilter: true,
     },
     {
         header: 'Plant',
-        accessorFn: (row) =>
-            row.plants?.length > 0
-                ? row.plants.map((p) => p.name).join(', ')
-                : '-',
+        id: 'plants',
+        accessorFn: (row) => (row.plants?.length > 0 ? row.plants.map((p) => p.name).join(', ') : '-'),
+        enableGlobalFilter: true,
     },
     {
-        accessorKey: 'room',
         header: 'Ruang',
+        id: 'room',
+        accessorFn: (row) => row.room,
+        enableGlobalFilter: true,
     },
     {
-        accessorKey: 'inventory_code',
         header: 'Kode Inventaris',
+        id: 'inventory_code',
+        accessorFn: (row) => row.inventory_code,
+        enableGlobalFilter: true,
     },
     {
-        accessorKey: 'merk',
         header: 'Merk',
+        id: 'merk',
+        accessorFn: (row) => row.merk,
+        enableGlobalFilter: true,
     },
     {
         id: 'actions',
         header: '#',
         cell: ({ row }) => {
             const handleDelete = () => {
-                const confirmed = confirm(
-                    `Yakin ingin menghapus AC dengan kode inventaris "${row.original.inventory_code}"?`
-                );
+                const confirmed = confirm(`Yakin ingin menghapus AC dengan kode inventaris "${row.original.inventory_code}"?`);
                 if (confirmed) {
                     router.delete(`/master/ac/${row.original.id}`, {
                         onSuccess: () => {

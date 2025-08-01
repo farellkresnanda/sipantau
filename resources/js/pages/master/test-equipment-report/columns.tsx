@@ -21,62 +21,59 @@ export type UjiRiksaPeralatan = {
 
 // Definisi kolom tabel
 export const columns: ColumnDef<UjiRiksaPeralatan>[] = [
-  {
-    id: 'index',
-    header: 'No',
-    enableSorting: false,
-    cell: ({ table, row }) => {
-      // Gunakan stage data sebenarnya, bukan row.index default
-      const sortedRows = table.getRowModel().rows;
-      const index = sortedRows.findIndex(r => r.id === row.id);
-      return index + 1;
+    {
+        id: 'index',
+        header: 'No',
+        enableSorting: false,
+        cell: ({ table, row }) => {
+            // Gunakan stage data sebenarnya, bukan row.index default
+            const sortedRows = table.getRowModel().rows;
+            const index = sortedRows.findIndex((r) => r.id === row.id);
+            return index + 1;
+        },
     },
-  },
-  {
-    accessorKey: 'equipment_name',
-    header: 'Nama Peralatan',
-  },
-  {
-    accessorKey: 'reference',
-    header: 'Referensi',
-    cell: ({ row }) => {
-      const reference = row.original.reference;
-      return reference && reference.trim() !== ''
-        ? reference
-        : <span className="text-gray-400 italic">Tidak ada reference</span>;
+    {
+        header: 'Nama Peralatan',
+        id: 'equipment_name',
+        accessorFn: (row) => row.equipment_name,
+        enableGlobalFilter: true,
     },
-  },
-  {
-    id: 'actions',
-    header: '#',
-    enableSorting: false,
-    cell: ({ row }) => {
-      const peralatan = row.original;
+    {
+        header: 'Referensi',
+        id: 'reference',
+        accessorFn: (row) =>
+            row.reference && row.reference.trim() !== '' ? row.reference : <span className="text-gray-400 italic">Tidak ada reference</span>,
+        enableGlobalFilter: true,
+    },
+    {
+        id: 'actions',
+        header: '#',
+        enableSorting: false,
+        cell: ({ row }) => {
+            const peralatan = row.original;
 
-      const handleDelete = () => {
-        if (confirm('Are you sure you want to delete this Master Uji Riksa Peralatan?')) {
-          router.delete(route('test-equipment-report.destroy', peralatan.id));
-        }
-      };
+            const handleDelete = () => {
+                if (confirm('Are you sure you want to delete this Master Uji Riksa Peralatan?')) {
+                    router.delete(route('test-equipment-report.destroy', peralatan.id));
+                }
+            };
 
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Aksi</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => router.visit(route('test-equipment-report.edit', peralatan.id))}>
-              Edit
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">
-              Hapus
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
+            return (
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                            <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Aksi</DropdownMenuLabel>
+                        <DropdownMenuItem onClick={() => router.visit(route('test-equipment-report.edit', peralatan.id))}>Edit</DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">
+                            Hapus
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            );
+        },
     },
-  },
 ];

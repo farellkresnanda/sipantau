@@ -34,15 +34,21 @@ export const columns: ColumnDef<MasterLokasi>[] = [
     },
     {
         header: 'Entitas',
-        accessorFn: (row) => (row.entity && row.entity.length > 0 ? row.entity.map((e) => e.name).join(', ') : '-'), // tergantung struktur datamu
+        id: 'entity',
+        accessorFn: (row) => (row.entity && row.entity.length > 0 ? row.entity.map((e) => e.name).join(', ') : '-'),
+        enableGlobalFilter: true,
     },
     {
         header: 'Plant',
-        accessorFn: (row) => (row.plants && row.plants.length > 0 ? row.plants.map((p) => p.name).join(', ') : '-'), // tergantung struktur datamu
+        id: 'plants',
+        accessorFn: (row) => (row.plants && row.plants.length > 0 ? row.plants.map((p) => p.name).join(', ') : '-'),
+        enableGlobalFilter: true,
     },
     {
         header: 'Nama Lokasi/Ruang',
+        id: 'name',
         accessorFn: (row) => row.name,
+        enableGlobalFilter: true,
     },
     {
         id: 'actions',
@@ -68,7 +74,9 @@ export const columns: ColumnDef<MasterLokasi>[] = [
                         <DropdownMenuItem asChild>
                             <Link href={`/master/location/${row.original.id}/edit`}>Edit</Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">Delete</DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">
+                            Delete
+                        </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             );
