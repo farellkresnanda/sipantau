@@ -54,6 +54,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('first-aid/verify/{uiid}', [FirstAidInspectionController::class, 'verify'])->name('inspection.first-aid.verify');
         Route::resource('first-aid', FirstAidInspectionController::class)->names('inspection.first-aid');
 
+        Route::post('apar/verify/{uiid}', [AparInspectionController::class, 'verify'])->name('inspection.apar.verify');
         Route::resource('apar', AparInspectionController::class)->names('inspection.apar');
 
         Route::post('ppe/verify/{uiid}', [PpeInspectionController::class, 'verify'])->name('inspection.ppe.verify');

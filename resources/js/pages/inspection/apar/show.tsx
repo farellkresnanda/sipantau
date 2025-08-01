@@ -158,8 +158,16 @@ export default function ShowAparInspection({ aparInspection }: { aparInspection:
 
                 <Card>
                     <CardContent>
-                        <h3 className="mb-4 text-lg font-semibold">Catatan</h3>
+                        <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold">
+                            <FileText className="h-4 w-4 text-gray-500" />
+                            Catatan Admin
+                        </h3>
                         <div className="rounded-lg border p-4 text-sm">{aparInspection.note || 'Tidak ada catatan'}</div>
+                        <h3 className="mt-6 mb-4 flex items-center gap-2 text-sm font-semibold">
+                            <FileText className="h-4 w-4 text-gray-500" />
+                            Catatan Validator
+                        </h3>
+                        <div className="rounded-lg border p-4 text-sm">{aparInspection.note_validator || 'Tidak ada catatan validator'}</div>
                     </CardContent>
                 </Card>
 

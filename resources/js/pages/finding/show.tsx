@@ -199,7 +199,7 @@ export default function ShowFinding({ finding }: { finding: any }) {
                                         <FileText className="h-4 w-4" />
                                         Butuh Izin Kerja (Need Permit)
                                     </Label>
-                                    <div className="mt-1 text-sm">{finding.need_permit ? 'Ya' : 'Tidak'}</div>
+                                    <div className="mt-1 text-sm">{finding.need_permit === null ? '-' : finding.need_permit ? 'Ya' : 'Tidak'}</div>
                                 </div>
                                 {/* Rencana Perbaikan */}
                                 <div>
