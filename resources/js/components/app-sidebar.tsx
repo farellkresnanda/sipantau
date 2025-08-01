@@ -74,7 +74,7 @@ const mainNavItems: NavItemWithChildren[] = [
             },
             {
                 title: 'Inspeksi AC',
-                href: '/inspeksi/ac',
+                href: '/inspection/ac',
                 icon: Wind,
             },
             {

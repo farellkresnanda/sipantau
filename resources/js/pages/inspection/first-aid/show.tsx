@@ -1,5 +1,7 @@
+'use client';
+
 import React from 'react';
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -23,6 +25,7 @@ import {
 import { format } from 'date-fns';
 import ValidatorVerifyFirstAidDialog from './verify-dialog';
 import type { BreadcrumbItem } from '@/types';
+import { Button } from '@/components/ui/button';
 
 interface ShowFirstAidInspectionProps {
     firstAidInspection: {
@@ -36,7 +39,7 @@ interface ShowFirstAidInspectionProps {
         location?: { location: string };
         entity?: { name: string };
         plant?: { name: string };
-        createdBy?: { name: string }; // Pastikan tipe ini sudah benar di sini
+        createdBy?: { id?: number; name?: string };
         approvalStatus?: { name: string };
         note_validator: string | null;
     };
@@ -47,7 +50,8 @@ interface ShowFirstAidInspectionProps {
         quantity_found: number;
         expired_at: string | null;
     }>;
-    approvedBy: string | null; // Ini adalah prop terpisah yang Anda buat
+    approvedBy: string | null;
+    creatorNameProp?: string;
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -56,10 +60,16 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Detail', href: '#' },
 ];
 
-export default function ShowFirstAidInspection(props: ShowFirstAidInspectionProps) { // Menggunakan 'props' langsung
-    const { firstAidInspection, inspectorNotes, approvedBy } = props; // Destructuring dari 'props'
+const getStatusLabel = (code: string) => {
+    if (code === 'SAP') return 'Approved';
+    if (code === 'SOP') return 'Draft';
+    if (code === 'SRE') return 'Rejected';
+    return code ?? 'Draft';
+};
 
-    // Tidak perlu destructuring ulang dari firstAidInspection jika sudah di-destructure di atas
+export default function ShowFirstAidInspection(props: ShowFirstAidInspectionProps) {
+    const { firstAidInspection, inspectorNotes, approvedBy, creatorNameProp } = props;
+
     const {
         uuid,
         approval_status_code,
@@ -70,16 +80,10 @@ export default function ShowFirstAidInspection(props: ShowFirstAidInspectionProp
         location,
         entity,
         plant,
-        // createdBy, // Hapus createdBy dari destructuring ini
-        approvalStatus,
         note_validator,
     } = firstAidInspection;
 
-    // === DEBUGGING TAMBAHAN UNTUK createdBy ===
-    // Pastikan createdBy diakses dari firstAidInspection langsung
-    const creatorName = firstAidInspection.createdBy?.name ?? '-';
-    // console.log("Final creatorName for display:", creatorName);
-    // ==========================================
+    const creatorNameToDisplay = creatorNameProp ?? 'Nama Tidak Tersedia (Error Final)';
 
     if (!firstAidInspection) {
         return <div className="p-4 text-red-600">Data inspeksi tidak ditemukan.</div>;
@@ -91,14 +95,20 @@ export default function ShowFirstAidInspection(props: ShowFirstAidInspectionProp
         return isNaN(parsed.getTime()) ? '-' : format(parsed, 'dd MMMM yyyy');
     };
 
-    const isApprovedOrRejected = ['SAP', 'SRE'].includes(approval_status_code);
+    const statusLabel = getStatusLabel(approval_status_code);
+
+    const isApprovedOrRejected = ['Approved', 'Rejected'].includes(statusLabel);
+    const showExportPdfButton = statusLabel === 'Approved';
+
+    const handleExportPdf = () => {
+        window.open(route('first-aid-inspection.print', uuid), '_blank');
+    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Detail Inspeksi P3K" />
 
             <div className="space-y-6 p-4">
-                {/* Ringkasan Badge */}
                 <div className="flex flex-wrap gap-2">
                     <Badge variant="outline" title="Nomor CAR">
                         <FileText className="mr-1 h-4 w-4" />
@@ -122,23 +132,27 @@ export default function ShowFirstAidInspection(props: ShowFirstAidInspectionProp
                     </Badge>
                     <Badge variant="outline" title="Petugas Inspeksi">
                         <UserCheck className="mr-1 h-4 w-4" />
-                        {/* MENGGUNAKAN creatorName YANG SUDAH DIKONFIRMASI */}
-                        {creatorName}
+                        <span>{creatorNameToDisplay}</span>
                     </Badge>
                     <Badge variant="outline" title="Status">
                         <ShieldCheck className="mr-1 h-4 w-4" />
-                        {approvalStatus?.name ?? 'Draft'}
+                        {statusLabel}
                     </Badge>
 
-                    <ValidatorVerifyFirstAidDialog
-                        inspection={{ uuid, approval_status_code }}
-                    />
+                    {showExportPdfButton && (
+                        <Button
+                            onClick={handleExportPdf}
+                            className="inline-flex items-center gap-1 bg-blue-500 text-white hover:bg-blue-600"
+                            size="sm"
+                        >
+                            <FileText className="h-4 w-4" />
+                            Export PDF
+                        </Button>
+                    )}
                 </div>
 
-                {/* Informasi Utama & Verifikasi */}
                 <Card>
                     <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2 pt-4">
-                        {/* Tanggal Inspeksi - Selalu Tampil di dalam Card */}
                         <div>
                             <p className="text-muted-foreground flex items-center gap-1 text-sm font-medium">
                                 <Calendar className="h-4 w-4" />
@@ -146,8 +160,6 @@ export default function ShowFirstAidInspection(props: ShowFirstAidInspectionProp
                             </p>
                             <p className="text-sm">{formatDate(inspection_date)}</p>
                         </div>
-
-                        {/* Lokasi - Selalu Tampil di dalam Card */}
                         <div>
                             <p className="text-muted-foreground flex items-center gap-1 text-sm font-medium">
                                 <MapPin className="h-4 w-4" />
@@ -156,10 +168,8 @@ export default function ShowFirstAidInspection(props: ShowFirstAidInspectionProp
                             <p className="text-sm">{location?.location ?? '-'}</p>
                         </div>
 
-                        {/* Bagian detail yang hanya tampil jika status SAP atau SRE */}
                         {isApprovedOrRejected && (
                             <>
-                                {/* Nama Proyek - Conditional */}
                                 <div>
                                     <p className="text-muted-foreground flex items-center gap-1 text-sm font-medium">
                                         <FileText className="h-4 w-4" />
@@ -167,8 +177,6 @@ export default function ShowFirstAidInspection(props: ShowFirstAidInspectionProp
                                     </p>
                                     <p className="text-sm">{project_name || '-'}</p>
                                 </div>
-
-                                {/* Disetujui Oleh - Conditional */}
                                 <div>
                                     <p className="text-muted-foreground flex items-center gap-1 text-sm font-medium">
                                         <UserCheck className="h-4 w-4" />
@@ -176,8 +184,6 @@ export default function ShowFirstAidInspection(props: ShowFirstAidInspectionProp
                                     </p>
                                     <p className="text-sm">{approvedBy ?? '-'}</p>
                                 </div>
-
-                                {/* Tanggal Disetujui - Conditional */}
                                 <div>
                                     <p className="text-muted-foreground flex items-center gap-1 text-sm font-medium">
                                         <Calendar className="h-4 w-4" />
@@ -185,8 +191,6 @@ export default function ShowFirstAidInspection(props: ShowFirstAidInspectionProp
                                     </p>
                                     <p className="text-sm">{formatDate(approved_at)}</p>
                                 </div>
-
-                                {/* Komentar Validator - Conditional */}
                                 <div className="md:col-span-2">
                                     <p className="text-muted-foreground flex items-center gap-1 text-sm font-medium">
                                         <FileText className="h-4 w-4" />
@@ -201,7 +205,6 @@ export default function ShowFirstAidInspection(props: ShowFirstAidInspectionProp
                     </CardContent>
                 </Card>
 
-                {/* Tabel Detail Item */}
                 <Card>
                     <CardContent className="overflow-x-auto pt-4">
                         <Table className="w-full min-w-[700px] table-fixed border-collapse whitespace-normal">
@@ -227,8 +230,7 @@ export default function ShowFirstAidInspection(props: ShowFirstAidInspectionProp
                                             <TableCell>
                                                 {item.note && item.note.trim() !== ''
                                                     ? item.note
-                                                    : '(Tidak ada keterangan)'
-                                                }
+                                                    : '(Tidak ada keterangan)'}
                                             </TableCell>
                                         </TableRow>
                                     ))
@@ -243,6 +245,20 @@ export default function ShowFirstAidInspection(props: ShowFirstAidInspectionProp
                         </Table>
                     </CardContent>
                 </Card>
+
+                <div className="mt-6 flex justify-start gap-2">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => router.visit(route('inspection.first-aid.index'))}
+                    >
+                        Kembali
+                    </Button>
+
+                    <ValidatorVerifyFirstAidDialog
+                        inspection={{ uuid, approval_status_code }}
+                    />
+                </div>
             </div>
         </AppLayout>
     );

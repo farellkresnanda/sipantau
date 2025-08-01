@@ -5,6 +5,7 @@ use App\Http\Controllers\FindingController;
 use App\Http\Controllers\HseInformationController;
 use App\Http\Controllers\FirstAidInspectionController;
 use App\Http\Controllers\K3lInspectionController;
+use App\Http\Controllers\AcInspectionController;
 use App\Http\Controllers\Master\MasterAcController;
 use App\Http\Controllers\Master\MasterAparController;
 use App\Http\Controllers\Master\MasterApdController;
@@ -52,7 +53,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('inspection')->group(function () {
         // First Aid Inspection routes
         Route::post('first-aid/verify/{uiid}', [FirstAidInspectionController::class, 'verify'])->name('inspection.first-aid.verify');
-        Route::resource('first-aid', FirstAidInspectionController::class)->names('inspection.first-aid');
+                Route::get('{uuid}/print-pdf', [FirstAidInspectionController::class, 'printPdf'])->name('first-aid-inspection.print');
+                Route::resource('first-aid', FirstAidInspectionController::class)->names('inspection.first-aid');
 
         Route::resource('apar', AparInspectionController::class)->names('inspection.apar');
 
@@ -61,6 +63,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::post('k3l/verify/{uiid}', [K3lInspectionController::class, 'verify'])->name('inspection.k3l.verify');
         Route::resource('k3l', K3lInspectionController::class)->names('inspection.k3l');
+
+        Route::post('ac/verify/{uuid}', [AcInspectionController::class, 'verify'])->name('inspection.ac.verify');
+        Route::resource('ac', AcInspectionController::class)->names('inspection.ac');
     });
 
 

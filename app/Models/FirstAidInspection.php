@@ -75,4 +75,10 @@ class FirstAidInspection extends Model
     {
         return $this->hasMany(\App\Models\FirstAidInspectionItem::class, 'inspection_id');
     }
+
+    public function details()
+    {
+        return $this->hasMany(\App\Models\FirstAidInspectionAidDetail::class, 'inspection_id');
+    }
+
 }

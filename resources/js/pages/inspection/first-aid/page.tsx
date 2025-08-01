@@ -76,7 +76,7 @@ export default function Page({ inspections }: CurrentPageProps) {
                         subtitle="Kelola data Inspeksi P3K di sini. Anda dapat menambah, mengubah, dan menghapus Inspeksi P3K."
                     />
                     <Button asChild className="w-full sm:w-auto">
-                        <Link href="/inspection/first-aid/create">Buat Inspeksi P3K</Link>
+                        <Link href="/inspection/first-aid/create">Buat Inspeksi</Link>
                     </Button>
                 </div>
                 <div className="w-full overflow-x-auto">
