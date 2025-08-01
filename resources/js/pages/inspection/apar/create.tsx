@@ -16,6 +16,14 @@ import { Textarea } from '@/components/ui/textarea';
 import React from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle
+} from '@/components/ui/dialog';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Home', href: '/' },
@@ -38,6 +46,9 @@ const months = [
 const inspectionFields = ["Segel", "Hose", "Tekanan", "Bohlam", "Berat (CO₂)"];
 
 export default function CreateInspectionApar() {
+    const [showFindingModal, setShowFindingModal] = useState(false);
+    const [newInspectionCode, setNewInspectionCode] = useState<string | null>(null);
+
     const { errors = {}, apars = [] } = usePage().props as unknown as {
         errors: Record<string, string>;
         apars: { id: number; inventory_code: string; apar: string; location: string }[];
@@ -103,6 +114,7 @@ export default function CreateInspectionApar() {
         if (errors.error) toast.error(errors.error);
     }, [errors, form]);
 
+
     function onSubmit(values: z.infer<typeof formSchema>) {
         if (!selectedMonth) {
             toast.error('Pilih tanggal inspeksi terlebih dahulu');
@@ -126,9 +138,30 @@ export default function CreateInspectionApar() {
         formData.append('note', inspectionState[selectedMonth]?.note || '');
         formData.append('apar_inspection_items', JSON.stringify(inspectionItems));
 
-        router.post(route('inspection.apar.store'), formData);
-    }
+        router.post(route('inspection.apar.store'), formData, {
+            onSuccess: (page) => {
+                // Cek apakah ada temuan
+                const hasFindings = inspectionItems.some(item => item.value === 'tidak_baik');
 
+                if (hasFindings) {
+                    // Simpan ID inspeksi dari response Inertia jika tersedia
+                    const aparInspectionCode = page.props.aparInspectionCode; // asumsi ID dikembalikan
+                    console.log("aparInspectionCode", aparInspectionCode);
+
+                    if (aparInspectionCode) {
+                        setNewInspectionCode(aparInspectionCode.toString());
+                        setShowFindingModal(true);
+                    } else {
+                        toast.error("Gagal mendapatkan ID inspeksi dari server.");
+                    }
+
+                } else {
+                    router.visit('/inspection/apar'); // redirect normal
+                }
+            }
+        });
+
+    }
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -239,7 +272,9 @@ export default function CreateInspectionApar() {
                                     <Table className="w-full table-auto border-collapse text-sm whitespace-normal">
                                         <TableHeader>
                                             <TableRow>
-                                                <TableHead rowSpan={2} className="w-28 border bg-yellow-300 p-1 text-center text-sm">Bulan</TableHead>
+                                                <TableHead rowSpan={2} className="w-28 border bg-yellow-300 p-1 text-center text-sm">
+                                                    Bulan
+                                                </TableHead>
                                                 {inspectionFields.map((field) => (
                                                     <TableHead key={field} colSpan={2} className="border bg-yellow-300 p-1 text-center text-sm">
                                                         {field}
@@ -250,7 +285,9 @@ export default function CreateInspectionApar() {
                                                 {inspectionFields.map((field, idx) => (
                                                     <React.Fragment key={`${field}-${idx}`}>
                                                         <TableHead className="w-16 border bg-yellow-100 p-1 text-center text-xs">Baik</TableHead>
-                                                        <TableHead className="w-16 border bg-yellow-100 p-1 text-center text-xs">Tidak Baik</TableHead>
+                                                        <TableHead className="w-16 border bg-yellow-100 p-1 text-center text-xs">
+                                                            Tidak Baik
+                                                        </TableHead>
                                                     </React.Fragment>
                                                 ))}
                                             </TableRow>
@@ -265,14 +302,14 @@ export default function CreateInspectionApar() {
                                                             <React.Fragment key={`${month}-${field}-${index}`}>
                                                                 <TableCell className="border text-center">
                                                                     <Checkbox
-                                                                        className="mx-auto h-4 w-4 border-2 border-gray-400 rounded-sm data-[state=checked]:bg-green-500 data-[state=checked]:border-green-600"
+                                                                        className="mx-auto h-4 w-4 rounded-sm border-2 border-gray-400 data-[state=checked]:border-green-600 data-[state=checked]:bg-green-500"
                                                                         checked={inspectionState[month][field] === 'baik'}
                                                                         onCheckedChange={() => handleCheck(month, field, 'baik')}
                                                                     />
                                                                 </TableCell>
                                                                 <TableCell className="border text-center">
                                                                     <Checkbox
-                                                                        className="mx-auto h-4 w-4 border-2 border-gray-400 rounded-sm data-[state=checked]:bg-red-500 data-[state=checked]:border-red-600"
+                                                                        className="mx-auto h-4 w-4 rounded-sm border-2 border-gray-400 data-[state=checked]:border-red-600 data-[state=checked]:bg-red-500"
                                                                         checked={inspectionState[month][field] === 'tidak_baik'}
                                                                         onCheckedChange={() => handleCheck(month, field, 'tidak_baik')}
                                                                     />
@@ -288,11 +325,9 @@ export default function CreateInspectionApar() {
                                 {/* Catatan di luar tabel */}
                                 {selectedMonth && (
                                     <div className="space-y-1">
-                                        <label className="text-sm font-medium text-gray-700">
-                                            Catatan untuk bulan {selectedMonth}
-                                        </label>
+                                        <label className="text-sm font-medium text-gray-700">Catatan untuk bulan {selectedMonth}</label>
                                         <Textarea
-                                            className="w-full text-sm mt-1"
+                                            className="mt-1 w-full text-sm"
                                             placeholder={`Tulis catatan untuk bulan ${selectedMonth}...`}
                                             value={inspectionState[selectedMonth]?.note || ''}
                                             onChange={(e) => handleNoteChange(selectedMonth, e.target.value)}
@@ -301,7 +336,6 @@ export default function CreateInspectionApar() {
                                 )}
                             </CardContent>
                         </Card>
-
 
                         <div className="flex items-center gap-2">
                             <Button type="submit" disabled={form.formState.isSubmitting}>
@@ -313,6 +347,23 @@ export default function CreateInspectionApar() {
                         </div>
                     </form>
                 </Form>
+
+                <Dialog open={showFindingModal} onOpenChange={setShowFindingModal}>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Temuan Ditemukan</DialogTitle>
+                            <DialogDescription>Ada item yang tidak baik dalam inspeksi ini. Buat form temuan sekarang?</DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter>
+                            <Button variant="outline" onClick={() => router.visit('/inspection/apar')}>
+                                Nanti saja
+                            </Button>
+                            <Button onClick={() => router.visit(`/finding/create?inspection=APAR&inspection_code=${newInspectionCode}`)}>
+                                Ya, Buat Temuan
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
             </div>
         </AppLayout>
     );

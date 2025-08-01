@@ -54,7 +54,7 @@ export default function VerifyAparDialog({ inspection }: VerifyAparDialogProps) 
             forceFormData: true,
             onSuccess: () => {
                 setOpen(false);
-                toast.success('APAR inspection berhasil diverifikasi');
+                toast.success('APAR Inspection approved successfully.');
             },
             onError: (errors) => {
                 toast.error('Gagal verifikasi: ' + (errors?.message || 'Terjadi kesalahan'));

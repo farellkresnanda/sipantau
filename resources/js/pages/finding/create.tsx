@@ -46,7 +46,6 @@ export default function CreateFinding() {
             date: '',
             nonconformity_type_id: '',
             nonconformity_subtype_id: '',
-            finding_description: '',
             photo_before: undefined,
             location_details: '',
             root_cause: '',
@@ -277,15 +276,31 @@ export default function CreateFinding() {
                                 <FormField
                                     control={form.control}
                                     name="finding_description"
-                                    render={({ field }) => (
-                                        <FormItem className="md:col-span-2">
-                                            <FormLabel>Deskripsi Temuan</FormLabel>
-                                            <FormControl>
-                                                <Textarea {...field} placeholder="Masukkan description finding" />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
+                                    render={({ field }) => {
+                                        const params = new URLSearchParams(window.location.search);
+                                        const inspection = params.get('inspection');
+                                        const inspectionCode = params.get('inspection_code');
+                                        const date = new Date().toLocaleDateString('id-ID');
+                                        const defaultValue =
+                                            inspection && inspectionCode
+                                                ? `Isi Temuan untuk Inspeksi ${inspection} [${inspectionCode}] pada Tanggal [${date}]`
+                                                : '';
+
+                                        // Set default value jika field masih kosong
+                                        if (!field.value && defaultValue) {
+                                            field.onChange(defaultValue);
+                                        }
+
+                                        return (
+                                            <FormItem className="md:col-span-2">
+                                                <FormLabel>Deskripsi Temuan</FormLabel>
+                                                <FormControl>
+                                                    <Textarea {...field} placeholder="Masukkan description finding" />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        );
+                                    }}
                                 />
 
                                 {/* Akar Masalah */}
@@ -304,8 +319,6 @@ export default function CreateFinding() {
                                 />
                             </CardContent>
                         </Card>
-
-
 
                         <div className="flex items-center gap-2">
                             <Button type="submit" disabled={form.formState.isSubmitting}>

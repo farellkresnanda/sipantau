@@ -86,7 +86,9 @@ class AparInspectionController extends Controller
             }
 
             DB::commit();
-            return redirect()->route('inspection.apar.index')->with('success', 'Inspeksi berhasil ditambahkan.');
+            return inertia('inspection/apar/create', [
+                'aparInspectionCode' => $inspection->code,
+            ]);
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withErrors(['message' => 'Gagal menyimpan inspeksi: ' . $e->getMessage()]);
@@ -170,5 +172,28 @@ class AparInspectionController extends Controller
         $aparInspection->delete();
 
         return redirect()->route('apar-inspections.index')->with('success', 'Inspeksi berhasil dihapus.');
+    }
+
+    /**
+     * Approve the specified resource.
+     */
+    public function verify(Request $request, $uuid)
+    {
+        $aparInspection = AparInspection::where('uuid', $uuid)->firstOrFail();
+
+        // Check if the inspection is already approved
+        if ($aparInspection->approval_status_code === 'SAP') {
+            return redirect()->back()->with('error', 'This APAR Inspection has already been approved.');
+        }
+
+        // Update the approval status to 'SAP'
+        $aparInspection->update([
+            'approval_status_code' => $request->approval_status,
+            'note_validator' => $request->note ?? null,
+            'approved_at' => now(),
+            'approved_by' => auth()->id()
+        ]);
+
+        return redirect()->back()->with('success', 'APAR Inspection approved successfully.');
     }
 }
