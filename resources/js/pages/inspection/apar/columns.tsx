@@ -33,6 +33,7 @@ export const columns: ColumnDef<{
         apar_no: string;
         type: string;
         location: string;
+        inventory_code: string;
     } | null;
     created_by: {
         name: string;
@@ -124,11 +125,16 @@ export const columns: ColumnDef<{
         ),
     },
     {
-        header: 'Lokasi APAR',
+        header: 'Lokasi & No Inventori',
         id: 'location',
-        accessorFn: (row) => row.apar?.location,
+        accessorFn: (row) => `${row.apar?.location ?? '-'} - ${row.apar?.apar_no ?? '-'}`,
         enableGlobalFilter: true,
-        cell: ({ row }) => row.original.apar?.location ?? '-',
+        cell: ({ row }) => (
+            <div className="flex flex-col gap-1">
+                <div>{row.original.apar?.location ?? '-'}</div>
+                <div className="text-sm text-gray-500">No. Inv: {row.original.apar?.inventory_code ?? '-'}</div>
+            </div>
+        ),
     },
     {
         header: 'Dibuat Oleh',
