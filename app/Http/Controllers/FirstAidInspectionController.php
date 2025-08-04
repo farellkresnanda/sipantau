@@ -15,50 +15,53 @@ use App\Models\{
 };
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Support\Facades\{ Auth, DB, Log };
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\{ Auth, DB, Log, Redirect };
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class FirstAidInspectionController extends Controller
 {
+    /**
+     * Menampilkan daftar inspeksi dengan paginasi dinamis untuk semua data.
+     */
     public function index()
     {
-        $inspections = FirstAidInspection::with([
+        $query = FirstAidInspection::with([
             'entity:id,entity_code,name',
             'plant:id,plant_code,name',
             'location:id,location,inventory_code',
             'approvalStatus:id,code,name',
             'createdBy:id,name',
-            'items.item:id,item_name,standard_quantity,unit',
-            'items.condition:id,name',
         ])
         ->select([
             'id', 'uuid', 'entity_code', 'plant_code', 'location_id', 'car_auto_number',
             'inspection_date', 'project_name', 'approval_status_code', 'created_by', 'created_at',
         ])
-        ->orderBy('created_at', 'desc')
-        ->paginate(10);
+        ->orderBy('created_at', 'desc');
+
+        $totalRecords = (clone $query)->count();
+
+        $inspections = $query->paginate($totalRecords > 0 ? $totalRecords : 15);
 
         return Inertia::render('inspection/first-aid/page', [
             'inspections' => $inspections,
         ]);
     }
 
+    /**
+     * Menampilkan form untuk membuat inspeksi baru.
+     */
     public function create()
     {
-        return Inertia::render('inspection/first-aid/create', [
-            'locations' => MasterP3k::select('id', 'location', 'inventory_code', 'entity_code', 'plant_code')->get(),
-            'entities' => MasterEntity::select('entity_code as code', 'name')->get(),
-            'plants' => MasterPlant::select('plant_code as code', 'name')->get(),
-            'firstAidItems' => MasterP3kItem::select('id', 'item_name', 'standard_quantity', 'unit')->get(),
-            'conditions' => FirstAidInspectionCondition::select('id', 'name')->get(),
-        ]);
+        return Inertia::render('inspection/first-aid/create', $this->getCreateViewData());
     }
 
+    /**
+     * Menyimpan inspeksi baru dan merespons seperti AparController.
+     */
     public function store(Request $request)
     {
-        Log::info('Request data received for FirstAidInspection store:', $request->all());
-
         $validationRules = [
             'entity_code' => 'required|string|exists:master_entities,entity_code',
             'plant_code' => 'required|string|exists:master_plants,plant_code',
@@ -75,8 +78,7 @@ class FirstAidInspectionController extends Controller
 
         try {
             $validated = $request->validate($validationRules);
-            Log::info('Validated data before processing:', $validated);
-
+            
             DB::beginTransaction();
 
             $prefix = MasterPlant::where('plant_code', $validated['plant_code'])->first()->alias_name ?? strtoupper($validated['plant_code']);
@@ -97,29 +99,40 @@ class FirstAidInspectionController extends Controller
             ]);
 
             foreach ($validated['items'] as $itemData) {
-                $inspection->items()->create([
-                    'first_aid_check_item_id' => $itemData['first_aid_check_item_id'],
-                    'quantity_found' => $itemData['quantity_found'],
-                    'condition_id' => $itemData['condition_id'],
-                    'note' => $itemData['note'] ?? null,
-                    'expired_at' => $itemData['expired_at'],
-                ]);
+                $inspection->items()->create($itemData);
             }
 
             DB::commit();
 
-            return redirect()->route('inspection.first-aid.index')->with('success', 'Inspeksi P3K berhasil disimpan.');
+            // ✅ PERBAIKAN: Mengirim KEDUA uuid dan code, sama seperti AparController
+            return inertia('inspection/first-aid/create', array_merge(
+                $this->getCreateViewData(),
+                [
+                    'success' => 'Inspeksi P3K berhasil disimpan.',
+                    'firstAidInspectionUuid' => $inspection->uuid,
+                    'firstAidInspectionCode' => $inspection->car_auto_number,
+                ]
+            ));
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             DB::rollBack();
-            Log::error('Validation Error in store:', $e->errors());
             return back()->withErrors($e->errors())->withInput();
-
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Gagal menyimpan FirstAidInspection:', ['error' => $e->getMessage()]);
-            return response()->json(['message' => 'Gagal menyimpan inspeksi: ' . $e->getMessage()], 500);
+            return back()->with('error', 'Gagal menyimpan inspeksi: ' . $e->getMessage());
         }
+    }
+    
+    // Helper function untuk menghindari duplikasi kode
+    private function getCreateViewData()
+    {
+        return [
+            'locations' => MasterP3k::select('id', 'location', 'inventory_code', 'entity_code', 'plant_code')->get(),
+            'entities' => MasterEntity::select('entity_code as code', 'name')->get(),
+            'plants' => MasterPlant::select('plant_code as code', 'name')->get(),
+            'firstAidItems' => MasterP3kItem::select('id', 'item_name', 'standard_quantity', 'unit')->get(),
+            'conditions' => FirstAidInspectionCondition::select('id', 'name')->get(),
+        ];
     }
 
     public function show(string $uuid)
@@ -135,7 +148,7 @@ class FirstAidInspectionController extends Controller
                 'items.item:id,item_name,standard_quantity,unit',
                 'items.condition:id,name',
             ])->where('uuid', $uuid)->firstOrFail();
-
+            
             $inspectorNotes = $inspection->items->map(function ($item) {
                 return [
                     'item_name' => $item->item->item_name ?? '-',
@@ -172,8 +185,8 @@ class FirstAidInspectionController extends Controller
             'items.item:id,item_name,standard_quantity,unit',
             'items.condition:id,name',
         ])->where('uuid', $uuid)->firstOrFail();
+        
         \Carbon\Carbon::setLocale('id');
-
 
         $inspectorNotes = $inspection->items->map(function ($item) {
             return [
@@ -244,13 +257,7 @@ class FirstAidInspectionController extends Controller
 
             $inspection->items()->delete();
             foreach ($validated['items'] as $itemData) {
-                $inspection->items()->create([
-                    'first_aid_check_item_id' => $itemData['first_aid_check_item_id'],
-                    'quantity_found' => $itemData['quantity_found'],
-                    'condition_id' => $itemData['condition_id'],
-                    'note' => $itemData['note'] ?? null,
-                    'expired_at' => $itemData['expired_at'],
-                ]);
+                $inspection->items()->create($itemData);
             }
 
             DB::commit();

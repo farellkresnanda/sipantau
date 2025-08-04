@@ -2,49 +2,51 @@
 
 import { Button } from '@/components/ui/button';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Link, router } from '@inertiajs/react';
 import { ColumnDef } from '@tanstack/react-table';
 import {
-  CalendarDays,
-  CheckCircle,
-  Info,
-  MapPin,
-  MoreVertical,
-  XCircle,
+    CalendarDays,
+    CheckCircle,
+    Info,
+    MapPin,
+    MoreVertical,
+    XCircle,
 } from 'lucide-react';
-import { route } from 'ziggy-js'; // ✅ fixed import
+import { route } from 'ziggy-js';
 
+// Tipe data untuk setiap baris, sudah sesuai dengan kode Anda.
 export type FirstAidInspectionRow = {
-  id: number;
-  uuid: string;
-  approval_status_code: string;
-  approval_status: {
     id: number;
-    name: string;
-    code: string;
-  } | null;
-  entity: {
-    name: string;
-  } | null;
-  plant: {
-    name: string;
-  } | null;
-  car_auto_number: string;
-  inspection_date: string;
-  location: {
-    location: string;
-    inventory_code: string;
-  } | null;
-  project_name: string | null;
-  created_by: {
-    name: string;
-  } | null;
-  created_at: string;
+    uuid: string;
+    approval_status_code: string;
+    approval_status: {
+        id: number;
+        name: string;
+        code: string;
+    } | null;
+    entity: {
+        name: string;
+    } | null;
+    plant: {
+        name: string;
+    } | null;
+    car_auto_number: string;
+    inspection_date: string;
+    location: {
+        location: string;
+        inventory_code: string;
+    } | null;
+    project_name: string | null;
+    created_by: {
+        name: string;
+    } | null;
+    created_at: string;
 };
 
 export const columns: ColumnDef<FirstAidInspectionRow>[] = [
@@ -61,13 +63,12 @@ export const columns: ColumnDef<FirstAidInspectionRow>[] = [
             const statusCode = status?.code || row.approval_status_code;
             const statusName = status?.name || '-';
 
-            let icon = null;
+            let icon = <Info className="h-4 w-4" />;
             let color = 'bg-gray-100 text-gray-700';
             const iconSize = 'h-4 w-4';
 
             switch (statusCode) {
                 case 'SOP':
-                    icon = <Info className={iconSize} />;
                     color = 'bg-blue-100 text-blue-700';
                     break;
                 case 'pending':
@@ -83,27 +84,22 @@ export const columns: ColumnDef<FirstAidInspectionRow>[] = [
                     color = 'bg-red-100 text-red-700';
                     break;
             }
-
-            return {
-                status: statusCode,
-                name: statusName,
-                icon,
-                color,
-            };
+            return { name: statusName, icon, color };
         },
-        cell: ({ getValue }) => {
-            const value = getValue() as { status: string; name: string; icon: React.ReactNode; color: string };
+        // ✅ PERBAIKAN UTAMA: Link pada status sekarang menggunakan UUID
+        cell: ({ row }) => {
+            const statusInfo = row.getValue('approval_status') as { name: string; icon: React.ReactNode; color: string };
+            const inspection = row.original;
 
             return (
-                <Link href={`/inspection/first-aid/${value.status}`} className="inline-flex items-center gap-2 hover:underline">
-                    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${value.color}`}>
-                        {value.icon}
-                        {value.name}
+                <Link href={route('inspection.first-aid.show', inspection.uuid)}>
+                    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium transition-all hover:ring-2 hover:ring-offset-1 ${statusInfo.color}`}>
+                        {statusInfo.icon}
+                        {statusInfo.name}
                     </span>
                 </Link>
             );
         },
-        enableGlobalFilter: true,
     },
     {
         header: 'Entitas & Plant',
@@ -121,7 +117,6 @@ export const columns: ColumnDef<FirstAidInspectionRow>[] = [
                 </div>
             );
         },
-        enableGlobalFilter: true,
     },
     {
         header: 'Nomor & Tanggal',
@@ -137,12 +132,11 @@ export const columns: ColumnDef<FirstAidInspectionRow>[] = [
                     <span>{value.number}</span>
                     <span className="flex items-center gap-1 text-sm text-gray-500">
                         <CalendarDays className="h-3 w-3" />
-                        {value.date}
+                        {new Date(value.date).toLocaleDateString('id-ID')}
                     </span>
                 </div>
             );
         },
-        enableGlobalFilter: true,
     },
     {
         header: 'Proyek',
@@ -151,40 +145,35 @@ export const columns: ColumnDef<FirstAidInspectionRow>[] = [
         cell: ({ getValue }) => {
             const value = getValue() as string;
             return (
-                <div className="flex flex-col gap-1">
-                    <div className="flex items-center gap-1 text-sm text-gray-500">
-                        <MapPin className="h-3 w-3" />
-                        <div className="max-w-[200px] truncate">{value}</div>
-                    </div>
+                <div className="flex items-center gap-1 text-sm text-gray-500">
+                    <MapPin className="h-3 w-3" />
+                    <div className="max-w-[200px] truncate">{value || '-'}</div>
                 </div>
             );
         },
-        enableGlobalFilter: true,
     },
     {
         header: 'Lokasi',
         id: 'location',
         accessorFn: (row) => row.location?.location ?? '-',
-        enableGlobalFilter: true,
     },
     {
         header: 'Dibuat Oleh',
         id: 'created_by',
         accessorFn: (row) => row.created_by?.name ?? '-',
-        enableGlobalFilter: true,
     },
     {
         header: 'Tanggal Dibuat',
         id: 'created_at',
-        accessorFn: (row) => row.created_at?.replace('T', ' ').split('.')[0],
-        enableGlobalFilter: true,
+        accessorFn: (row) => new Date(row.created_at).toLocaleString('id-ID'),
     },
     {
         id: 'actions',
         cell: ({ row }) => {
+            const inspection = row.original;
             const handleDelete = () => {
                 if (confirm('Apakah Anda yakin ingin menghapus data ini?')) {
-                    router.delete(`/inspection/first-aid/${row.original.uuid}`);
+                    router.delete(route('inspection.first-aid.destroy', inspection.uuid));
                 }
             };
 
@@ -197,10 +186,17 @@ export const columns: ColumnDef<FirstAidInspectionRow>[] = [
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Aksi</DropdownMenuLabel>
+
                         <DropdownMenuItem asChild>
-                            <Link href={route('inspection.first-aid.edit', row.original.uuid)}>Edit</Link>
+                            <Link href={route('inspection.first-aid.edit', inspection.uuid)}>
+                                Edit
+                            </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">
+                        <DropdownMenuItem
+                            onClick={handleDelete}
+                            className="w-full cursor-pointer text-left text-red-600 hover:text-red-700"
+                        >
                             Delete
                         </DropdownMenuItem>
                     </DropdownMenuContent>

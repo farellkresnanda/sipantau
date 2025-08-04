@@ -1,10 +1,11 @@
 'use client';
 
 import { Head, router, usePage } from '@inertiajs/react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { toast } from 'sonner';
 
 import AppLayout from '@/layouts/app-layout';
 import SectionHeader from '@/components/section-header';
@@ -27,7 +28,15 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import type { BreadcrumbItem } from '@/types';
+import type { BreadcrumbItem, PageProps } from '@/types';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Home', href: '/' },
@@ -39,21 +48,16 @@ const formSchema = z.object({
     inspection_date: z.string().min(1, { message: 'Tanggal inspeksi harus diisi' }),
     location_id: z.string().min(1, { message: 'Lokasi harus dipilih' }),
     project_name: z.string().nullable(),
-    entity_code: z.string().nullable(), // Ini akan diisi dari selectedLocation.entityData?.entity_code
-    plant_code: z.string().nullable(),  // Ini akan diisi dari selectedLocation.plantData?.plant_code
+    entity_code: z.string().nullable(),
+    plant_code: z.string().nullable(),
     items: z.record(
         z.object({
             quantity: z.preprocess(
-                (val) => {
-                    if (val === '' || val === null) return null;
-                    const num = Number(val);
-                    return isNaN(num) ? null : num;
-                },
+                (val) => (val === '' || val === null ? null : Number(val)),
                 z.number().nullable().refine(val => val === null || val >= 0, {
                     message: 'Jumlah harus angka positif atau nol.',
                 })
             ) as z.ZodType<number | null | undefined>,
-
             condition: z.string().nullable(),
             expired_at: z.string().nullable(),
             note: z.string().nullable(),
@@ -61,21 +65,45 @@ const formSchema = z.object({
     ),
 });
 
+// ✅ PERBAIKAN: Mendefinisikan tipe data yang lebih spesifik untuk props
+interface Location {
+    id: number;
+    location: string;
+    inventory_code: string;
+    entity_code: string;
+    plant_code: string;
+    entityData?: { id: number; entity_code: string; name?: string };
+    plantData?: { id: number; plant_code: string; name?: string };
+}
+
+interface FirstAidItem {
+    id: number;
+    item_name: string;
+    standard_quantity: string;
+    unit?: string;
+}
+
+interface Condition {
+    id: number;
+    name: string;
+}
+
+interface CreatePageProps extends PageProps {
+    locations: Location[];
+    firstAidItems: FirstAidItem[];
+    conditions: Condition[];
+    firstAidInspectionUuid?: string;
+    firstAidInspectionCode?: string;
+    success?: string;
+}
+
 export default function CreateFirstAidInspection() {
-    const { errors = {}, locations = [], firstAidItems = [], conditions = [] } = usePage().props as unknown as {
-        errors: Record<string, string>;
-        locations: Array<{
-            id: number;
-            location: string;
-            inventory_code: string;
-            entity_code: string; // Ini adalah entity_code di tabel master_p3ks
-            plant_code: string;  // Ini adalah plant_code di tabel master_p3ks
-            entityData?: { id: number; entity_code: string; name?: string }; // Tipe untuk relasi eager-loaded
-            plantData?: { id: number; plant_code: string; name?: string };   // Tipe untuk relasi eager-loaded
-        }>;
-        firstAidItems: Array<{ id: number; item_name: string; standard_quantity: string; unit?: string }>;
-        conditions: Array<{ id: number; name: string }>;
-    };
+    const [showFindingModal, setShowFindingModal] = useState(false);
+    const [newInspectionCode, setNewInspectionCode] = useState<string | null>(null);
+    const [findingDescription, setFindingDescription] = useState<string>('');
+
+    // ✅ PERBAIKAN: Menggunakan tipe CreatePageProps yang sudah didefinisikan
+    const { errors = {}, locations = [], firstAidItems = [], conditions = [] } = usePage<CreatePageProps>().props;
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -85,15 +113,11 @@ export default function CreateFirstAidInspection() {
             project_name: '',
             entity_code: null,
             plant_code: null,
-            items: firstAidItems.reduce((acc, item) => {
-                acc[item.id] = {
-                    quantity: null,
-                    condition: null,
-                    expired_at: null,
-                    note: null,
-                };
+            // ✅ PERBAIKAN: Menambahkan tipe pada parameter reduce
+            items: firstAidItems.reduce((acc: Record<string, any>, item: FirstAidItem) => {
+                acc[item.id] = { quantity: null, condition: null, expired_at: null, note: null };
                 return acc;
-            }, {} as Record<string, { quantity: number | null; condition: string | null; expired_at: string | null; note: string | null }>),
+            }, {}),
         },
     });
 
@@ -101,25 +125,11 @@ export default function CreateFirstAidInspection() {
 
     useEffect(() => {
         if (selectedLocation) {
-            // === REVISI DI SINI ===
-            // Ambil entity_code/plant_code dari relasi eager loaded
-            // Gunakan optional chaining (?.) untuk mencegah error jika relasi null
-            // Gunakan nullish coalescing (??) untuk fallback ke kolom langsung (entity_code/plant_code dari master_p3ks)
-            // jika relasi tidak ditemukan atau propertinya null.
             form.setValue('entity_code', selectedLocation.entityData?.entity_code ?? selectedLocation.entity_code);
             form.setValue('plant_code', selectedLocation.plantData?.plant_code ?? selectedLocation.plant_code);
-
-            // === DEBUG POINT DI FRONTEND ===
-            // Periksa di konsol browser (F12) setelah memilih lokasi
-            console.log("Selected Location Data:", selectedLocation);
-            console.log("Setting entity_code to:", selectedLocation.entityData?.entity_code ?? selectedLocation.entity_code);
-            console.log("Setting plant_code to:", selectedLocation.plantData?.plant_code ?? selectedLocation.plant_code);
-            // ===============================
-
         } else {
             form.setValue('entity_code', null);
             form.setValue('plant_code', null);
-            console.log("Resetting entity_code and plant_code to null.");
         }
     }, [selectedLocation, form]);
 
@@ -130,7 +140,6 @@ export default function CreateFirstAidInspection() {
                 if (pathParts[0] === 'items' && !isNaN(Number(pathParts[1]))) {
                     const itemIndex = Number(pathParts[1]);
                     const propName = pathParts[2];
-
                     const masterItemId = firstAidItems.find(item => item.id === itemIndex)?.id || firstAidItems[itemIndex]?.id;
 
                     if (masterItemId !== undefined) {
@@ -150,6 +159,26 @@ export default function CreateFirstAidInspection() {
     }, [errors, form, firstAidItems]);
 
     function onSubmit(values: z.infer<typeof formSchema>) {
+        const today = new Date().toISOString().split("T")[0];
+
+        const findings: string[] = [];
+        Object.entries(values.items).forEach(([itemId, item]) => {
+            if (!item) return;
+            const masterItem = firstAidItems.find((i) => String(i.id) === itemId);
+            if (!masterItem) return;
+
+            const qtyKurang = typeof item.quantity === 'number' && item.quantity < Number(masterItem.standard_quantity);
+            const kondisiBermasalah = item.condition === 'Rusak' || item.condition === 'N/A';
+            const kadaluarsa = item.expired_at && item.expired_at < today;
+
+            if (qtyKurang) findings.push(`${masterItem.item_name} kurang (standar: ${masterItem.standard_quantity}, ditemukan: ${item.quantity})`);
+            if (kondisiBermasalah) findings.push(`${masterItem.item_name} dalam kondisi ${item.condition}`);
+            if (kadaluarsa) findings.push(`${masterItem.item_name} kadaluarsa (tanggal: ${item.expired_at})`);
+        });
+        
+        const hasFindings = findings.length > 0;
+        const detailedFindingDescription = findings.join(', ');
+
         const transformedItems = Object.entries(values.items)
             .map(([masterItemId, data]) => ({
                 first_aid_check_item_id: Number(masterItemId),
@@ -159,14 +188,11 @@ export default function CreateFirstAidInspection() {
                 note: data.note || null,
             }))
             .filter(item =>
-                item.quantity_found > 0 ||
-                item.condition_id !== null ||
-                item.expired_at !== null ||
-                item.note !== null
+                item.quantity_found > 0 || item.condition_id !== null || item.expired_at !== null || item.note !== null
             );
 
-        if (!transformedItems || transformedItems.length === 0) {
-            alert('Mohon isi setidaknya satu item inspeksi.');
+        if (transformedItems.length === 0) {
+            toast.error('Mohon isi setidaknya satu item inspeksi.');
             return;
         }
 
@@ -174,15 +200,35 @@ export default function CreateFirstAidInspection() {
             inspection_date: values.inspection_date,
             location_id: Number(values.location_id),
             project_name: values.project_name,
-            entity_code: values.entity_code, // Ini akan menggunakan nilai yang sudah di-set ke form dari relasi (KFHO)
-            plant_code: values.plant_code,   // Ini akan menggunakan nilai yang sudah di-set ke form dari relasi (KFO)
+            entity_code: values.entity_code,
+            plant_code: values.plant_code,
             items: transformedItems,
         }, {
-            onSuccess: () => {
-                console.log('Submission berhasil! Inertia akan melakukan redirect.');
+            onSuccess: (page) => {
+                // ✅ PERBAIKAN: Menggunakan 'as unknown' untuk mengatasi ketidakcocokan tipe TypeScript
+                const pageProps = page.props as unknown as CreatePageProps;
+                if (pageProps.success) {
+                    toast.success(pageProps.success);
+                }
+
+                if (hasFindings) {
+                    const inspectionCode = pageProps.firstAidInspectionCode;
+
+                    if (inspectionCode) {
+                        setNewInspectionCode(inspectionCode);
+                        const findingText = `Isi Temuan untuk inspeksi P3K (${inspectionCode}) pada Tanggal (${values.inspection_date}): ${detailedFindingDescription}`;
+                        setFindingDescription(findingText);
+                        setShowFindingModal(true);
+                    } else {
+                        toast.error("Gagal mendapatkan data inspeksi dari server.");
+                    }
+                } else {
+                    router.visit('/inspection/first-aid');
+                }
             },
             onError: (backendErrors) => {
-                console.error('Terjadi kesalahan saat menyimpan inspeksi:', backendErrors);
+                console.error('Gagal menyimpan inspeksi:', backendErrors);
+                toast.error('Gagal menyimpan inspeksi. Periksa kembali data Anda.');
             }
         });
     }
@@ -196,7 +242,7 @@ export default function CreateFirstAidInspection() {
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                         <Card>
-                            <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                            <CardContent className="grid grid-cols-1 gap-4 pt-6 md:grid-cols-2">
                                 <FormField
                                     control={form.control}
                                     name="inspection_date"
@@ -220,9 +266,7 @@ export default function CreateFirstAidInspection() {
                                             <FormControl>
                                                 <Select
                                                     value={String(field.value ?? '')}
-                                                    onValueChange={(val) => {
-                                                        field.onChange(val);
-                                                    }}
+                                                    onValueChange={field.onChange}
                                                 >
                                                     <SelectTrigger className="w-full">
                                                         <SelectValue placeholder="Pilih lokasi" />
@@ -266,7 +310,7 @@ export default function CreateFirstAidInspection() {
                         </Card>
 
                         <Card className="overflow-hidden">
-                            <CardContent className="overflow-x-auto">
+                            <CardContent className="overflow-x-auto p-0">
                                 <div className="w-full">
                                     <Table className="w-full table-fixed border-collapse whitespace-normal">
                                         <TableHeader>
@@ -361,6 +405,25 @@ export default function CreateFirstAidInspection() {
                         </div>
                     </form>
                 </Form>
+
+                <Dialog open={showFindingModal} onOpenChange={setShowFindingModal}>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Temuan Ditemukan</DialogTitle>
+                            <DialogDescription>
+                                Ada item yang tidak sesuai dalam inspeksi P3K ini. Buat form temuan sekarang?
+                            </DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter>
+                            <Button variant="outline" onClick={() => router.visit('/inspection/first-aid')}>
+                                Nanti saja
+                            </Button>
+                            <Button onClick={() => router.visit(`/finding/create?inspection=P3K&inspection_code=${encodeURIComponent(newInspectionCode || '')}&description=${encodeURIComponent(findingDescription)}`)}>
+                                Ya, Buat Temuan
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
             </div>
         </AppLayout>
     );

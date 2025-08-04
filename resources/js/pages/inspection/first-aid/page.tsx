@@ -7,11 +7,11 @@ import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
 import { showToast } from '@/components/ui/toast';
 import AppLayout from '@/layouts/app-layout';
-import type { PageProps } from '@/types';
-import type { BreadcrumbItem } from '@/types'; 
+import type { PageProps, BreadcrumbItem } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { useEffect } from 'react';
 import { columns, FirstAidInspectionRow } from './columns';
+import { cn } from '@/lib/utils';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -24,16 +24,21 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-// --- Definisikan Tipe untuk Objek Paginator dari Laravel ---
-// Ini sesuai dengan struktur yang dikirim Laravel dari method index()
-// PENTING: Pastikan ini sudah diekspor dari resources/js/types/index.ts jika Anda ingin menggunakannya kembali
-export interface LaravelPaginator<T> { 
+// Tipe untuk link paginasi dari Laravel
+interface PaginationLink {
+    url: string | null;
+    label: string;
+    active: boolean;
+}
+
+export interface LaravelPaginator<T> {
     current_page: number;
-    data: T[]; // Array data yang sebenarnya, ini yang akan menjadi FirstAidInspectionRow[]
+    data: T[];
     first_page_url: string | null;
     from: number | null;
     last_page: number;
     last_page_url: string | null;
+    links: PaginationLink[];
     next_page_url: string | null;
     path: string;
     per_page: number;
@@ -42,16 +47,35 @@ export interface LaravelPaginator<T> {
     total: number;
 }
 
-// --- Definisikan Tipe Props untuk Halaman Ini ---
-// Tipe ini menggabungkan PageProps dasar Inertia dengan prop spesifik halaman ini (inspections)
 interface CurrentPageProps extends PageProps {
     inspections: LaravelPaginator<FirstAidInspectionRow>;
 }
 
+// ✅ PERBAIKAN: Komponen paginasi sekarang sesuai dengan gambar yang Anda berikan
+function Pagination({ paginator }: { paginator: LaravelPaginator<any> }) {
+    return (
+        <div className="mt-4 flex items-center justify-between">
+            <div className="text-sm text-gray-700">
+                Page {paginator.current_page} of {paginator.last_page} (Total {paginator.total} records)
+            </div>
+            <div className="flex items-center gap-2">
+                <Button asChild variant="outline" disabled={!paginator.prev_page_url}>
+                    <Link href={paginator.prev_page_url || '#'} preserveScroll>
+                        Previous
+                    </Link>
+                </Button>
+                <Button asChild variant="outline" disabled={!paginator.next_page_url}>
+                    <Link href={paginator.next_page_url || '#'} preserveScroll>
+                        Next
+                    </Link>
+                </Button>
+            </div>
+        </div>
+    );
+}
+
 
 export default function Page({ inspections }: CurrentPageProps) {
-    // Destrukturisasi `flash` dari `usePage().props`. Karena CurrentPageProps extend PageProps,
-    // `flash` dan `errors` sudah menjadi bagian dari `usePage().props`.
     const { flash } = usePage().props as unknown as PageProps;
 
     useEffect(() => {
@@ -81,7 +105,6 @@ export default function Page({ inspections }: CurrentPageProps) {
                 </div>
                 <div className="w-full overflow-x-auto">
                     <div className="min-w-[1000px]">
-                        {/* Mengakses properti 'data' dari objek paginator 'inspections' */}
                         <DataTable columns={columns} data={inspections.data} />
                     </div>
                 </div>
