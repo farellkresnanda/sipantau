@@ -5,32 +5,48 @@
     <title>Inspeksi Kotak P3K</title>
     <style>
         body {
-            font-family: "Times New Roman", Times, serif;
-            font-size: 12px;
+            /* Mengadopsi font dari template referensi, termasuk DejaVu Sans untuk kompatibilitas karakter */
+            font-family: "Times New Roman", Times, "DejaVu Sans", sans-serif;
             margin: 20px;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 12px;
             margin-bottom: 15px;
+            /* Ukuran font tabel disamakan menjadi 14px */
+            font-size: 14px;
         }
+
         th, td {
             border: 1px solid black;
-            padding: 6px;
+            /* Padding disamakan menjadi 8px */
+            padding: 8px;
             vertical-align: top;
+            text-align: left;
         }
+
+        /* Menambahkan perataan justify pada sel data */
+        td {
+            text-align: justify;
+            text-justify: inter-word;
+        }
+
         .title {
             text-align: center;
             font-size: 18px;
             font-weight: bold;
             margin-top: 20px;
             margin-bottom: 20px;
+            /* Menambahkan garis bawah pada judul */
+            text-decoration: underline;
         }
+
         .note {
-            font-size: 11px;
+            font-size: 12px; /* Sedikit diperbesar agar konsisten */
             margin-top: 10px;
         }
+
         .signature {
             margin-top: 40px;
             text-align: left;
@@ -39,10 +55,9 @@
 </head>
 <body>
 
-    <!-- Header (menggunakan tabel) -->
     <table style="border: none;">
         <tr style="border: none;">
-            <td style="border: none; vertical-align: top;">
+            <td style="border: none; vertical-align: top; font-size: 12px;">
                 <div>Copy No. : </div>
                 <div>Kode Form : CMD125-UPC-003</div>
                 <div>Tgl. Revisi : 11 Des 2023</div>
@@ -54,7 +69,6 @@
         </tr>
     </table>
 
-    <!-- Title -->
     <div class="title">INSPEKSI KOTAK P3K</div>
 
     <!-- Info Umum -->
@@ -117,12 +131,20 @@
 penggantian</p>
     </div>
 
-    <!-- Tanda Tangan -->
     <div class="signature">
-        <p>Diperiksa oleh,</p>
-        <br><br><br>
-        <p><strong>(Ety Maryati)</strong><br>Petugas P3K</p>
-    </div>
+    <p>Diperiksa oleh,</p>
 
-</body>
-</html>
+    {{-- KODE UNTUK MENAMPILKAN QR CODE --}}
+    @if ($inspection->qr_code_path && file_exists(storage_path('app/public/' . $inspection->qr_code_path)))
+        {{-- Jika path QR ada di DB DAN file-nya ada di storage, tampilkan gambar --}}
+        <div style="margin-top: 10px; margin-bottom: 10px;">
+            <img src="{{ storage_path('app/public/' . $inspection->qr_code_path) }}" alt="QR Code Verifikasi" style="width: 100px; height: 100px;">
+        </div>
+    @else
+        {{-- Jika QR code tidak ada, berikan spasi agar layout tidak rusak --}}
+        <br><br><br>
+    @endif
+    {{-- AKHIR KODE QR CODE --}}
+
+    <p><strong>(Ety Maryati)</strong><br>Petugas P3K</p>
+</div>

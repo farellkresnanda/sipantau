@@ -1,9 +1,7 @@
 'use client';
 
-import React from 'react';
-import { Head, router } from '@inertiajs/react';
-import AppLayout from '@/layouts/app-layout';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
     Table,
@@ -13,6 +11,10 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import AppLayout from '@/layouts/app-layout';
+import type { BreadcrumbItem } from '@/types';
+import { Head, router } from '@inertiajs/react';
+import { format } from 'date-fns';
 import {
     Building2,
     Calendar,
@@ -22,10 +24,8 @@ import {
     ShieldCheck,
     UserCheck,
 } from 'lucide-react';
-import { format } from 'date-fns';
+import React from 'react';
 import ValidatorVerifyFirstAidDialog from './verify-dialog';
-import type { BreadcrumbItem } from '@/types';
-import { Button } from '@/components/ui/button';
 
 interface ShowFirstAidInspectionProps {
     firstAidInspection: {
@@ -62,9 +62,9 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 const getStatusLabel = (code: string) => {
     if (code === 'SAP') return 'Approved';
-    if (code === 'SOP') return 'Draft';
+    if (code === 'SOP') return 'Open';
     if (code === 'SRE') return 'Rejected';
-    return code ?? 'Draft';
+    return code ?? 'Open';
 };
 
 export default function ShowFirstAidInspection(props: ShowFirstAidInspectionProps) {
@@ -83,7 +83,7 @@ export default function ShowFirstAidInspection(props: ShowFirstAidInspectionProp
         note_validator,
     } = firstAidInspection;
 
-    const creatorNameToDisplay = creatorNameProp ?? 'Nama Tidak Tersedia (Error Final)';
+    const creatorNameToDisplay = creatorNameProp ?? 'Nama Tidak Tersedia';
 
     if (!firstAidInspection) {
         return <div className="p-4 text-red-600">Data inspeksi tidak ditemukan.</div>;
@@ -96,9 +96,11 @@ export default function ShowFirstAidInspection(props: ShowFirstAidInspectionProp
     };
 
     const statusLabel = getStatusLabel(approval_status_code);
-
     const isApprovedOrRejected = ['Approved', 'Rejected'].includes(statusLabel);
     const showExportPdfButton = statusLabel === 'Approved';
+
+    // Kondisi Kunci: Aksi validasi hanya bisa dilakukan jika statusnya 'Open'
+    const canVerify = approval_status_code === 'SOP';
 
     const handleExportPdf = () => {
         window.open(route('first-aid-inspection.print', uuid), '_blank');
@@ -109,7 +111,7 @@ export default function ShowFirstAidInspection(props: ShowFirstAidInspectionProp
             <Head title="Detail Inspeksi P3K" />
 
             <div className="space-y-6 p-4">
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                     <Badge variant="outline" title="Nomor CAR">
                         <FileText className="mr-1 h-4 w-4" />
                         {car_auto_number || '-'}
@@ -152,7 +154,7 @@ export default function ShowFirstAidInspection(props: ShowFirstAidInspectionProp
                 </div>
 
                 <Card>
-                    <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2 pt-4">
+                    <CardContent className="grid grid-cols-1 gap-4 pt-4 md:grid-cols-2">
                         <div>
                             <p className="text-muted-foreground flex items-center gap-1 text-sm font-medium">
                                 <Calendar className="h-4 w-4" />
@@ -196,7 +198,7 @@ export default function ShowFirstAidInspection(props: ShowFirstAidInspectionProp
                                         <FileText className="h-4 w-4" />
                                         Komentar Validator
                                     </p>
-                                    <p className="text-sm whitespace-pre-line">
+                                    <p className="whitespace-pre-line text-sm">
                                         {note_validator || '-'}
                                     </p>
                                 </div>
@@ -207,7 +209,7 @@ export default function ShowFirstAidInspection(props: ShowFirstAidInspectionProp
 
                 <Card>
                     <CardContent className="overflow-x-auto pt-4">
-                        <Table className="w-full min-w-[700px] table-fixed border-collapse whitespace-normal">
+                        <Table className="min-w-[700px] w-full table-fixed border-collapse whitespace-normal">
                             <TableHeader>
                                 <TableRow>
                                     <TableHead className="w-12">No</TableHead>
@@ -236,7 +238,10 @@ export default function ShowFirstAidInspection(props: ShowFirstAidInspectionProp
                                     ))
                                 ) : (
                                     <TableRow>
-                                        <TableCell colSpan={6} className="text-center text-muted-foreground">
+                                        <TableCell
+                                            colSpan={6}
+                                            className="text-center text-muted-foreground"
+                                        >
                                             Tidak ada data inspeksi ditemukan.
                                         </TableCell>
                                     </TableRow>
@@ -255,9 +260,12 @@ export default function ShowFirstAidInspection(props: ShowFirstAidInspectionProp
                         Kembali
                     </Button>
 
-                    <ValidatorVerifyFirstAidDialog
-                        inspection={{ uuid, approval_status_code }}
-                    />
+                    {/* Aksi untuk Validator: Tombol/dialog ini hanya muncul jika status 'Open' (SOP) */}
+                    {canVerify && (
+                        <ValidatorVerifyFirstAidDialog
+                            inspection={{ uuid, approval_status_code }}
+                        />
+                    )}
                 </div>
             </div>
         </AppLayout>

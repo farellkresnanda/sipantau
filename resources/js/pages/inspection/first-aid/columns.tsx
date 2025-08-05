@@ -8,7 +8,8 @@ import {
     DropdownMenuLabel,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Link, router } from '@inertiajs/react';
+import type { PageProps } from '@/types';
+import { Link, router, usePage } from '@inertiajs/react';
 import { ColumnDef } from '@tanstack/react-table';
 import {
     CalendarDays,
@@ -20,7 +21,7 @@ import {
 } from 'lucide-react';
 import { route } from 'ziggy-js';
 
-// Tipe data untuk setiap baris, sudah sesuai dengan kode Anda.
+// Tipe data untuk setiap baris
 export type FirstAidInspectionRow = {
     id: number;
     uuid: string;
@@ -86,14 +87,19 @@ export const columns: ColumnDef<FirstAidInspectionRow>[] = [
             }
             return { name: statusName, icon, color };
         },
-        // ✅ PERBAIKAN UTAMA: Link pada status sekarang menggunakan UUID
         cell: ({ row }) => {
-            const statusInfo = row.getValue('approval_status') as { name: string; icon: React.ReactNode; color: string };
+            const statusInfo = row.getValue('approval_status') as {
+                name: string;
+                icon: React.ReactNode;
+                color: string;
+            };
             const inspection = row.original;
 
             return (
                 <Link href={route('inspection.first-aid.show', inspection.uuid)}>
-                    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium transition-all hover:ring-2 hover:ring-offset-1 ${statusInfo.color}`}>
+                    <span
+                        className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium transition-all hover:ring-2 hover:ring-offset-1 ${statusInfo.color}`}
+                    >
                         {statusInfo.icon}
                         {statusInfo.name}
                     </span>
@@ -132,7 +138,11 @@ export const columns: ColumnDef<FirstAidInspectionRow>[] = [
                     <span>{value.number}</span>
                     <span className="flex items-center gap-1 text-sm text-gray-500">
                         <CalendarDays className="h-3 w-3" />
-                        {new Date(value.date).toLocaleDateString('id-ID')}
+                        {new Date(value.date).toLocaleDateString('id-ID', {
+                             day: '2-digit',
+                             month: 'long',
+                             year: 'numeric',
+                        })}
                     </span>
                 </div>
             );
@@ -169,14 +179,27 @@ export const columns: ColumnDef<FirstAidInspectionRow>[] = [
     },
     {
         id: 'actions',
-        cell: ({ row }) => {
+        cell: function ActionsCell({ row }) {
+            const { auth } = usePage<PageProps>().props;
             const inspection = row.original;
+
+            const isApproved = inspection.approval_status_code === 'SAP';
+            const canModify = auth.role === 'SuperAdmin';
+
+            const showModifyActions = canModify && !isApproved;
+            const showDetailAction = isApproved;
+            
+            // Jika tidak ada aksi yang tersedia, jangan render tombol '...' sama sekali
+            if (!showModifyActions && !showDetailAction) {
+                return null;
+            }
+            
             const handleDelete = () => {
                 if (confirm('Apakah Anda yakin ingin menghapus data ini?')) {
                     router.delete(route('inspection.first-aid.destroy', inspection.uuid));
                 }
             };
-
+            
             return (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -188,17 +211,31 @@ export const columns: ColumnDef<FirstAidInspectionRow>[] = [
                     <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Aksi</DropdownMenuLabel>
 
-                        <DropdownMenuItem asChild>
-                            <Link href={route('inspection.first-aid.edit', inspection.uuid)}>
-                                Edit
-                            </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                            onClick={handleDelete}
-                            className="w-full cursor-pointer text-left text-red-600 hover:text-red-700"
-                        >
-                            Delete
-                        </DropdownMenuItem>
+                        {/* Aksi "Lihat Detail" HANYA untuk status Approved */}
+                        {showDetailAction && (
+                            <DropdownMenuItem asChild>
+                                <Link href={route('inspection.first-aid.show', inspection.uuid)}>
+                                    Lihat Detail
+                                </Link>
+                            </DropdownMenuItem>
+                        )}
+                        
+                        {/* Aksi "Edit" dan "Delete" HANYA untuk SuperAdmin pada status BUKAN Approved */}
+                        {showModifyActions && (
+                            <>
+                                <DropdownMenuItem asChild>
+                                    <Link href={route('inspection.first-aid.edit', inspection.uuid)}>
+                                        Edit
+                                    </Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onClick={handleDelete}
+                                    className="w-full cursor-pointer text-left text-red-600 focus:bg-red-50 focus:text-red-700"
+                                >
+                                    Delete
+                                </DropdownMenuItem>
+                            </>
+                        )}
                     </DropdownMenuContent>
                 </DropdownMenu>
             );

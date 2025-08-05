@@ -26,6 +26,7 @@ class FirstAidInspection extends Model
         'approved_by',
         'note_validator',
         'approved_at',
+        'qr_code_path',
     ];
 
     protected static function boot()
