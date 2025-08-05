@@ -55,7 +55,7 @@ export default function ShowAparInspection({ aparInspection }: { aparInspection:
                         <Calendar className="h-4 w-4 text-yellow-500" />
                         {format(new Date(aparInspection.created_at), 'dd MMMM yyyy')}
                     </Badge>
-                    {aparInspection.aparInspection_status?.code === 'SCF' && (
+                    {aparInspection.approval_status_code === 'SAP' && (
                         <button
                             onClick={() => window.open(`/inspection/apar/${aparInspection.uuid}/print`, '_blank')}
                             className="inline-flex items-center gap-1 rounded-md border border-transparent bg-blue-500 px-2.5 py-0.5 text-xs font-semibold text-white transition-colors hover:bg-blue-600"
@@ -113,6 +113,18 @@ export default function ShowAparInspection({ aparInspection }: { aparInspection:
                                     <TableRow>
                                         <TableCell>Dibuat Oleh</TableCell>
                                         <TableCell>{aparInspection.created_by.name}</TableCell>
+                                    </TableRow>
+                                )}
+                                {aparInspection.approved_by && (
+                                    <TableRow>
+                                        <TableCell>Disetujui Oleh</TableCell>
+                                        <TableCell>{aparInspection.approved_by.name}</TableCell>
+                                    </TableRow>
+                                )}
+                                {aparInspection.approved_at && (
+                                    <TableRow>
+                                        <TableCell>Disetujui Pada</TableCell>
+                                        <TableCell>{aparInspection.approved_at}</TableCell>
                                     </TableRow>
                                 )}
                             </TableBody>

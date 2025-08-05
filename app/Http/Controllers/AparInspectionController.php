@@ -9,10 +9,12 @@ use App\Models\Master\MasterApar;
 use App\Models\Master\MasterAparCheckItem;
 use App\Models\Master\MasterEntity;
 use App\Models\Master\MasterPlant;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class AparInspectionController extends Controller
 {
@@ -101,7 +103,7 @@ class AparInspectionController extends Controller
     public function show($uuid)
     {
         $aparInspection = AparInspection::where('uuid', $uuid)
-            ->with(['approvalStatus', 'plant', 'entity', 'apar', 'items.checkItem', 'createdBy'])
+            ->with(['approvalStatus', 'plant', 'entity', 'apar', 'items.checkItem', 'createdBy', 'approvedBy'])
             ->firstOrFail();
 
         return inertia('inspection/apar/show', [
@@ -180,20 +182,54 @@ class AparInspectionController extends Controller
     public function verify(Request $request, $uuid)
     {
         $aparInspection = AparInspection::where('uuid', $uuid)->firstOrFail();
+        $user_id = auth()->id();
 
         // Check if the inspection is already approved
         if ($aparInspection->approval_status_code === 'SAP') {
             return redirect()->back()->with('error', 'This APAR Inspection has already been approved.');
         }
 
+        // Generate QR Code untuk apar ini
+        $qrCodeFolder = 'qrcodes/apar';
+        $qrFileName = 'apar-' . $aparInspection->id . '-approval-' . auth()->id() . '.png';
+        $qrCodePath = $qrCodeFolder . '/' . $qrFileName;
+        $fullPath = storage_path('app/public/' . $qrCodePath);
+
+        // Buat folder jika belum ada
+        if (!file_exists(dirname($fullPath))) {
+            mkdir(dirname($fullPath), 0755, true);
+        }
+
+        // Data yang akan dimasukkan ke QR Code
+        $qrContent = route('inspection.apar.show', $aparInspection->uuid) . '?verified_by=' . $user_id . '&stage=' . 'SAP';
+
+        // Generate QR
+        QrCode::format('png')->size(200)->generate($qrContent, $fullPath);
+
         // Update the approval status to 'SAP'
         $aparInspection->update([
             'approval_status_code' => $request->approval_status,
             'note_validator' => $request->note ?? null,
             'approved_at' => now(),
-            'approved_by' => auth()->id()
+            'approved_by' => $user_id,
+            'qr_code_path' => $qrCodePath,
         ]);
 
         return redirect()->back()->with('success', 'APAR Inspection approved successfully.');
+    }
+
+    /**
+     * Print the APAR details.
+     */
+    public function print($uuid)
+    {
+        $aparInspection = AparInspection::where('uuid', $uuid)
+            ->with(['approvalStatus', 'plant', 'entity', 'apar', 'items', 'createdBy'])
+            ->firstOrFail();
+
+        $pdf = PDF::loadView('pdf.apar', compact('aparInspection'))
+            ->setPaper('a4', 'portrait');
+
+        return $pdf->stream('Inspeksi-APAR-' . $uuid . '.pdf');
     }
 }
