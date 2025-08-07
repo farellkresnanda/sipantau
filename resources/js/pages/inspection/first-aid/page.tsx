@@ -76,20 +76,6 @@ function Pagination({ paginator }: { paginator: LaravelPaginator<any> }) {
 
 
 export default function Page({ inspections }: CurrentPageProps) {
-    const { flash } = usePage().props as unknown as PageProps;
-
-    useEffect(() => {
-        if (flash?.success) {
-            showToast({ type: 'success', message: flash.success });
-        }
-        if (flash?.error) {
-            showToast({ type: 'error', message: flash.error });
-        }
-        if (flash?.message) {
-            showToast({ message: flash.message });
-        }
-    }, [flash]);
-
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Inspeksi P3K" />

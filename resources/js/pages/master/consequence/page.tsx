@@ -25,22 +25,9 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function MasterKonsekuensiPage() {
-  const { data, flash } = usePage<{
+  const { data} = usePage<{
     data: Konsekuensi[];
-    flash?: { success?: string; error?: string; message?: string };
   }>().props;
-
-  useEffect(() => {
-    if (flash?.success) {
-      showToast({ type: 'success', message: flash.success });
-    }
-    if (flash?.error) {
-      showToast({ type: 'error', message: flash.error });
-    }
-    if (flash?.message) {
-      showToast({ message: flash.message });
-    }
-  }, [flash]);
 
   return (
     <AppLayout breadcrumbs={breadcrumbs}>

@@ -104,14 +104,7 @@ export const columns: ColumnDef<MasterGenset>[] = [
             const handleDelete = () => {
                 const confirmDelete = confirm(`Yakin ingin menghapus Genset dengan serial "${genset.serial_number}"?`);
                 if (confirmDelete) {
-                    router.delete(route('genset.destroy', genset.id), {
-                        onSuccess: () => {
-                            showToast({ type: 'success', message: 'Data Genset berhasil dihapus.' });
-                        },
-                        onError: () => {
-                            showToast({ type: 'error', message: 'Gagal menghapus data Genset.' });
-                        },
-                    });
+                    router.delete(route('genset.destroy', genset.id));
                 }
             };
 

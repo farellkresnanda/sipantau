@@ -74,20 +74,7 @@ export const columns: ColumnDef<MasterAc>[] = [
             const handleDelete = () => {
                 const confirmed = confirm(`Yakin ingin menghapus AC dengan kode inventaris "${row.original.inventory_code}"?`);
                 if (confirmed) {
-                    router.delete(`/master/ac/${row.original.id}`, {
-                        onSuccess: () => {
-                            showToast({
-                                type: 'success',
-                                message: 'Data AC berhasil dihapus.',
-                            });
-                        },
-                        onError: () => {
-                            showToast({
-                                type: 'error',
-                                message: 'Terjadi kesalahan saat menghapus data.',
-                            });
-                        },
-                    });
+                    router.delete(`/master/ac/${row.original.id}`);
                 }
             };
 

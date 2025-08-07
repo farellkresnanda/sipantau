@@ -42,22 +42,6 @@ export type MasterGenset = {
 };
 
 export default function PageGenset({ gensets }: { gensets: MasterGenset[] }) {
-  const { flash } = usePage().props as {
-    flash?: { success?: string; error?: string; message?: string };
-  };
-
-  useEffect(() => {
-    if (flash?.success) {
-      showToast({ type: 'success', message: flash.success });
-    }
-    if (flash?.error) {
-      showToast({ type: 'error', message: flash.error });
-    }
-    if (flash?.message) {
-      showToast({ message: flash.message });
-    }
-  }, [flash]);
-
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
       <Head title="Master Genset" />

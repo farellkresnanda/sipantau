@@ -37,6 +37,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { showToast } from '@/components/ui/toast';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Home', href: '/' },
@@ -175,7 +176,7 @@ export default function CreateFirstAidInspection() {
             if (kondisiBermasalah) findings.push(`${masterItem.item_name} dalam kondisi ${item.condition}`);
             if (kadaluarsa) findings.push(`${masterItem.item_name} kadaluarsa (tanggal: ${item.expired_at})`);
         });
-        
+
         const hasFindings = findings.length > 0;
         const detailedFindingDescription = findings.join(', ');
 
@@ -415,7 +416,16 @@ export default function CreateFirstAidInspection() {
                             </DialogDescription>
                         </DialogHeader>
                         <DialogFooter>
-                            <Button variant="outline" onClick={() => router.visit('/inspection/first-aid')}>
+                            <Button
+                                variant="outline"
+                                onClick={() =>
+                                    router.visit('/inspection/first-aid', {
+                                        onSuccess: () => {
+                                            showToast({ type: 'success', message: 'P3K inspection data saved successfully' });
+                                        },
+                                    })
+                                }
+                            >
                                 Nanti saja
                             </Button>
                             <Button onClick={() => router.visit(`/finding/create?inspection=P3K&inspection_code=${encodeURIComponent(newInspectionCode || '')}&description=${encodeURIComponent(findingDescription)}`)}>

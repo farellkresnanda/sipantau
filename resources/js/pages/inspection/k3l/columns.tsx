@@ -46,7 +46,7 @@ export const columns: ColumnDef<any>[] = [
 
             return (
                 <Link href={`/inspection/k3l/${row.original.uuid}`} className="inline-flex items-center gap-2 hover:underline">
-                    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${color}`}>
+                    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium transition-all hover:ring-1 hover:ring-offset-1 ${color}`}>
                         {icon}
                         {statusName}
                     </span>
