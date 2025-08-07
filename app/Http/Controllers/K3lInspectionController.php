@@ -62,28 +62,38 @@ class K3lInspectionController extends Controller
             'inspection_date' => 'required|date',
         ]);
 
-        // Generate CAR number (you may want to extract this logic into a service later)
-        $carNumber = auth()->user()->plant->alias_name.'/'.sprintf('%03d', Finding::count() + 1).'/'.now()->format('d/m/Y');
+        DB::beginTransaction();
+        try {
+            // Generate CAR number (you may want to extract this logic into a service later)
+            $carNumber = auth()->user()->plant->alias_name.'/'.sprintf('%03d', Finding::count() + 1).'/'.now()->format('d/m/Y');
 
-
-        $k3lInspection = K3lInspection::create([
-            'uuid' => Str::uuid(),
-            'approval_status_code' => 'SOP',
-            'entity_code' => auth()->user()->entity_code,
-            'plant_code' => auth()->user()->plant_code,
-            'car_number_auto' => $carNumber,
-            'location_id' => $request->location_id,
-            'inspection_date' => $request->inspection_date,
-            'created_by' => auth()->id(),
-        ]);
-
-        foreach ($request->items as $item) {
-            $k3lInspection->items()->create([
-                'k3l_inspection_id' => $k3lInspection->id,
-                'master_k3l_description_id' => $item['master_k3l_description_id'],
-                'condition' => $item['condition'] ?? null,
-                'note' => $item['note'] ?? null,
+            $k3lInspection = K3lInspection::create([
+                'uuid' => Str::uuid(),
+                'approval_status_code' => 'SOP',
+                'entity_code' => auth()->user()->entity_code,
+                'plant_code' => auth()->user()->plant_code,
+                'car_number_auto' => $carNumber,
+                'location_id' => $request->location_id,
+                'inspection_date' => $request->inspection_date,
+                'created_by' => auth()->id(),
             ]);
+
+            foreach ($request->items as $item) {
+                $k3lInspection->items()->create([
+                    'k3l_inspection_id' => $k3lInspection->id,
+                    'master_k3l_description_id' => $item['master_k3l_description_id'],
+                    'condition' => $item['condition'] ?? null,
+                    'note' => $item['note'] ?? null,
+                ]);
+            }
+            DB::commit();
+
+            return inertia('inspection/k3l/create', [
+                'k3lInspectionCode' => $k3lInspection->car_number_auto, // bisa juga pakai uuid
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['message' => 'Gagal menyimpan inspeksi: ' . $e->getMessage()]);
         }
 
         return redirect()->route('inspection.k3l.index')->with('success', __('K3L Inspection created successfully.'));
