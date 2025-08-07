@@ -45,8 +45,10 @@ export const columns: ColumnDef<any>[] = [
             }
 
             return (
-                <Link href={`/inspection/k3l/${row.original.uuid}`} className="inline-flex items-center gap-2 hover:underline">
-                    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium transition-all hover:ring-1 hover:ring-offset-1 ${color}`}>
+                <Link href={`/inspection/k3l/${row.original.uuid}`} className="inline-flex items-center gap-2">
+                    <span
+                        className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium transition-all hover:ring-1 hover:ring-offset-1 ${color}`}
+                    >
                         {icon}
                         {statusName}
                     </span>
@@ -111,7 +113,7 @@ export const columns: ColumnDef<any>[] = [
         cell: ({ row }) => (
             <div className="flex flex-col gap-1">
                 <div>{row.original.created_by?.name || '-'}</div>
-                <div className="text-sm text-gray-500">{row.original.created_at?.replace('T', ' ').split('.')[0] || '-'}</div>
+                <div className="text-sm text-gray-500">{new Date(row.original.created_at).toLocaleString('id-ID')}</div>
             </div>
         ),
         enableGlobalFilter: true,

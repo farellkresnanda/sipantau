@@ -3,7 +3,7 @@
 import { ColumnDef } from '@tanstack/react-table'; // Pastikan Anda menggunakan @tanstack/react-table
 import { Button } from '@/components/ui/button';
 import { Link, router } from '@inertiajs/react'; // Pastikan 'router' diimpor
-import { MoreHorizontal, Calendar, MapPin, Building2, Factory, UserCheck, ShieldCheck, FileText } from 'lucide-react'; // Sesuaikan icon yang digunakan
+import { MoreHorizontal } from 'lucide-react'; // Sesuaikan icon yang digunakan
 import { format } from 'date-fns';
 import {
     DropdownMenu,
