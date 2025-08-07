@@ -175,7 +175,7 @@ export default function CreateMasterLokasi({ entityList, plantList }: Props) {
 
                                 <div className="flex items-center gap-2">
                                     <Button type="submit" disabled={form.formState.isSubmitting}>
-                                        {form.formState.isSubmitting ? 'Menyimpan...' : 'Simpan Data'}
+                                        {form.formState.isSubmitting ? 'Menyimpan...' : 'Submit Data'}
                                     </Button>
                                     <Link href={route('location.index')} className="text-muted-foreground text-sm hover:underline">
                                         Batal

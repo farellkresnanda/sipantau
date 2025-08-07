@@ -290,7 +290,7 @@ export default function CreateK3LInspection({ errors, locations, k3lItems }: Pag
 
                         <div className="flex justify-start">
                             <Button type="submit" disabled={form.formState.isSubmitting}>
-                                {form.formState.isSubmitting ? 'Menyimpan...' : 'Simpan Data'}
+                                {form.formState.isSubmitting ? 'Menyimpan...' : 'Submit Data'}
                             </Button>
                         </div>
                     </form>
