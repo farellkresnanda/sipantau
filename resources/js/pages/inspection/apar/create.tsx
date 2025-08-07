@@ -44,7 +44,7 @@ const months = [
     "Juli", "Agustus", "September", "Oktober", "November", "Desember"
 ];
 
-const inspectionFields = ["Segel", "Hose", "Tekanan", "Bohlam", "Berat (CO₂)"];
+const inspectionFields = ["Segel", "Hose", "Tekanan", "Dibalik", "Berat (CO₂)", "Sesuai Tempatnya"];
 
 export default function CreateInspectionApar() {
     const [showFindingModal, setShowFindingModal] = useState(false);
