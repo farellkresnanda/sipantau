@@ -24,13 +24,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function MasterUjiRiksaPeralatanPage() {
-  const { data, flash } = usePage<{ data: Peralatan[]; flash?: { success?: string } }>().props;
-
-  useEffect(() => {
-    if (flash?.success) {
-      showToast({ type: 'success', message: flash.success });
-    }
-  }, [flash]);
+  const { data, } = usePage<{ data: Peralatan[]; }>().props;
 
   // 🟨 Urutkan ulang data berdasarkan id DESC secara eksplisit
   const sortedData = useMemo(() => {

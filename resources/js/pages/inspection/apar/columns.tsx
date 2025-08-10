@@ -76,8 +76,10 @@ export const columns: ColumnDef<{
             }
 
             return (
-                <Link href={`/inspection/apar/${row.original.uuid}`} className="inline-flex items-center gap-2 hover:underline">
-                    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${color}`}>
+                <Link href={`/inspection/apar/${row.original.uuid}`} className="inline-flex items-center gap-2">
+                    <span
+                        className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium transition-all hover:ring-1 hover:ring-offset-1 ${color}`}
+                    >
                         {icon}
                         {statusName}
                     </span>
@@ -146,7 +148,7 @@ export const columns: ColumnDef<{
     {
         header: 'Tanggal Dibuat',
         id: 'created_at',
-        accessorFn: (row) => row.created_at?.replace('T', ' ').split('.')[0],
+        accessorFn: (row) => new Date(row.created_at).toLocaleString('id-ID'),
         enableGlobalFilter: true,
     },
     {

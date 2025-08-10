@@ -2,8 +2,8 @@
 
 import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
-import { Link } from '@inertiajs/react';
-import { MoreVertical, CheckCircle, XCircle, Info } from 'lucide-react';
+import { Link, router } from '@inertiajs/react'; // Pastikan 'router' diimpor
+import { MoreHorizontal, Calendar, MapPin, Building2, Factory, UserCheck, ShieldCheck, FileText } from 'lucide-react'; // Sesuaikan icon yang digunakan
 import { format } from 'date-fns';
 import { id as indonesiaLocale } from 'date-fns/locale';
 import {

@@ -77,7 +77,7 @@ class FirstAidInspectionController extends Controller
 
         try {
             $validated = $request->validate($validationRules);
-            
+
             DB::beginTransaction();
 
             $prefix = MasterPlant::where('plant_code', $validated['plant_code'])->first()->alias_name ?? strtoupper($validated['plant_code']);
@@ -106,7 +106,6 @@ class FirstAidInspectionController extends Controller
             return inertia('inspection/first-aid/create', array_merge(
                 $this->getCreateViewData(),
                 [
-                    'success' => 'Inspeksi P3K berhasil disimpan.',
                     'firstAidInspectionUuid' => $inspection->uuid,
                     'firstAidInspectionCode' => $inspection->car_auto_number,
                 ]
@@ -120,7 +119,7 @@ class FirstAidInspectionController extends Controller
             return back()->with('error', 'Gagal menyimpan inspeksi: ' . $e->getMessage());
         }
     }
-    
+
     // Helper function untuk menghindari duplikasi kode
     private function getCreateViewData()
     {
@@ -146,7 +145,7 @@ class FirstAidInspectionController extends Controller
                 'items.item:id,item_name,standard_quantity,unit',
                 'items.condition:id,name',
             ])->where('uuid', $uuid)->firstOrFail();
-            
+
             $inspectorNotes = $inspection->items->map(function ($item) {
                 return [
                     'item_name' => $item->item->item_name ?? '-',
@@ -182,7 +181,7 @@ class FirstAidInspectionController extends Controller
             'items.item:id,item_name,standard_quantity,unit',
             'items.condition:id,name',
         ])->where('uuid', $uuid)->firstOrFail();
-        
+
         Carbon::setLocale('id');
         $inspectorNotes = $inspection->items->map(function ($item) {
         return [
@@ -253,7 +252,7 @@ class FirstAidInspectionController extends Controller
                 'entity_code' => $validated['entity_code'],
                 'plant_code' => $validated['plant_code'],
             ]);
-            
+
             // REVISI: Hapus item lama dan buat yang baru
             $inspection->items()->delete();
             foreach ($validated['items'] as $itemData) {
@@ -262,12 +261,12 @@ class FirstAidInspectionController extends Controller
 
             // REVISI: Set status kembali ke 'Open' secara manual
             $inspection->approval_status_code = 'SOP';
-            
+
             // REVISI: Bersihkan data validasi sebelumnya
             $inspection->note_validator = null;
             $inspection->approved_at = null;
             $inspection->approved_by = null;
-            
+
             // REVISI: Simpan perubahan status
             $inspection->save();
 
@@ -305,7 +304,7 @@ class FirstAidInspectionController extends Controller
     public function verify(Request $request, string $uiid) // <--- 1. UBAH DI SINI
 {
     // 2. UBAH DI SINI agar log konsisten
-    Log::info('--- MEMULAI PROSES VERIFIKASI UNTUK UIID: ' . $uiid . ' ---'); 
+    Log::info('--- MEMULAI PROSES VERIFIKASI UNTUK UIID: ' . $uiid . ' ---');
     Log::info('DATA DARI REQUEST:', $request->all());
 
     $request->validate([
@@ -317,17 +316,17 @@ class FirstAidInspectionController extends Controller
 
     try {
         Log::info('Validasi berhasil, mencari data inspeksi...');
-        
+
         // 3. UBAH DI SINI: Gunakan $uiid untuk mencari di kolom 'uuid'
         $inspection = FirstAidInspection::where('uuid', $uiid)->firstOrFail();
-        
+
         $updateData = [
             'approval_status_code' => $request->approval_status,
             'note_validator' => $request->note_validator,
             'approved_by' => auth()->id(),
             'approved_at' => now(),
         ];
-        
+
         Log::info('Data awal untuk update disiapkan.', $updateData);
 
         if ($request->approval_status === 'SAP') {
@@ -337,7 +336,7 @@ class FirstAidInspectionController extends Controller
             $qrFileName = 'inspection-' . $inspection->uuid . '-verified.png';
             $qrCodePath = $qrCodeFolder . '/' . $qrFileName;
             $fullPath = storage_path('app/public/' . $qrCodePath);
-            
+
             Log::info('Path QR Code telah dibuat: ' . $fullPath);
 
             if (!file_exists(dirname($fullPath))) {
@@ -347,7 +346,7 @@ class FirstAidInspectionController extends Controller
 
             $qrContent = route('inspection.first-aid.show', $inspection->uuid) . '?verified_by=' . auth()->id();
             Log::info('Konten untuk QR Code disiapkan: ' . $qrContent);
-            
+
             QrCode::format('png')->size(200)->generate($qrContent, $fullPath);
             Log::info('BERHASIL membuat file gambar QR Code.');
 
@@ -369,7 +368,7 @@ class FirstAidInspectionController extends Controller
             'line' => $th->getLine(),
             'trace' => $th->getTraceAsString()
         ]);
-        
+
         return redirect()->back()->with('error', 'Gagal verifikasi. Silakan cek log untuk detail.');
     }
 }

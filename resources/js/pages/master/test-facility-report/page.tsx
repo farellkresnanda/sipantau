@@ -31,19 +31,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function MasterUjiRiksaFasilitasPage() {
-  const { data, flash } = usePage<PageProps>().props;
-
-  useEffect(() => {
-    if (flash?.success) {
-      showToast({ type: 'success', message: flash.success });
-    }
-    if (flash?.error) {
-      showToast({ type: 'error', message: flash.error });
-    }
-    if (flash?.message) {
-      showToast({ message: flash.message });
-    }
-  }, [flash]);
+  const { data } = usePage<PageProps>().props;
 
   return (
     <AppLayout breadcrumbs={breadcrumbs}>

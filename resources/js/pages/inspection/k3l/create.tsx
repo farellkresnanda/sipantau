@@ -9,9 +9,19 @@ import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Head, router } from '@inertiajs/react';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle
+} from '@/components/ui/dialog';
+import { showToast } from '@/components/ui/toast';
+import { toast } from 'sonner';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Home', href: '/' },
@@ -50,22 +60,27 @@ type PageProps = {
 };
 
 export default function CreateK3LInspection({ errors, locations, k3lItems }: PageProps) {
+    const [showFindingModal, setShowFindingModal] = useState(false);
+    const [newInspectionCode, setNewInspectionCode] = useState<string | null>(null);
+
+    console.log({ k3lItems });
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             inspection_date: '',
             location_id: '',
-            items: k3lItems.reduce(
-                (acc, group) => {
+            items: Array.isArray(k3lItems)
+                ? k3lItems.reduce((acc, group) => {
                     group.items.forEach((item) => {
                         acc[item.id] = { condition: '', note: '' };
                     });
                     return acc;
-                },
-                {} as Record<string, { condition: string; note: string }>,
-            ),
+                }, {} as Record<string, { condition: string; note: string }>)
+                : {},
         },
     });
+
 
     useEffect(() => {
         Object.entries(errors).forEach(([key, message]) => {
@@ -82,9 +97,33 @@ export default function CreateK3LInspection({ errors, locations, k3lItems }: Pag
             ...data,
         }));
 
+        const hasFinding = transformedItems.some(item => item.condition === "Tidak");
+
         router.post(route('inspection.k3l.store'), {
             ...values,
             items: transformedItems,
+        }, {
+            onSuccess: (page) => {
+                if (hasFinding) {
+                    const inspectionCode = page.props.k3lInspectionCode; // Sesuaikan nama props dari server
+
+                    if (inspectionCode) {
+                        setNewInspectionCode(inspectionCode.toString());
+                        setShowFindingModal(true);
+                    } else {
+                        toast.error("Gagal mendapatkan kode inspeksi dari server.");
+                    }
+                } else {
+                    showToast({
+                        type: 'success',
+                        message: 'K3L inspection data has been saved successfully',
+                    });
+                    router.visit('/inspection/k3l');
+                }
+            },
+            onError: () => {
+                toast.error('Gagal menyimpan data inspeksi K3L.');
+            },
         });
     }
 
@@ -123,7 +162,7 @@ export default function CreateK3LInspection({ errors, locations, k3lItems }: Pag
                                                         <SelectValue placeholder="Pilih lokasi" />
                                                     </SelectTrigger>
                                                     <SelectContent>
-                                                        {locations.map((loc) => (
+                                                        {locations?.map((loc) => (
                                                             <SelectItem key={loc.id} value={String(loc.id)}>
                                                                 {loc.name}
                                                             </SelectItem>
@@ -142,7 +181,7 @@ export default function CreateK3LInspection({ errors, locations, k3lItems }: Pag
                             <CardContent className="overflow-x-auto">
                                 {/* ✅ TAMPILAN DESKTOP */}
                                 <div className="hidden md:block">
-                                    <Table className="min-w-[700px] border-collapse w-full table-fixed whitespace-normal">
+                                    <Table className="w-full min-w-[700px] table-fixed border-collapse whitespace-normal">
                                         <TableHeader>
                                             <TableRow>
                                                 <TableHead className="w-10">#</TableHead>
@@ -155,18 +194,14 @@ export default function CreateK3LInspection({ errors, locations, k3lItems }: Pag
                                         </TableHeader>
 
                                         <TableBody>
-                                            {k3lItems.map((group, index) => (
+                                            {k3lItems?.map((group, index) => (
                                                 <React.Fragment key={group.key}>
-                                                    {group.items.map((item, subIndex) => (
+                                                    {group.items?.map((item, subIndex) => (
                                                         <TableRow key={item.id}>
-                                                            <TableCell className="align-top">
-                                                                {subIndex === 0 ? index + 1 : ''}
-                                                            </TableCell>
+                                                            <TableCell className="align-top">{subIndex === 0 ? index + 1 : ''}</TableCell>
 
                                                             <TableCell className="align-top text-sm whitespace-pre-line">
-                                                                {subIndex === 0 && (
-                                                                    <div className="font-semibold">{group.title}</div>
-                                                                )}
+                                                                {subIndex === 0 && <div className="font-semibold">{group.title}</div>}
                                                                 <div className="pl-2">
                                                                     {`${String.fromCharCode(97 + subIndex)}. ${item.description}`}
                                                                 </div>
@@ -198,11 +233,7 @@ export default function CreateK3LInspection({ errors, locations, k3lItems }: Pag
                                                                     control={form.control}
                                                                     name={`items.${item.id}.note`}
                                                                     render={({ field }) => (
-                                                                        <Input
-                                                                            {...field}
-                                                                            placeholder="Catatan"
-                                                                            className="text-sm"
-                                                                        />
+                                                                        <Input {...field} placeholder="Catatan" className="text-sm" />
                                                                     )}
                                                                 />
                                                             </TableCell>
@@ -216,7 +247,7 @@ export default function CreateK3LInspection({ errors, locations, k3lItems }: Pag
 
                                 {/* ✅ TAMPILAN MOBILE */}
                                 <div className="block md:hidden">
-                                    <Table className="min-w-full border-collapse w-full table-fixed whitespace-normal">
+                                    <Table className="w-full min-w-full table-fixed border-collapse whitespace-normal">
                                         <TableHeader>
                                             <TableRow>
                                                 <TableHead className="w-10">#</TableHead>
@@ -225,21 +256,17 @@ export default function CreateK3LInspection({ errors, locations, k3lItems }: Pag
                                         </TableHeader>
 
                                         <TableBody>
-                                            {k3lItems.map((group, index) => (
+                                            {k3lItems?.map((group, index) => (
                                                 <React.Fragment key={group.key}>
                                                     {group.items.map((item, subIndex) => (
                                                         <TableRow key={item.id}>
-                                                            <TableCell className="align-top">
-                                                                {subIndex === 0 ? index + 1 : ''}
-                                                            </TableCell>
+                                                            <TableCell className="align-top">{subIndex === 0 ? index + 1 : ''}</TableCell>
                                                             <TableCell className="align-top text-sm whitespace-pre-line">
-                                                                {subIndex === 0 && (
-                                                                    <div className="font-semibold">{group.title}</div>
-                                                                )}
+                                                                {subIndex === 0 && <div className="font-semibold">{group.title}</div>}
                                                                 <div className="pl-2">
                                                                     {`${String.fromCharCode(97 + subIndex)}. ${item.description}`}
                                                                 </div>
-                                                                <div className="pl-2 pt-2 space-y-2">
+                                                                <div className="space-y-2 pt-2 pl-2">
                                                                     <div className="flex gap-4">
                                                                         {['Ya', 'Tidak', 'N/A'].map((option) => (
                                                                             <label key={option} className="inline-flex items-center gap-1">
@@ -267,11 +294,7 @@ export default function CreateK3LInspection({ errors, locations, k3lItems }: Pag
                                                                         control={form.control}
                                                                         name={`items.${item.id}.note`}
                                                                         render={({ field }) => (
-                                                                            <Input
-                                                                                {...field}
-                                                                                placeholder="Catatan"
-                                                                                className="text-sm"
-                                                                            />
+                                                                            <Input {...field} placeholder="Catatan" className="text-sm" />
                                                                         )}
                                                                     />
                                                                 </div>
@@ -286,15 +309,39 @@ export default function CreateK3LInspection({ errors, locations, k3lItems }: Pag
                             </CardContent>
                         </Card>
 
-
-
                         <div className="flex justify-start">
                             <Button type="submit" disabled={form.formState.isSubmitting}>
-                                {form.formState.isSubmitting ? 'Menyimpan...' : 'Simpan Data'}
+                                {form.formState.isSubmitting ? 'Menyimpan...' : 'Submit Data'}
                             </Button>
                         </div>
                     </form>
                 </Form>
+
+                <Dialog open={showFindingModal} onOpenChange={setShowFindingModal}>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Temuan Ditemukan</DialogTitle>
+                            <DialogDescription>Ada item yang tidak baik dalam inspeksi ini. Buat form temuan sekarang?</DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter>
+                            <Button
+                                variant="outline"
+                                onClick={() =>
+                                    router.visit('/inspection/k3l', {
+                                        onSuccess: () => {
+                                            showToast({ type: 'success', message: 'K3L inspection data saved successfully' });
+                                        },
+                                    })
+                                }
+                            >
+                                Nanti saja
+                            </Button>
+                            <Button onClick={() => router.visit(`/finding/create?inspection=K3L&inspection_code=${newInspectionCode}`)}>
+                                Ya, Buat Temuan
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
             </div>
         </AppLayout>
     );

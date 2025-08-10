@@ -98,7 +98,7 @@ export const columns: ColumnDef<FirstAidInspectionRow>[] = [
             return (
                 <Link href={route('inspection.first-aid.show', inspection.uuid)}>
                     <span
-                        className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium transition-all hover:ring-2 hover:ring-offset-1 ${statusInfo.color}`}
+                        className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium transition-all hover:ring-1 hover:ring-offset-1 ${statusInfo.color}`}
                     >
                         {statusInfo.icon}
                         {statusInfo.name}
@@ -188,18 +188,18 @@ export const columns: ColumnDef<FirstAidInspectionRow>[] = [
 
             const showModifyActions = canModify && !isApproved;
             const showDetailAction = isApproved;
-            
+
             // Jika tidak ada aksi yang tersedia, jangan render tombol '...' sama sekali
             if (!showModifyActions && !showDetailAction) {
                 return null;
             }
-            
+
             const handleDelete = () => {
                 if (confirm('Apakah Anda yakin ingin menghapus data ini?')) {
                     router.delete(route('inspection.first-aid.destroy', inspection.uuid));
                 }
             };
-            
+
             return (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -219,7 +219,7 @@ export const columns: ColumnDef<FirstAidInspectionRow>[] = [
                                 </Link>
                             </DropdownMenuItem>
                         )}
-                        
+
                         {/* Aksi "Edit" dan "Delete" HANYA untuk SuperAdmin pada status BUKAN Approved */}
                         {showModifyActions && (
                             <>

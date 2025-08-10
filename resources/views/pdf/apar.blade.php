@@ -147,7 +147,7 @@
                 ->where('month', $month)
                 ->pluck('value', 'field'); // ['segel' => '✓', ...]
             $condition = new \App\Helpers\ConditionHelper;
-            $isApproved = $fields->filter(fn($v, $k) => in_array($k, ['Segel', 'Hose', 'Tekanan', 'Bohlam', 'Berat (CO₂)']) && $v !== null && $v !== '')->isNotEmpty();
+            $isApproved = $fields->filter(fn($v, $k) => in_array($k, ['Segel', 'Hose', 'Tekanan', 'Dibalik', 'Berat (CO₂)']) && $v !== null && $v !== '')->isNotEmpty();
             $qrCodePath = $aparInspection->qr_code_path ?? null;
         @endphp
         <tr>
@@ -155,7 +155,7 @@
             <td>{{ $condition::formatCondition($fields['Segel'] ?? '') }}</td>
             <td>{{ $condition::formatCondition($fields['Hose'] ?? '') }}</td>
             <td>{{ $condition::formatCondition($fields['Tekanan'] ?? '') }}</td>
-            <td>{{ $condition::formatCondition($fields['Bohlam'] ?? '') }}</td>
+            <td>{{ $condition::formatCondition($fields['Dibalik'] ?? '') }}</td>
             <td>{{ $condition::formatCondition($fields['Berat (CO₂)'] ?? '') }}</td>
             <td style="text-align: center; vertical-align: middle;">
                 @if ($isApproved && $qrCodePath)

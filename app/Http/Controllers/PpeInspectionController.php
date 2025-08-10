@@ -6,6 +6,7 @@ use App\Models\Master\MasterApd;
 use App\Models\Master\MasterLocation;
 use App\Models\PpeInspection;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 
@@ -45,8 +46,7 @@ class PpeInspectionController extends Controller
      */
     public function store(Request $request)
     {
-        // Validasi request
-        $request->validate([
+        $validated = $request->validate([
             'inspection_date' => 'required|date',
             'job_description' => 'nullable|string|max:255',
             'project_name' => 'nullable|string|max:255',
@@ -59,37 +59,48 @@ class PpeInspectionController extends Controller
             'items.*.notes' => 'nullable|string|max:1000',
         ]);
 
-        // Buat nomor CAR
-        $carNumber = auth()->user()->plant->alias_name . '/APD/' . sprintf('%03d', PpeInspection::count() + 1) . '/' . now()->format('d/m/Y');
+        DB::beginTransaction();
 
-        // Simpan data inspeksi utama
-        $ppeInspection = PpeInspection::create([
-            'uuid' => Str::uuid(),
-            'approval_status_code' => 'SOP',
-            'entity_code' => auth()->user()->entity_code,
-            'plant_code' => auth()->user()->plant_code,
-            'car_auto_number' => $carNumber,
-            'inspection_date' => $request->inspection_date,
-            'location' => $request->location,
-            'job_description' => $request->job_description,
-            'project_name' => $request->project_name,
-            'created_by' => auth()->id()
-        ]);
+        try {
+            // Buat nomor CAR
+            $carNumber = auth()->user()->plant->alias_name . '/APD/' . sprintf('%03d', PpeInspection::count() + 1) . '/' . now()->format('d/m/Y');
 
-        // Simpan item APD
-        foreach ($request->items as $itemData) {
-            $ppeInspection->items()->create([
-                'ppe_inspection_id' => $ppeInspection->id,
-                'ppe_check_item_id' => $itemData['id'],
-                'good_condition' => $itemData['good_condition'] ?? 0,
-                'bad_condition' => $itemData['bad_condition'] ?? 0,
-                'used' => $itemData['used'] ?? 0,
-                'unused' => $itemData['unused'] ?? 0,
-                'notes' => $itemData['notes'] ?? null,
+            // Simpan data inspeksi utama
+            $inspection = PpeInspection::create([
+                'uuid' => Str::uuid(),
+                'approval_status_code' => 'SOP',
+                'entity_code' => auth()->user()->entity_code,
+                'plant_code' => auth()->user()->plant_code,
+                'car_auto_number' => $carNumber,
+                'inspection_date' => $validated['inspection_date'],
+                'location' => $validated['location'],
+                'job_description' => $validated['job_description'],
+                'project_name' => $validated['project_name'],
+                'created_by' => auth()->id(),
             ]);
-        }
 
-        return redirect()->route('inspection.ppe.index')->with('success', 'PPE Inspection created successfully.');
+            // Simpan item APD
+            foreach ($request->items as $itemData) {
+                $inspection->items()->create([
+                    'ppe_inspection_id' => $inspection->id,
+                    'ppe_check_item_id' => $itemData['id'],
+                    'good_condition' => $itemData['good_condition'] ?? 0,
+                    'bad_condition' => $itemData['bad_condition'] ?? 0,
+                    'used' => $itemData['used'] ?? 0,
+                    'unused' => $itemData['unused'] ?? 0,
+                    'notes' => $itemData['notes'] ?? null,
+                ]);
+            }
+
+            DB::commit();
+
+            return inertia('inspection/ppe/create', [
+                'ppeInspectionCode' => $inspection->car_auto_number, // bisa juga pakai uuid
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['message' => 'Gagal menyimpan inspeksi: ' . $e->getMessage()]);
+        }
     }
 
     /**

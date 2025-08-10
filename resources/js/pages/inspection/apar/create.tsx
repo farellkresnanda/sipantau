@@ -24,6 +24,7 @@ import {
     DialogHeader,
     DialogTitle
 } from '@/components/ui/dialog';
+import {showToast} from "@/components/ui/toast";
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Home', href: '/' },
@@ -43,7 +44,7 @@ const months = [
     "Juli", "Agustus", "September", "Oktober", "November", "Desember"
 ];
 
-const inspectionFields = ["Segel", "Hose", "Tekanan", "Bohlam", "Berat (CO₂)"];
+const inspectionFields = ["Segel", "Hose", "Tekanan", "Dibalik", "Berat (CO₂)", "Sesuai Tempatnya"];
 
 export default function CreateInspectionApar() {
     const [showFindingModal, setShowFindingModal] = useState(false);
@@ -146,17 +147,20 @@ export default function CreateInspectionApar() {
                 if (hasFindings) {
                     // Simpan ID inspeksi dari response Inertia jika tersedia
                     const aparInspectionCode = page.props.aparInspectionCode; // asumsi ID dikembalikan
-                    console.log("aparInspectionCode", aparInspectionCode);
+                    console.log('aparInspectionCode', aparInspectionCode);
 
                     if (aparInspectionCode) {
                         setNewInspectionCode(aparInspectionCode.toString());
                         setShowFindingModal(true);
                     } else {
-                        toast.error("Gagal mendapatkan ID inspeksi dari server.");
+                        toast.error('Gagal mendapatkan ID inspeksi dari server.');
                     }
-
                 } else {
-                    router.visit('/inspection/apar'); // redirect normal
+                    router.visit('/inspection/apar', {
+                        onSuccess: () => {
+                            showToast({ type: 'success', message: 'APAR inspection data saved successfully' });
+                        },
+                    });
                 }
             }
         });
@@ -355,7 +359,16 @@ export default function CreateInspectionApar() {
                             <DialogDescription>Ada item yang tidak baik dalam inspeksi ini. Buat form temuan sekarang?</DialogDescription>
                         </DialogHeader>
                         <DialogFooter>
-                            <Button variant="outline" onClick={() => router.visit('/inspection/apar')}>
+                            <Button
+                                variant="outline"
+                                onClick={() =>
+                                    router.visit('/inspection/apar', {
+                                        onSuccess: () => {
+                                            showToast({ type: 'success', message: 'APAR inspection data saved successfully' });
+                                        },
+                                    })
+                                }
+                            >
                                 Nanti saja
                             </Button>
                             <Button onClick={() => router.visit(`/finding/create?inspection=APAR&inspection_code=${newInspectionCode}`)}>
