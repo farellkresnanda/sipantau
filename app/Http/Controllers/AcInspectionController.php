@@ -2,56 +2,42 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\{
-    AcInspection,          // Model Inspeksi AC
-    AcInspectionItem,      // Model Item Inspeksi AC
-    ApprovalStatus,        // Untuk status persetujuan
-    Master\MasterEntity,   // Untuk entitas
-    Master\MasterPlant,    // Untuk plant (digunakan untuk prefix nomor inspeksi)
-    Master\MasterAc,      // Untuk lokasi
-    User                   // Untuk created_by dan approved_by
-};
+use App\Models\AcInspection;
+use App\Models\Master\MasterAc;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\{ Auth, DB, Log };
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class AcInspectionController extends Controller
 {
-    /**
-     * Define hardcoded status/condition options for frontend.
-     * These will be passed to create/edit forms.
-     */
     private array $maintenanceStatuses = [
-        ['name' => 'Baik', 'value' => 'Baik'],
-        ['name' => 'Rusak', 'value' => 'Rusak'],
-        ['name' => 'Perawatan', 'value' => 'Perawatan'],
+        ['value' => 'Perbaikan', 'name' => 'Perbaikan'],
+        ['value' => 'Perawatan', 'name' => 'Perawatan'],
     ];
 
     private array $conditionTypes = [
-        ['name' => 'Baik', 'value' => 'Baik'],
-        ['name' => 'Rusak', 'value' => 'Rusak'],
-        ['name' => 'N/A', 'value' => 'N/A'],
+        ['value' => 'Baik', 'name' => 'Baik'],
+        ['value' => 'Rusak', 'name' => 'Rusak'],
     ];
 
     /**
-     * Display a listing of the resource.
+     * Menampilkan daftar semua laporan inspeksi AC yang telah dibuat.
      */
     public function index()
     {
+        // [REVISI FINAL] Menghapus batasan kolom pada with() untuk memastikan relasi termuat penuh.
         $inspections = AcInspection::with([
-            'entity:id,entity_code,name', // Pastikan relasi entity ada di AcInspection Model
-            'plant:id,plant_code,name',   // Pastikan relasi plant ada di AcInspection Model
-            'location:id,location,inventory_code',
-            'approvalStatus:id,code,name',
-            'createdBy:id,name',
+            'approvalStatus',
+            'plant',
+            'entity',
+            'location', // Ini adalah relasi ke MasterAc
+            'createdBy'
         ])
-        ->select([
-            'id', 'uuid', 'car_auto_number', 'inspection_date', 'entity_id', // Menggunakan entity_id (BIGINT UNSIGNED)
-            'plant_id', 'location_id', 'approval_status_code', 'created_by', 'created_at', // Menggunakan plant_id (BIGINT UNSIGNED)
-            'notes',
-        ])
-        ->orderBy('created_at', 'desc')
+        ->latest('inspection_date')
         ->paginate(10);
 
         return Inertia::render('inspection/ac/page', [
@@ -60,272 +46,172 @@ class AcInspectionController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Menampilkan form untuk membuat inspeksi baru.
      */
     public function create()
     {
         return Inertia::render('inspection/ac/create', [
-            'locations' => MasterAc::select('id', 'location', 'inventory_code', 'entity_code', 'plant_code')->get(),
-            // === PENTING: Perhatikan seleksi kolom untuk MasterEntity dan MasterPlant ===
-            // Jika entity_id/plant_id di ac_inspections adalah FK ke id, maka kirim ID juga.
-            'entities' => MasterEntity::select('id', 'entity_code', 'name')->get(), // Mengambil ID untuk FK
-            'plants' => MasterPlant::select('id', 'plant_code', 'name', 'alias_name')->get(), // Mengambil ID dan alias_name
-            // =======================================================================
+            'masterAcs' => MasterAc::select('id', 'inventory_code', 'merk', 'room')->get(),
             'maintenanceStatuses' => $this->maintenanceStatuses,
             'conditionTypes' => $this->conditionTypes,
-            // Jika ada master unit AC (dari spreadsheet), Anda akan memuatnya di sini
-            // 'masterAcUnits' => MasterAcUnit::select('id', 'inventory_code', 'ac_number', 'brand', 'location_room')->get(),
         ]);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Menyimpan inspeksi baru ke database.
      */
     public function store(Request $request)
     {
-        Log::info('Request data received for AC Inspection store:', $request->all());
-
-        $validationRules = [
+        $validated = $request->validate([
+            'master_ac_id' => 'required|exists:master_acs,id',
             'inspection_date' => 'required|date',
-            'entity_id' => 'required|integer|exists:master_entities,id', // Validasi entity_id (integer FK)
-            'plant_id' => 'required|integer|exists:master_plants,id',     // Validasi plant_id (integer FK)
-            'location_id' => 'required|integer|exists:master_acs,id',
+            'maintenance_status' => 'required|string',
+            'condition_status' => 'required|string',
             'notes' => 'nullable|string|max:1000',
-            'items' => 'required|array|min:1',
-            'items.*.master_ac_unit_id' => 'required|integer|exists:nama_tabel_master_ac_anda,id', // Harus sesuai dengan nama tabel master AC Anda
-            'items.*.maintenance_status' => 'nullable|string|max:255',
-            'items.*.condition_status' => 'nullable|string|max:255',
-            'items.*.notes' => 'nullable|string|max:1000',
-        ];
+        ]);
 
+        DB::beginTransaction();
         try {
-            $validated = $request->validate($validationRules);
-            Log::info('Validated data before processing:', $validated);
+            $masterAc = MasterAc::findOrFail($validated['master_ac_id']);
+            $code = 'AC-INS/' . now()->format('Y/m/') . sprintf('%04d', AcInspection::whereYear('created_at', now()->year)->count() + 1);
 
-            DB::beginTransaction();
-
-            // Logika pembuatan AC Inspection Number (menggunakan car_auto_number)
-            $masterPlant = MasterPlant::find($validated['plant_id']); // Cari plant berdasarkan ID
-            $prefix = $masterPlant->alias_name ?? 'UNKNOWN'; // Gunakan alias_name dari MasterPlant
-
-            $today = now()->toDateString();
-            $runningNumber = AcInspection::where('entity_id', $validated['entity_id']) // Filter berdasarkan entity_id
-                ->whereDate('created_at', $today)
-                ->count() + 1;
-
-            $carAutoNumber = sprintf('%s/AC/%03d/%s', $prefix, $runningNumber, now()->format('d/m/Y')); // Format tetap untuk AC
-
-            $inspectionData = [
+            $inspection = AcInspection::create([
                 'uuid' => (string) Str::uuid(),
-                'inspection_date' => $validated['inspection_date'],
-                'car_auto_number' => $carAutoNumber, // Disimpan di kolom car_auto_number
-                'notes' => $validated['notes'],
-                'entity_id' => $validated['entity_id'], // Disimpan sebagai ID entitas
-                'plant_id' => $validated['plant_id'],   // Disimpan sebagai ID plant
-                'location_id' => $validated['location_id'],
+                'ac_inspection_number' => $code,
                 'approval_status_code' => 'SOP',
+                'location_id' => $masterAc->id,
+                'inspection_date' => $validated['inspection_date'],
+                'plant_code' => $masterAc->plant_code,
+                'entity_code' => $masterAc->entity_code,
                 'created_by' => Auth::id(),
-            ];
+            ]);
 
-            $inspection = AcInspection::create($inspectionData);
-
-            foreach ($validated['items'] as $itemData) {
-                $inspection->items()->create([
-                    'master_ac_unit_id' => $itemData['master_ac_unit_id'],
-                    'maintenance_status' => $itemData['maintenance_status'],
-                    'condition_status' => $itemData['condition_status'],
-                    'notes' => $itemData['notes'],
-                ]);
-            }
+            $inspection->items()->create([
+                'master_ac_unit_id' => $validated['master_ac_id'],
+                'maintenance_status' => $validated['maintenance_status'],
+                'condition_status' => $validated['condition_status'],
+                'notes' => $validated['notes'],
+            ]);
 
             DB::commit();
-
-            return redirect()->route('inspection.ac.index')->with('success', 'Inspeksi AC berhasil disimpan.');
-
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            DB::rollBack();
-            Log::error('Validation Error in AC Inspection store:', $e->errors());
-            return back()->withErrors($e->errors())->withInput();
+            return redirect()->route('inspection.ac.index')->with('success', 'Inspeksi AC berhasil dibuat.');
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Gagal menyimpan AC Inspection:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
-            return response()->json(['message' => 'Gagal menyimpan inspeksi AC: ' . $e->getMessage()], 500);
+            Log::error('Gagal menyimpan inspeksi AC: ' . $e->getMessage());
+            return back()->withErrors(['message' => 'Gagal menyimpan inspeksi: ' . $e->getMessage()])->withInput();
         }
     }
 
     /**
-     * Display the specified resource.
+     * Menampilkan detail dari satu laporan inspeksi.
      */
     public function show(string $uuid)
     {
-        try {
-            $inspection = AcInspection::with([
-                'entity:id,name', // Eager load entity by ID
-                'plant:id,name,alias_name', // Eager load plant by ID
-                'location:id,location,inventory_code',
-                'createdBy:id,name',
-                'approvedBy:id,name',
-                'approvalStatus:id,code,name',
-                'items.masterAcUnit', // Eager load relasi ke Master AC Unit
-            ])->where('uuid', $uuid)->firstOrFail();
+        $inspection = AcInspection::where('uuid', $uuid)
+            ->with(['approvalStatus', 'plant', 'entity', 'location', 'items.masterAc', 'createdBy', 'approvedBy'])
+            ->firstOrFail();
 
-            return Inertia::render('inspection/ac/show', [
-                'acInspection' => $inspection,
-                'validatorNote' => $inspection->note_validator,
-                'approvedBy' => $inspection->approvedBy?->name,
-                'creatorNameProp' => $inspection->createdBy->name ?? 'Nama Tidak Tersedia',
-                'entityNameProp' => $inspection->entity->name ?? 'N/A', // Tambah prop untuk nama entitas
-                'plantNameProp' => $inspection->plant->name ?? 'N/A',   // Tambah prop untuk nama plant
-            ]);
-
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            Log::error('AC Inspection not found:', ['uuid' => $uuid, 'error' => $e->getMessage()]);
-            return redirect()->route('inspection.ac.index')->with('error', 'Inspeksi AC tidak ditemukan.');
-        } catch (\Exception $e) {
-            Log::error('Error showing AC Inspection:', ['uuid' => $uuid, 'error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
-            return redirect()->route('inspection.ac.index')->with('error', 'Terjadi kesalahan saat menampilkan detail AC Inspeksi.');
-        }
+        return Inertia::render('inspection/ac/show', [
+            'inspection' => $inspection,
+        ]);
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Menampilkan form untuk mengedit inspeksi.
      */
-    public function edit(string $uuid)
+    public function edit(AcInspection $acInspection)
     {
-        try {
-            $inspection = AcInspection::with([
-                'entity', 'plant', 'location', 'items.masterAcUnit'
-            ])->where('uuid', $uuid)->firstOrFail();
-
-            return Inertia::render('inspection/ac/edit', [
-                'inspection' => $inspection,
-                'locations' => MasterAc::select('id', 'location', 'inventory_code', 'entity_code', 'plant_code')->get(),
-                'entities' => MasterEntity::select('id', 'entity_code', 'name')->get(), // Ambil ID entitas
-                'plants' => MasterPlant::select('id', 'plant_code', 'name', 'alias_name')->get(), // Ambil ID plant
-                'maintenanceStatuses' => $this->maintenanceStatuses,
-                'conditionTypes' => $this->conditionTypes,
-                // Tambah master unit AC jika form edit perlu daftar penuh untuk pilihan
-                // 'masterAcUnits' => MasterAcUnit::select('id', 'inventory_code', 'ac_number', 'brand', 'location_room', 'entity_code', 'plant_code')->get(), // Ambil semua data yang relevan
-            ]);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            Log::error('AC Inspection not found for edit:', ['uuid' => $uuid, 'error' => $e->getMessage()]);
-            return redirect()->route('inspection.ac.index')->with('error', 'Inspeksi AC tidak ditemukan untuk diedit.');
-        } catch (\Exception $e) {
-            Log::error('Error showing AC Inspection edit form:', ['uuid' => $uuid, 'error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
-            return redirect()->route('inspection.ac.index')->with('error', 'Terjadi kesalahan saat menampilkan form edit AC Inspeksi.');
-        }
+        $acInspection->load('items');
+        return Inertia::render('inspection/ac/edit', [
+            'inspection' => $acInspection,
+            'masterAcs' => MasterAc::select('id', 'inventory_code', 'merk', 'room')->get(),
+            'maintenanceStatuses' => $this->maintenanceStatuses,
+            'conditionTypes' => $this->conditionTypes,
+        ]);
     }
 
     /**
-     * Update the specified resource in storage.
+     * Memperbarui data inspeksi di database.
      */
-    public function update(Request $request, string $uuid)
+    public function update(Request $request, AcInspection $acInspection)
     {
-        $validationRules = [
+        $validated = $request->validate([
+            'master_ac_id' => 'required|exists:master_acs,id',
             'inspection_date' => 'required|date',
-            'entity_id' => 'required|integer|exists:master_entities,id', // Validasi ID entitas
-            'plant_id' => 'required|integer|exists:master_plants,id',     // Validasi ID plant
-            'location_id' => 'required|integer|exists:master_acs,id',
+            'maintenance_status' => 'required|string',
+            'condition_status' => 'required|string',
             'notes' => 'nullable|string|max:1000',
-            'items' => 'required|array|min:1',
-            'items.*.master_ac_unit_id' => 'required|integer|exists:nama_tabel_master_ac_anda,id', // Harus sesuai dengan nama tabel master AC Anda
-            'items.*.maintenance_status' => 'nullable|string|max:255',
-            'items.*.condition_status' => 'nullable|string|max:255',
-            'items.*.notes' => 'nullable|string|max:1000',
-        ];
+        ]);
 
+        DB::beginTransaction();
         try {
-            $validated = $request->validate($validationRules);
-            $inspection = AcInspection::where('uuid', $uuid)->firstOrFail();
-
-            DB::beginTransaction();
-
-            $inspection->update([
+            $masterAc = MasterAc::findOrFail($validated['master_ac_id']);
+            $acInspection->update([
+                'location_id' => $masterAc->id,
                 'inspection_date' => $validated['inspection_date'],
-                'notes' => $validated['notes'],
-                'entity_id' => $validated['entity_id'],
-                'plant_id' => $validated['plant_id'],
-                'location_id' => $validated['location_id'],
+                'plant_code' => $masterAc->plant_code,
+                'entity_code' => $masterAc->entity_code,
             ]);
 
-            $inspection->items()->delete();
-            foreach ($validated['items'] as $itemData) {
-                $inspection->items()->create($itemData);
-            }
+            $acInspection->items()->update([
+                'master_ac_unit_id' => $validated['master_ac_id'],
+                'maintenance_status' => $validated['maintenance_status'],
+                'condition_status' => $validated['condition_status'],
+                'notes' => $validated['notes'],
+            ]);
 
             DB::commit();
-
-            return redirect()->route('inspection.ac.index')->with('success', 'Inspeksi AC berhasil diperbarui.');
-
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            DB::rollBack();
-            Log::error('Validation Error in AC Inspection update:', $e->errors());
-            return back()->withErrors($e->errors())->withInput();
+            return redirect()->route('inspection.ac.index')->with('success', 'Inspeksi berhasil diperbarui.');
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Gagal memperbarui AC Inspection:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
-            return response()->json(['message' => 'Gagal memperbarui inspeksi AC: ' . $e->getMessage()], 500);
+            Log::error('Gagal update inspeksi AC: ' . $e->getMessage());
+            return back()->withErrors(['message' => 'Gagal memperbarui inspeksi.'])->withInput();
         }
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Menghapus data inspeksi (soft delete).
      */
-    public function destroy(string $uuid)
+    public function destroy(AcInspection $acInspection)
     {
         try {
-            $inspection = AcInspection::where('uuid', $uuid)->firstOrFail();
-            $inspection->delete(); // Menggunakan soft delete
-
-            return back()->with('success', 'Inspeksi AC berhasil dihapus.');
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            Log::error('AC Inspection not found for delete:', ['uuid' => $uuid, 'error' => $e->getMessage()]);
-            return back()->with('error', 'Inspeksi AC tidak ditemukan untuk dihapus.');
+            $acInspection->delete();
+            return redirect()->route('inspection.ac.index')->with('success', 'Inspeksi berhasil dihapus.');
         } catch (\Exception $e) {
-            Log::error('Error deleting AC Inspection:', ['uuid' => $uuid, 'error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
-            return response()->json(['message' => 'Gagal menghapus inspeksi AC: ' . $e->getMessage()], 500);
+            Log::error('Gagal hapus inspeksi AC: ' . $e->getMessage());
+            return back()->with('error', 'Gagal menghapus inspeksi.');
         }
     }
 
     /**
-     * Verify the specified AC Inspection.
+     * Memverifikasi sebuah laporan inspeksi.
      */
-    public function verify(Request $request, string $uuid)
+    public function verify(Request $request, $uuid)
     {
-        $request->validate([
+        $validated = $request->validate([
             'approval_status' => 'required|in:SAP,SRE',
-            'note_validator' => 'required_if:approval_status,SRE|string|max:255',
-        ], [
-            'note_validator.required_if' => 'Catatan wajib diisi jika inspeksi ditolak.',
+            'note_validator' => 'required_if:approval_status,SRE|nullable|string|max:1000',
         ]);
 
         $inspection = AcInspection::where('uuid', $uuid)->firstOrFail();
+        
+        $inspection->update([
+            'approval_status_code' => $validated['approval_status'],
+            'note_validator' => $validated['note_validator'],
+            'approved_at' => now(),
+            'approved_by' => Auth::id(),
+        ]);
 
-        try {
-            $inspection->update([
-                'approval_status_code' => $request->approval_status,
-                'note_validator' => $request->note_validator,
-                'approved_by' => Auth::id(),
-                'approved_at' => now(),
-            ]);
+        return redirect()->back()->with('success', 'Inspeksi berhasil diverifikasi.');
+    }
 
-            return back()->with([
-                'type' => 'success',
-                'message' => 'Inspeksi AC berhasil diverifikasi.',
-            ]);
-        } catch (\Throwable $th) {
-            report($th);
-            Log::error('Verification error in AC Inspection Controller:', [
-                'error' => $th->getMessage(),
-                'trace' => $th->getTraceAsString()
-            ]);
-            return response()->json(['message' => 'Gagal verifikasi inspeksi AC: ' . $th->getMessage()], 500);
-        }
+    /**
+     * Mencetak laporan inspeksi ke PDF.
+     */
+    public function print($uuid)
+    {
+        $inspection = AcInspection::where('uuid', $uuid)->with(['approvalStatus', 'plant', 'entity', 'location', 'items', 'createdBy', 'approvedBy'])->firstOrFail();
+        $pdf = PDF::loadView('pdf.ac_inspection', compact('inspection'));
+        return $pdf->stream('Laporan-Inspeksi-AC.pdf');
     }
 }
