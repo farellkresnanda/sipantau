@@ -67,7 +67,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('k3l', K3lInspectionController::class)->names('inspection.k3l');
 
         Route::post('ac/verify/{uuid}', [AcInspectionController::class, 'verify'])->name('inspection.ac.verify');
-        Route::resource('ac', AcInspectionController::class)->names('inspection.ac');
+                Route::get('/ac/{id}/print', [AcInspectionController::class, 'print'])->name('inspection.ac.print');
+                Route::resource('ac', AcInspectionController::class)->names('inspection.ac');
     });
 
 

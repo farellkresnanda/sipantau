@@ -13,13 +13,16 @@ class AcInspection extends Model
 
     protected $table = 'ac_inspections';
 
+    /**
+     * [FIX FINAL] Sesuaikan $fillable dengan kolom yang benar di database.
+     * Hapus 'notes', ganti '_id' menjadi '_code'.
+     */
     protected $fillable = [
         'uuid',
         'inspection_date',
-        'car_auto_number', // Menggunakan car_auto_number
-        'notes',
-        'entity_id',
-        'plant_id',
+        'ac_inspection_number', // atau car_auto_number
+        'entity_code',
+        'plant_code',
         'location_id',
         'approval_status_code',
         'created_by',
@@ -31,9 +34,6 @@ class AcInspection extends Model
     protected $casts = [
         'inspection_date' => 'datetime',
         'approved_at' => 'datetime',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-        'deleted_at' => 'datetime',
     ];
 
     protected static function boot()
@@ -47,22 +47,23 @@ class AcInspection extends Model
     }
 
     // --- Relationships ---
-
+    
+    // [FIX FINAL] Sesuaikan relasi agar menggunakan _code
     public function entity()
     {
-        return $this->belongsTo(Master\MasterEntity::class, 'entity_id');
+        return $this->belongsTo(\App\Models\Master\MasterEntity::class, 'entity_code', 'entity_code');
     }
 
     public function plant()
     {
-        return $this->belongsTo(Master\MasterPlant::class, 'plant_id');
+        return $this->belongsTo(\App\Models\Master\MasterPlant::class, 'plant_code', 'plant_code');
     }
 
     public function location()
     {
-        return $this->belongsTo(Master\MasterP3k::class, 'location_id');
+        return $this->belongsTo(\App\Models\Master\MasterAc::class, 'location_id');
     }
-
+    
     public function approvalStatus()
     {
         return $this->belongsTo(ApprovalStatus::class, 'approval_status_code', 'code');
@@ -77,9 +78,9 @@ class AcInspection extends Model
     {
         return $this->belongsTo(User::class, 'approved_by');
     }
-
+    
     public function items()
     {
-        return $this->hasMany(AcInspectionItem::class, 'ac_inspection_id');
+        return $this->hasMany(AcInspectionItem::class, 'inspection_id');
     }
 }

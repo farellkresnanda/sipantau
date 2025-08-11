@@ -11,38 +11,29 @@ class AcInspectionItem extends Model
 
     protected $table = 'ac_inspection_items';
 
+    /**
+     * [FIX] Sesuaikan nama kolom agar cocok dengan database ('master_ac_unit_id').
+     */
     protected $fillable = [
         'ac_inspection_id',
-        'master_ac_unit_id',    // Foreign key ke tabel master AC Anda
-        'maintenance_status',   // String untuk status perawatan
-        'condition_status',     // String untuk kondisi
+        'master_ac_unit_id',
+        'maintenance_status',
+        'condition_status',
         'notes',
-    ];
-
-    protected $casts = [
-        'created_at' => 'timestamp', // Sesuai dengan tipe TIMESTAMP di DB
-        'updated_at' => 'timestamp', // Sesuai dengan tipe TIMESTAMP di DB
     ];
 
     // --- Relationships ---
 
-    /**
-     * Get the AC Inspection header that owns the item.
-     */
-    public function acInspection()
+    public function inspectionHeader()
     {
         return $this->belongsTo(AcInspection::class, 'ac_inspection_id');
     }
 
     /**
-     * Get the master AC unit details associated with this item.
-     * Penting: Pastikan Anda sudah membuat model Master\MasterAcUnit.php
-     * dan menambahkan kolom 'id' ke tabel master AC Anda di database.
+     * [FIX] Sesuaikan foreign key agar cocok dengan database ('master_ac_unit_id').
      */
-    public function masterAcUnit()
+    public function masterAc()
     {
-        // Ganti 'Master\MasterAcUnit::class' jika namespace atau nama model Anda berbeda
-        // Ini mengacu pada model yang merepresentasikan tabel master AC Anda yang sudah ada
-        return $this->belongsTo(Master\MasterAcUnit::class, 'master_ac_unit_id');
+        return $this->belongsTo(\App\Models\Master\MasterAc::class, 'master_ac_unit_id');
     }
 }

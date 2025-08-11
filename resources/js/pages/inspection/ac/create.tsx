@@ -1,396 +1,181 @@
 'use client';
 
-import React, { useEffect } from 'react';
-import { Head, router, usePage } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { format as formatFnsDate } from 'date-fns'; // Import fungsi format dari date-fns
+import { zodResolver } from '@hookform/resolvers/zod';
+import { format } from 'date-fns';
+import { useEffect, useState } from 'react';
 
 import AppLayout from '@/layouts/app-layout';
 import SectionHeader from '@/components/section-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { showToast } from '@/components/ui/toast';
 import type { BreadcrumbItem } from '@/types';
 
-// Definisi breadcrumbs untuk halaman ini
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Home', href: '/' },
-    { title: 'Inspeksi AC', href: '/inspection/ac' },
-    { title: 'Buat', href: '#create' },
-];
-
-// Skema validasi form menggunakan Zod
-const formSchema = z.object({
-    inspection_date: z.string().min(1, { message: 'Tanggal inspeksi wajib diisi' }),
-    entity_id: z.string().min(1, { message: 'Entitas wajib dipilih' }), // Akan mengirim ID entitas
-    plant_id: z.string().min(1, { message: 'Plant wajib dipilih' }),     // Akan mengirim ID plant
-    location_id: z.string().min(1, { message: 'Lokasi wajib dipilih' }), // Akan mengirim ID lokasi
-    notes: z.string().nullable(), // Catatan global untuk inspeksi ini
-
-    items: z.record( // Record of items keyed by master_ac_unit_id (string)
-        z.object({
-            maintenance_status: z.string().nullable(),
-            condition_status: z.string().nullable(),
-            notes: z.string().nullable(), // Catatan per item
-        }).partial() // Gunakan partial karena tidak semua field item harus diisi
-    ),
-});
-
-// Tipe props yang diterima dari controller
 interface CreateAcInspectionProps {
-    locations: Array<{ id: number; location: string; inventory_code: string; entity_code: string; plant_code: string }>;
-    entities: Array<{ id: number; entity_code: string; name: string }>; // List entitas untuk dropdown
-    plants: Array<{ id: number; plant_code: string; name: string; alias_name: string }>; // List plant untuk dropdown
-    maintenanceStatuses: Array<{ name: string; value: string }>; // Hardcoded statuses dari controller
-    conditionTypes: Array<{ name: string; value: string }>; // Hardcoded conditions dari controller
-    masterAcUnits: Array<{ id: number; ac_number: string; inventory_code: string; brand: string; room: string; entity_code: string; plant_code: string }>; // List master unit AC
-    // Catatan: Jika masterAcUnits tidak dikirim dari backend, Anda perlu menyesuaikan ini atau metode store/update
+    masterAcs: Array<{ id: number; inventory_code: string; merk: string; room: string; }>;
+    errors: Record<string, string>;
 }
 
-export default function CreateAcInspection({
-    locations,
-    entities,
-    plants,
-    maintenanceStatuses,
-    conditionTypes,
-    masterAcUnits,
-}: CreateAcInspectionProps) {
-    const { errors: backendErrors = {} } = usePage().props as {
-        errors?: Record<string, string>;
-    };
+const formSchema = z.object({
+    inspection_date: z.string().min(1, "Tanggal wajib diisi."),
+    master_ac_id: z.string({ required_error: "Lokasi AC wajib dipilih." }).min(1, "Lokasi AC wajib dipilih."),
+    maintenance_status: z.string({ required_error: "Status wajib dipilih." }),
+    condition_status: z.string({ required_error: "Kondisi wajib dipilih." }),
+    notes: z.string().nullable(),
+});
 
-    // Inisialisasi form dengan React Hook Form
+export default function CreateAcInspectionPage({ masterAcs, errors }: CreateAcInspectionProps) {
+    const [selectedAc, setSelectedAc] = useState<CreateAcInspectionProps['masterAcs'][0] | null>(null);
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            inspection_date: formatFnsDate(new Date(), 'yyyy-MM-dd'), // Default tanggal hari ini
-            entity_id: '',
-            plant_id: '',
-            location_id: '',
+            inspection_date: format(new Date(), 'yyyy-MM-dd'),
             notes: '',
-            items: masterAcUnits.reduce((acc, unit) => {
-                acc[unit.id] = { // Inisialisasi setiap master AC unit dengan default null/kosong
-                    maintenance_status: null,
-                    condition_status: null,
-                    notes: null,
-                };
-                return acc;
-            }, {} as Record<string, { maintenance_status: string | null; condition_status: string | null; notes: string | null }>),
         },
     });
 
-    const { flash } = usePage().props as {
-        flash?: { success?: string; error?: string; message?: string };
-    };
+    const watchedAcId = form.watch('master_ac_id');
 
-    // Efek untuk menampilkan toast messages dari backend (sukses/gagal)
     useEffect(() => {
-        if (flash?.success) {
-            showToast({ type: 'success', message: flash.success });
+        if (watchedAcId) {
+            const ac = masterAcs.find(a => String(a.id) === watchedAcId);
+            setSelectedAc(ac || null);
+        } else {
+            setSelectedAc(null);
         }
-        if (flash?.error) {
-            showToast({ type: 'error', message: flash.error });
-        }
-        if (flash?.message) {
-            showToast({ message: flash.message });
-        }
-    }, [flash]);
+    }, [watchedAcId, masterAcs]);
 
-    // Efek untuk menangani error validasi dari backend dan menampilkannya di form
     useEffect(() => {
-        if (Object.keys(backendErrors).length > 0) {
-            Object.entries(backendErrors).forEach(([key, message]) => {
-                const pathParts = key.split('.');
-                // Handle item specific errors (e.g., items.0.maintenance_status)
-                if (pathParts[0] === 'items' && !isNaN(Number(pathParts[1]))) {
-                    const masterUnitId = Number(pathParts[1]); // ID master AC unit
-                    const propName = pathParts[2]; // Nama properti (maintenance_status, etc.)
-
-                    const formPath = `items.${masterUnitId}.${propName}` as keyof typeof formSchema._type;
-                    form.setError(formPath, { type: 'manual', message: message as string });
-                } else {
-                    // Handle general form errors (e.g., inspection_date, entity_id)
-                    form.setError(key as keyof typeof formSchema._type, { type: 'manual', message: message as string });
-                }
+        if (Object.keys(errors).length > 0) {
+            Object.entries(errors).forEach(([key, message]) => {
+                form.setError(key as any, { type: 'manual', message });
             });
+            showToast({ type: 'error', message: 'Silakan periksa kembali isian form Anda.'});
         }
-    }, [backendErrors, form]);
+    }, [errors, form]);
 
-    // Fungsi yang dipanggil saat form disubmit
-    const onSubmit = (values: z.infer<typeof formSchema>) => {
-        // Transformasi data item agar sesuai dengan yang diharapkan backend
-        const transformedItems = Object.entries(values.items)
-            .map(([masterAcUnitId, data]) => ({
-                master_ac_unit_id: Number(masterAcUnitId), // Ubah ID string menjadi number
-                maintenance_status: data.maintenance_status || null,
-                condition_status: data.condition_status || null,
-                notes: data.notes || null,
-            }))
-            .filter(item => // Filter hanya item yang ada isinya
-                item.maintenance_status !== null ||
-                item.condition_status !== null ||
-                item.notes !== null
-            );
+    function onSubmit(values: z.infer<typeof formSchema>) {
+        router.post(route('inspection.ac.store'), values);
+    }
 
-        if (transformedItems.length === 0) {
-            alert('Mohon isi setidaknya satu item Inspeksi AC.');
-            return;
-        }
-
-        // Kirim data ke backend
-        router.post(route('inspection.ac.store'), {
-            inspection_date: values.inspection_date,
-            entity_id: Number(values.entity_id), // Kirim ID entitas sebagai number
-            plant_id: Number(values.plant_id),   // Kirim ID plant sebagai number
-            location_id: Number(values.location_id), // Kirim ID lokasi sebagai number
-            notes: values.notes,
-            items: transformedItems,
-        }, {
-            onSuccess: () => {
-                showToast({ type: 'success', message: 'Inspeksi AC berhasil dibuat!' });
-                // Inertia akan secara otomatis redirect karena controller mengembalikan redirect()->route()
-            },
-            onError: (errors) => {
-                console.error('Terjadi kesalahan saat membuat inspeksi AC:', errors);
-                showToast({ type: 'error', message: errors.message || 'Gagal membuat inspeksi AC. Cek konsol.' });
-            },
-        });
-    };
+    const breadcrumbs: BreadcrumbItem[] = [
+        { title: 'Home', href: route('home') },
+        { title: 'Laporan Inspeksi AC', href: route('inspection.ac.index') },
+        { title: 'Buat Baru', href: '#' },
+    ];
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Buat Inspeksi AC" />
-            <div className="space-y-6 p-4">
-                <SectionHeader title="Buat Inspeksi AC" subtitle="Lengkapi data inspeksi AC baru di bawah ini." />
-
+            <Head title="Buat Inspeksi AC Baru" />
+            <div className="space-y-6 p-4 sm:p-6 lg:p-8">
+                <SectionHeader 
+                    title="Buat Inspeksi AC Baru" 
+                    subtitle="Buat data temuan baru dan lengkapi formulir di bawah ini dengan data yang dibutuhkan."
+                />
+                
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                         <Card>
-                            <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                {/* Tanggal Inspeksi */}
-                                <FormField
-                                    control={form.control}
-                                    name="inspection_date"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Tanggal Inspeksi</FormLabel>
+                            <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-6">
+                                <FormField name="inspection_date" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Tanggal Inspeksi</FormLabel>
+                                        {/* [REVISI] Tambahkan className="w-full" */}
+                                        <FormControl><Input type="date" className="w-full" {...field} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}/>
+                                <FormField name="master_ac_id" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Lokasi AC</FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
                                             <FormControl>
-                                                <Input type="date" {...field} />
+                                                {/* [REVISI] Tambahkan className="w-full" */}
+                                                <SelectTrigger className="w-full">
+                                                    <SelectValue placeholder="Pilih Lokasi AC..." />
+                                                </SelectTrigger>
                                             </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-
-                                {/* Entitas */}
-                                <FormField
-                                    control={form.control}
-                                    name="entity_id"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Entitas</FormLabel>
-                                            <FormControl>
-                                                <Select value={field.value} onValueChange={field.onChange}>
-                                                    <SelectTrigger className="w-full">
-                                                        <SelectValue placeholder="Pilih Entitas" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {entities.map((ent) => (
-                                                            <SelectItem key={ent.id} value={String(ent.id)}>
-                                                                {ent.name} ({ent.entity_code})
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-
-                                {/* Plant */}
-                                <FormField
-                                    control={form.control}
-                                    name="plant_id"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Plant</FormLabel>
-                                            <FormControl>
-                                                <Select value={field.value} onValueChange={field.onChange}>
-                                                    <SelectTrigger className="w-full">
-                                                        <SelectValue placeholder="Pilih Plant" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {plants.map((plt) => (
-                                                            <SelectItem key={plt.id} value={String(plt.id)}>
-                                                                {plt.name} ({plt.plant_code})
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-
-                                {/* Lokasi */}
-                                <FormField
-                                    control={form.control}
-                                    name="location_id"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Lokasi</FormLabel>
-                                            <FormControl>
-                                                <Select value={field.value} onValueChange={field.onChange}>
-                                                    <SelectTrigger className="w-full">
-                                                        <SelectValue placeholder="Pilih Lokasi" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {locations.map((loc) => (
-                                                            <SelectItem key={loc.id} value={String(loc.id)}>
-                                                                {loc.location}
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-
-                                {/* Catatan Global Inspeksi */}
-                                <FormField
-                                    control={form.control}
-                                    name="notes"
-                                    render={({ field }) => (
-                                        <FormItem className="md:col-span-2"> {/* Kolom penuh untuk catatan */}
-                                            <FormLabel>Catatan Inspeksi Umum</FormLabel>
-                                            <FormControl>
-                                                <Input {...field} value={field.value ?? ''} onChange={(e) => field.onChange(e.target.value === '' ? null : e.target.value)} placeholder="Tulis catatan umum untuk inspeksi ini" />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
+                                            <SelectContent>
+                                                {masterAcs.map(ac => <SelectItem key={ac.id} value={String(ac.id)}>{ac.room}</SelectItem>)}
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}/>
+                                <FormItem>
+                                    <FormLabel>Kode Inventaris</FormLabel>
+                                    {/* [REVISI] Tambahkan className="w-full" */}
+                                    <Input className="w-full" value={selectedAc?.inventory_code ?? 'Pilih Lokasi AC terlebih dahulu'} readOnly />
+                                </FormItem>
                             </CardContent>
                         </Card>
 
-                        {/* Bagian Tabel Item Inspeksi AC */}
-                        <Card className="overflow-hidden">
-                            <CardContent className="overflow-x-auto">
-                                <h3 className="mb-4 text-lg font-semibold">Unit AC yang Diperiksa</h3>
-                                <div className="w-full">
-                                    <Table className="w-full table-fixed border-collapse whitespace-normal">
-                                        <TableHeader>
-                                            <TableRow>
-                                                <TableHead className="w-10">No</TableHead>
-                                                <TableHead className="w-24">Nomor AC</TableHead>
-                                                <TableHead className="w-28">Kode Inventaris</TableHead>
-                                                <TableHead className="w-20">Merek</TableHead>
-                                                <TableHead className="w-32">Lokasi Ruangan</TableHead>
-                                                <TableHead className="w-28">Status Perawatan</TableHead>
-                                                <TableHead className="w-28">Kondisi</TableHead>
-                                                <TableHead className="w-40">Catatan Item</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {masterAcUnits.length === 0 ? (
-                                                <TableRow>
-                                                    <TableCell colSpan={8} className="text-center text-muted-foreground">
-                                                        Tidak ada unit AC master ditemukan.
-                                                    </TableCell>
-                                                </TableRow>
-                                            ) : (
-                                                masterAcUnits.map((unit, index) => {
-                                                    const unitId = String(unit.id); // ID dari MasterAcUnit
-                                                    return (
-                                                        <TableRow key={unitId}>
-                                                            <TableCell>{index + 1}</TableCell>
-                                                            <TableCell>{unit.ac_number ?? '-'}</TableCell>
-                                                            <TableCell>{unit.inventory_code ?? '-'}</TableCell>
-                                                            <TableCell>{unit.brand ?? '-'}</TableCell>
-                                                            <TableCell>{unit.room ?? '-'}</TableCell>
-                                                            <TableCell>
-                                                                <FormField
-                                                                    control={form.control}
-                                                                    name={`items.${unitId}.maintenance_status`}
-                                                                    render={({ field }) => (
-                                                                        <Select value={String(field.value ?? '')} onValueChange={(val) => field.onChange(val === '' ? null : val)}>
-                                                                            <SelectTrigger><SelectValue placeholder="Pilih" /></SelectTrigger>
-                                                                            <SelectContent>
-                                                                                {maintenanceStatuses.map((status) => (
-                                                                                    <SelectItem key={status.value} value={status.value}>{status.name}</SelectItem>
-                                                                                ))}
-                                                                            </SelectContent>
-                                                                        </Select>
-                                                                    )}
-                                                                />
-                                                                <FormMessage>{form.formState.errors.items?.[unitId]?.maintenance_status?.message}</FormMessage>
-                                                            </TableCell>
-                                                            <TableCell>
-                                                                <FormField
-                                                                    control={form.control}
-                                                                    name={`items.${unitId}.condition_status`}
-                                                                    render={({ field }) => (
-                                                                        <Select value={String(field.value ?? '')} onValueChange={(val) => field.onChange(val === '' ? null : val)}>
-                                                                            <SelectTrigger><SelectValue placeholder="Pilih" /></SelectTrigger>
-                                                                            <SelectContent>
-                                                                                {conditionTypes.map((condition) => (
-                                                                                    <SelectItem key={condition.value} value={condition.value}>{condition.name}</SelectItem>
-                                                                                ))}
-                                                                            </SelectContent>
-                                                                        </Select>
-                                                                    )}
-                                                                />
-                                                                <FormMessage>{form.formState.errors.items?.[unitId]?.condition_status?.message}</FormMessage>
-                                                            </TableCell>
-                                                            <TableCell>
-                                                                <FormField
-                                                                    control={form.control}
-                                                                    name={`items.${unitId}.notes`}
-                                                                    render={({ field }) => (
-                                                                        <Input {...field} value={field.value ?? ''} onChange={(e) => field.onChange(e.target.value === '' ? null : e.target.value)} placeholder="Catatan..." />
-                                                                    )}
-                                                                />
-                                                                <FormMessage>{form.formState.errors.items?.[unitId]?.notes?.message}</FormMessage>
-                                                            </TableCell>
-                                                        </TableRow>
-                                                    );
-                                                })
-                                            )}
-                                        </TableBody>
-                                    </Table>
-                                </div>
+                        <Card>
+                            <CardContent className="overflow-x-auto pt-2">
+                                <Table className="border">
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead colSpan={2} className="border bg-yellow-300 text-center font-bold text-black">Status</TableHead>
+                                            <TableHead colSpan={2} className="border bg-yellow-300 text-center font-bold text-black">Kondisi</TableHead>
+                                            <TableHead rowSpan={2} className="border bg-yellow-300 align-middle text-center font-bold text-black w-auto">Keterangan</TableHead>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableHead className="border bg-yellow-100 text-center w-[120px]">Perbaikan</TableHead>
+                                            <TableHead className="border bg-yellow-100 text-center w-[120px]">Perawatan</TableHead>
+                                            <TableHead className="border bg-yellow-100 text-center w-[120px]">Baik</TableHead>
+                                            <TableHead className="border bg-yellow-100 text-center w-[120px]">Rusak</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        <TableRow>
+                                            <TableCell className="border text-center">
+                                                <FormField name="maintenance_status" render={({ field }) => (
+                                                    <FormControl><Checkbox className="data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-600" checked={field.value === 'Perbaikan'} onCheckedChange={() => field.onChange('Perbaikan')} /></FormControl>
+                                                )}/>
+                                            </TableCell>
+                                            <TableCell className="border text-center">
+                                                <FormField name="maintenance_status" render={({ field }) => (
+                                                    <FormControl><Checkbox className="data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-600" checked={field.value === 'Perawatan'} onCheckedChange={() => field.onChange('Perawatan')} /></FormControl>
+                                                )}/>
+                                            </TableCell>
+                                            <TableCell className="border text-center">
+                                                <FormField name="condition_status" render={({ field }) => (
+                                                    <FormControl><Checkbox className="data-[state=checked]:bg-green-500 data-[state=checked]:border-green-600" checked={field.value === 'Baik'} onCheckedChange={() => field.onChange('Baik')} /></FormControl>
+                                                )}/>
+                                            </TableCell>
+                                            <TableCell className="border text-center">
+                                                <FormField name="condition_status" render={({ field }) => (
+                                                    <FormControl><Checkbox className="data-[state=checked]:bg-red-500 data-[state=checked]:border-red-600" checked={field.value === 'Rusak'} onCheckedChange={() => field.onChange('Rusak')} /></FormControl>
+                                                )}/>
+                                            </TableCell>
+                                            <TableCell className="border">
+                                                <FormField name="notes" render={({ field }) => (
+                                                     <FormControl><Textarea placeholder="Catatan inspeksi..." {...field} value={field.value ?? ''} /></FormControl>
+                                                )}/>
+                                            </TableCell>
+                                        </TableRow>
+                                    </TableBody>
+                                </Table>
+                                 <div className="pt-2 text-red-600 text-sm">
+                                     <FormMessage>{form.formState.errors.maintenance_status?.message}</FormMessage>
+                                     <FormMessage>{form.formState.errors.condition_status?.message}</FormMessage>
+                                 </div>
                             </CardContent>
                         </Card>
-
-                        {/* Tombol Submit */}
-                        <div className="flex justify-start">
-                            <Button type="submit" disabled={form.formState.isSubmitting}>
-                                {form.formState.isSubmitting ? 'Menyimpan...' : 'Buat Inspeksi AC'}
-                            </Button>
-                        </div>
+                        
+                        <Button type="submit" disabled={form.formState.isSubmitting} className="w-full md:w-auto" size="lg">
+                            {form.formState.isSubmitting ? "Menyimpan..." : "Simpan Inspeksi"}
+                        </Button>
                     </form>
                 </Form>
             </div>
