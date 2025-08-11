@@ -114,55 +114,81 @@ class AparInspectionController extends Controller
     /**
      * Tampilkan form edit inspeksi.
      */
-    public function edit(AparInspection $aparInspection)
+    public function edit($uuid)
     {
+        $aparInspection = AparInspection::where('uuid', $uuid)
+            ->with(['items.checkItem'])
+            ->firstOrFail();
         $aparInspection->load(['items.checkItem']);
 
+        $inspectionItems = $aparInspection->items
+            ->map(function ($item) {
+                return [
+                    'month' => $item->month,
+                    'field' => $item->field,
+                    'value' => $item->value,
+                ];
+            })
+            ->values();
+
         return inertia('inspection/apar/edit', [
-            'aparInspection' => $aparInspection,
-            'apars' => MasterApar::all(),
-            'checkItems' => MasterAparCheckItem::all(),
+            'aparInspection' => [
+                'uuid' => $aparInspection->uuid,
+                'id' => $aparInspection->id,
+                'date' => $aparInspection->date_inspection,
+                'apar_id' => (string) $aparInspection->apar_id,
+                'expired_year' => (string) $aparInspection->expired_year,
+                'location' => $aparInspection->location,
+                'note' => $aparInspection->note,
+            ],
+            'inspectionItems' => $inspectionItems,
+            'apars' => MasterApar::select('id', 'inventory_code', 'apar', 'location')->get(),
         ]);
     }
+
 
     /**
      * Update data inspeksi.
      */
-    public function update(Request $request, AparInspection $aparInspection)
+    public function update(Request $request, $uuid)
     {
         $validated = $request->validate([
-            'date_inspection' => 'required|date',
+            'date' => 'required|date',
             'expired_year' => 'required|integer',
-            'items' => 'required|array',
-            'items.*.id' => 'nullable|integer|exists:apar_inspection_items,id',
-            'items.*.apar_check_item_id' => 'required|exists:master_apar_check_items,id',
-            'items.*.is_checked' => 'required|boolean',
+            'apar_inspection_items' => 'required|json',
         ]);
+
 
         DB::beginTransaction();
         try {
+            $aparInspection = AparInspection::where('uuid', $uuid)->firstOrFail();
             $aparInspection->update([
-                'date_inspection' => $validated['date_inspection'],
+                'date_inspection' => $validated['date'],
                 'expired_year' => $validated['expired_year'],
+                'note' => $request->note,
             ]);
 
-            foreach ($validated['items'] as $item) {
-                AparInspectionItem::updateOrCreate(
-                    ['id' => $item['id'] ?? null],
-                    [
-                        'apar_inspection_id' => $aparInspection->id,
-                        'apar_check_item_id' => $item['apar_check_item_id'],
-                        'is_checked' => $item['is_checked'],
-                    ]
-                );
+            $items = json_decode($request->input('apar_inspection_items'), true);
+
+            // Delete existing items
+            $aparInspection->items()->delete();
+
+            // Create new items
+            foreach ($items as $item) {
+                $aparInspection->items()->create([
+                    'apar_inspection_id' => $aparInspection->id,
+                    'month' => $item['month'],
+                    'field' => $item['field'],
+                    'value' => $item['value'],
+                ]);
             }
 
             DB::commit();
 
-            return redirect()->route('apar-inspections.index')->with('success', 'Inspeksi berhasil diperbarui.');
+            return redirect()->route('inspection.apar.index')->with('success', 'APAR inspection updated successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withErrors(['message' => 'Gagal memperbarui inspeksi.']);
+            return back()->withErrors(['message' => 'Gagal memperbarui inspeksi. ' . $e->getMessage()]);
         }
     }
 
@@ -173,7 +199,7 @@ class AparInspectionController extends Controller
     {
         $aparInspection->delete();
 
-        return redirect()->route('apar-inspections.index')->with('success', 'Inspeksi berhasil dihapus.');
+        return redirect()->route('inspection.apar.index')->with('success', 'Inspeksi berhasil dihapus.');
     }
 
     /**

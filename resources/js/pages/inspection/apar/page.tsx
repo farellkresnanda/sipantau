@@ -1,12 +1,9 @@
 import SectionHeader from '@/components/section-header';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
-import { showToast } from '@/components/ui/toast';
 import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem } from '@/types';
-import { Head, Link, usePage } from '@inertiajs/react';
-import { Plus } from 'lucide-react';
-import { useEffect } from 'react';
+import { Head, Link } from '@inertiajs/react';
 import { columns } from './columns';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -21,22 +18,6 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function PageAparInspection({ aparInspections }: { aparInspections: never[] }) {
-    const { flash } = usePage().props as {
-        flash?: { success?: string; error?: string; message?: string };
-    };
-
-    useEffect(() => {
-        if (flash?.success) {
-            showToast({ type: 'success', message: flash.success });
-        }
-        if (flash?.error) {
-            showToast({ type: 'error', message: flash.error });
-        }
-        if (flash?.message) {
-            showToast({ message: flash.message });
-        }
-    }, [flash]);
-
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Inspeksi APAR" />
