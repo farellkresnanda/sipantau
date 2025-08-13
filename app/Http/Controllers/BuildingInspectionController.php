@@ -7,6 +7,7 @@ use App\Models\Master\MasterBuilding;
 use App\Models\Master\MasterBuildingWorkStandard;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
@@ -61,36 +62,46 @@ class BuildingInspectionController extends Controller
             'items.*.remarks' => 'nullable|string',
         ]);
 
-        // Generate CAR number (you may want to extract this logic into a service later)
-        $code = auth()->user()->plant->alias_name . '/BLD/' . sprintf('%03d', BuildingInspection::count() + 1) . '/' . now()->format('d/m/Y');
+        DB::beginTransaction();
 
-        $inspection = BuildingInspection::create([
-            'uuid' => Str::uuid(),
-            'approval_status_code' => 'SOP',
-            'code' => $code,
-            'inspection_date' => $data['inspection_date'],
-            'created_by' => auth()->id(),
-            'entity_code' => auth()->user()->entity_code,
-            'plant_code' => auth()->user()->plant_code,
-            'building_id' => $data['building_id'],
-            'frequency' => $data['frequency'],
-        ]);
+        try{
+            // Generate CAR number (you may want to extract this logic into a service later)
+            $code = auth()->user()->plant->alias_name . '/BLD/' . sprintf('%03d', BuildingInspection::count() + 1) . '/' . now()->format('d/m/Y');
 
-        foreach ($data['items'] as $item) {
-            $inspection->items()->create([
-                'work_standard_id' => $item['work_standard_id'],
-                'job_name' => $item['job_name'],
-                'standard_description' => $item['standard_description'],
-                'action_repair' => $item['action_repair'],
-                'action_maintenance' => $item['action_maintenance'],
-                'condition_good' => $item['condition_good'],
-                'condition_broken' => $item['condition_broken'],
-                'remarks' => $item['remarks'],
+            $inspection = BuildingInspection::create([
+                'uuid' => Str::uuid(),
+                'approval_status_code' => 'SOP',
+                'code' => $code,
+                'inspection_date' => $data['inspection_date'],
+                'created_by' => auth()->id(),
+                'entity_code' => auth()->user()->entity_code,
+                'plant_code' => auth()->user()->plant_code,
+                'building_id' => $data['building_id'],
+                'frequency' => $data['frequency'],
             ]);
-        }
 
-        return redirect()->route('inspection.building.index')
-            ->with('success', 'Building inspection created successfully.');
+            foreach ($data['items'] as $item) {
+                $inspection->items()->create([
+                    'work_standard_id' => $item['work_standard_id'],
+                    'job_name' => $item['job_name'],
+                    'standard_description' => $item['standard_description'],
+                    'action_repair' => $item['action_repair'],
+                    'action_maintenance' => $item['action_maintenance'],
+                    'condition_good' => $item['condition_good'],
+                    'condition_broken' => $item['condition_broken'],
+                    'remarks' => $item['remarks'],
+                ]);
+            }
+
+            DB::commit();
+
+            return inertia('inspection/building/create', [
+                'buildingInspectionCode' => $inspection->code, // bisa juga pakai uuid
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['message' => 'Gagal menyimpan inspeksi: ' . $e->getMessage()]);
+        }
     }
 
     /**

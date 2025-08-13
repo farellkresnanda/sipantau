@@ -32,7 +32,7 @@ class HandleInertiaRequests extends Middleware
      *
      * @see https://inertiajs.com/shared-data
      *
-     * @return array<string, mixed>
+     * @return \Illuminate\Support\Collection
      */
     private function quotes()
     {
@@ -68,7 +68,6 @@ class HandleInertiaRequests extends Middleware
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
                 'message' => fn () => $request->session()->get('message'),
-                'firstAidInspectionUuid' => fn () => $request->session()->get('firstAidInspectionUuid'),
             ],
         ];
     }
