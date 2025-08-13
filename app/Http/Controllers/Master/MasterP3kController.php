@@ -21,8 +21,8 @@ class MasterP3kController extends Controller
         $data = MasterP3k::query()
             // Perbarui name relasi di sini
             ->with([
-                'entityData:entity_code,name', // <-- GUNAKAN NAMA FUNGSI RELASI BARU
-                'plantData:plant_code,name',     // <-- GUNAKAN NAMA FUNGSI RELASI BARU
+                'entity:entity_code,name', // <-- GUNAKAN NAMA FUNGSI RELASI BARU
+                'plant:plant_code,name',     // <-- GUNAKAN NAMA FUNGSI RELASI BARU
             ])
             ->latest()
             ->get()
@@ -37,8 +37,8 @@ class MasterP3kController extends Controller
                     'type' => $p3k->type,
                     'inventory_code' => $p3k->inventory_code,
                     // Akses relasi dengan name fungsi relasi yang baru
-                    'entity' => $p3k->entityData ? ['name' => $p3k->entityData->name] : null, // <-- GUNAKAN NAMA FUNGSI RELASI BARU
-                    'plant_name' => $p3k->plantData ? $p3k->plantData->name : null, // <-- GUNAKAN NAMA FUNGSI RELASI BARU
+                    'entity' => $p3k->entity ? ['name' => $p3k->entity->name] : null, // <-- GUNAKAN NAMA FUNGSI RELASI BARU
+                    'plant_name' => $p3k->plant ? $p3k->plant->name : null, // <-- GUNAKAN NAMA FUNGSI RELASI BARU
                 ];
             });
 
@@ -92,8 +92,8 @@ class MasterP3kController extends Controller
     {
         // Perbarui name relasi
         $p3k->load([
-            'entityData:entity_code,name',
-            'plantData:plant_code,name',
+            'entity:entity_code,name',
+            'plant:plant_code,name',
         ]);
 
         $plants = MasterPlant::select(

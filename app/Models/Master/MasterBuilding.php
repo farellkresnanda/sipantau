@@ -11,7 +11,7 @@ class MasterBuilding extends Model
     /**
      * Relasi ke entity (MasterEntity)
      */
-    public function entityData()
+    public function entity()
     {
         return $this->belongsTo(MasterEntity::class, 'entity_code', 'entity_code');
     }
@@ -19,7 +19,7 @@ class MasterBuilding extends Model
     /**
      * Relasi ke plant (MasterPlant)
      */
-    public function plantData()
+    public function plant()
     {
         return $this->belongsTo(MasterPlant::class, 'plant_code', 'plant_code');
     }

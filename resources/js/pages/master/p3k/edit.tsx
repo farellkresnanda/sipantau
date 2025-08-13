@@ -65,11 +65,11 @@ type MasterP3kProp = {
     location: string;
     type: string;
     inventory_code: string;
-    entityData: {
+    entity: {
         entity_code: string;
         name: string;
     } | null;
-    plantData: {
+    plant: {
         plant_code: string;
         name: string;
     } | null;
