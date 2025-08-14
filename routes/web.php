@@ -83,11 +83,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('jsa/verify/{uuid}', [JSADocumentController::class, 'verify'])->name('analysis.jsa.verify');
         Route::get('/jsa/{id}/print', [JSADocumentController::class, 'print'])->name('analysis.jsa.print');
         Route::resource('jsa', JSADocumentController::class)->names('analysis.jsa');
-    });
 
-
-    // Analysis routes
-    Route::prefix('analysis')->group(function () {
+        // HSE Information routes
         Route::resource('hse-information', HseInformationController::class);
     });
 
