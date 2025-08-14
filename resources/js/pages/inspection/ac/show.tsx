@@ -1,292 +1,314 @@
 'use client';
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
-import AppLayout from '@/layouts/app-layout';
-import type { BreadcrumbItem } from '@/types';
-import { Head, router } from '@inertiajs/react';
-import { format } from 'date-fns';
-import {
-    Building2,
-    Calendar,
-    Factory,
-    FileText,
-    MapPin,
-    ShieldCheck,
-    UserCheck,
-} from 'lucide-react';
 import React from 'react';
-import ValidatorVerifyFirstAidDialog from './verify-dialog';
+import { Head, router, usePage } from '@inertiajs/react';
+import { format } from 'date-fns';
+import { id } from 'date-fns/locale';
+import {
+  Building2,
+  Calendar,
+  ClipboardCheck,
+  Factory,
+  FileText,
+  MapPin,
+  Printer,
+  ShieldCheck,
+  User as UserIcon,
+  UserCheck,
+} from 'lucide-react';
 
-interface ShowFirstAidInspectionProps {
-    firstAidInspection?: {
-        uuid: string;
-        approval_status_code: string;
-        inspection_date: string;
-        project_name: string | null;
-        approved_at: string | null;
-        approved_by: number | null;
-        car_auto_number?: string | null;
-        location?: { location: string };
-        entity?: { name: string };
-        plant?: { name: string };
-        createdBy?: { id?: number; name?: string };
-        approvalStatus?: { name: string };
-        note_validator: string | null;
-    };
-    inspectorNotes?: Array<{
-        item_name: string;
-        note: string | null;
-        condition: string;
-        quantity_found: number;
-        expired_at: string | null;
-    }>;
-    approvedBy?: string | null;
-    creatorNameProp?: string;
+import AppLayout from '@/layouts/app-layout';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import type { BreadcrumbItem, PageProps as BasePageProps } from '@/types';
+import VerifyDialog from '@/pages/inspection/ac/verify-dialog';
+
+// --- Type Definitions ---
+
+// Tipe spesifik untuk user yang memiliki roles
+interface AuthUser {
+    id: number;
+    name: string;
+    email: string;
+    roles: { name: string }[];
 }
 
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Home', href: '/' },
-    { title: 'Inspeksi P3K', href: '/inspection/first-aid' },
-    { title: 'Detail', href: '#' },
-];
+interface MasterAc {
+  room: string;
+  inventory_code: string;
+}
 
-const getStatusLabel = (code: string) => {
-    if (code === 'SAP') return 'Approved';
-    if (code === 'SOP') return 'Open';
-    if (code === 'SRE') return 'Rejected';
-    return code ?? 'Open';
+interface InspectionItem {
+  master_ac: MasterAc;
+  maintenance_status: string;
+  condition_status: string;
+  notes: string | null;
+}
+
+interface User {
+    name: string;
+}
+
+interface ApprovalStatus {
+    name: string;
+    code: string;
+    badge_class: string;
+}
+
+interface SimpleMasterData {
+    name: string;
+}
+
+interface Inspection {
+  uuid: string;
+  car_auto_number: string;
+  inspection_date: string | null;
+  items: InspectionItem[];
+  createdBy?: User;
+  approvalStatus?: ApprovalStatus;
+  entity?: SimpleMasterData;
+  plant?: SimpleMasterData;
+  approvedBy?: User;
+  approved_at?: string | null;
+  note_validator?: string | null;
+}
+
+// Tipe Props yang spesifik dan benar untuk halaman ini
+type ShowAcInspectionPageProps = BasePageProps & {
+  acInspection: Inspection;
+  auth: {
+      user: AuthUser;
+  };
 };
 
-export default function ShowFirstAidInspection({
-    firstAidInspection,
-    inspectorNotes = [],
-    approvedBy,
-    creatorNameProp,
-}: ShowFirstAidInspectionProps) {
-    // ✅ Kalau data tidak ada, langsung keluarin pesan
-    if (!firstAidInspection) {
-        return (
-            <AppLayout breadcrumbs={breadcrumbs}>
-                <Head title="Detail Inspeksi P3K" />
-                <div className="p-4 text-red-600">
-                    Data inspeksi tidak ditemukan.
-                </div>
-                <div className="p-4">
-                    <Button
-                        variant="outline"
-                        onClick={() => router.visit(route('inspection.first-aid.index'))}
-                    >
-                        Kembali
-                    </Button>
-                </div>
-            </AppLayout>
-        );
-    }
+export default function ShowAcInspectionPage() {
+  const { acInspection: inspection, auth } = usePage<ShowAcInspectionPageProps>().props;
+  const [isVerifyDialogOpen, setVerifyDialogOpen] = React.useState(false);
 
-    const {
-        uuid,
-        approval_status_code,
-        inspection_date,
-        project_name,
-        car_auto_number,
-        approved_at,
-        location,
-        entity,
-        plant,
-        note_validator,
-    } = firstAidInspection;
+  if (!inspection) {
+    return (
+      <AppLayout breadcrumbs={[]}>
+        <Head title="Data Tidak Ditemukan" />
+        <div className="p-8 text-center">
+          <p className="text-lg text-red-600">Data inspeksi tidak ditemukan.</p>
+          <Button variant="outline" onClick={() => router.get(route('inspection.ac.index'))} className="mt-4">
+            Kembali ke Daftar Inspeksi
+          </Button>
+        </div>
+      </AppLayout>
+    );
+  }
 
-    const creatorNameToDisplay = creatorNameProp ?? 'Nama Tidak Tersedia';
+  const firstItem = inspection.items?.[0];
+  
+  const formatDate = (dateString?: string | null) => {
+    if (!dateString) return '-';
+    return format(new Date(dateString), 'd MMMM yyyy', { locale: id });
+  };
 
-    const formatDate = (date?: string | null) => {
-        if (!date) return '-';
-        const parsed = new Date(date);
-        return isNaN(parsed.getTime()) ? '-' : format(parsed, 'dd MMMM yyyy');
-    };
+  const formattedInspectionDate = formatDate(inspection.inspection_date);
+  const formattedApprovalDate = formatDate(inspection.approved_at);
 
-    const statusLabel = getStatusLabel(approval_status_code);
-    const isApprovedOrRejected = ['Approved', 'Rejected'].includes(statusLabel);
-    const showExportPdfButton = statusLabel === 'Approved';
-    const canVerify = approval_status_code === 'SOP';
+  const isApprovedOrRejected = ['SAP', 'SRE'].includes(inspection.approvalStatus?.code || '');
+  const isOpenForVerification = inspection.approvalStatus?.code === 'SOP';
+  const userIsValidator = auth.user?.roles?.some(role => role.name === 'Validator');
+  const isApproved = inspection.approvalStatus?.code === 'SAP';
 
-    const handleExportPdf = () => {
-        window.open(route('first-aid-inspection.print', uuid), '_blank');
-    };
+  const breadcrumbs: BreadcrumbItem[] = [
+    { title: 'Home', href: route('home') },
+    { title: 'Laporan Inspeksi AC', href: route('inspection.ac.index') },
+    { title: 'Detail', href: '#' },
+  ];
 
-    return (
-        <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Detail Inspeksi P3K" />
+  return (
+    <AppLayout breadcrumbs={breadcrumbs}>
+      <Head title={`Detail Inspeksi ${inspection.car_auto_number}`} />
+      <div className="space-y-6 p-4 sm:p-6 lg:p-8">
 
-            <div className="space-y-6 p-4">
-                {/* Badge Header */}
-                <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant="outline" title="Nomor CAR">
-                        <FileText className="mr-1 h-4 w-4" />
-                        {car_auto_number || '-'}
-                    </Badge>
-                    <Badge variant="outline" title="Tanggal Inspeksi">
-                        <Calendar className="mr-1 h-4 w-4" />
-                        {formatDate(inspection_date)}
-                    </Badge>
-                    <Badge variant="outline" title="Lokasi">
-                        <MapPin className="mr-1 h-4 w-4" />
-                        {location?.location ?? '-'}
-                    </Badge>
-                    <Badge variant="outline" title="Entitas">
-                        <Building2 className="mr-1 h-4 w-4" />
-                        {entity?.name ?? '-'}
-                    </Badge>
-                    <Badge variant="outline" title="Plant">
-                        <Factory className="mr-1 h-4 w-4" />
-                        {plant?.name ?? '-'}
-                    </Badge>
-                    <Badge variant="outline" title="Petugas Inspeksi">
-                        <UserCheck className="mr-1 h-4 w-4" />
-                        {creatorNameToDisplay}
-                    </Badge>
-                    <Badge variant="outline" title="Status">
-                        <ShieldCheck className="mr-1 h-4 w-4" />
-                        {statusLabel}
-                    </Badge>
+        {/* Header section with Badges */}
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge variant="outline" title="Nomor Dokumen">
+            <FileText className="mr-1.5 h-4 w-4" />
+            {inspection.car_auto_number || '-'}
+          </Badge>
+          <Badge variant="outline" title="Tanggal Inspeksi">
+            <Calendar className="mr-1.5 h-4 w-4" />
+            {formattedInspectionDate}
+          </Badge>
+          <Badge variant="outline" title="Lokasi AC">
+            <MapPin className="mr-1.5 h-4 w-4" />
+            {firstItem?.master_ac?.room || '-'}
+          </Badge>
+          <Badge variant="outline" title="Entitas">
+            <Building2 className="mr-1.5 h-4 w-4" />
+            {inspection.entity?.name ?? '-'}
+          </Badge>
+          <Badge variant="outline" title="Plant">
+            <Factory className="mr-1.5 h-4 w-4" />
+            {inspection.plant?.name ?? '-'}
+          </Badge>
+          <Badge variant="outline" title="Petugas Inspeksi">
+            <UserIcon className="mr-1.5 h-4 w-4" />
+            {inspection.createdBy?.name || '-'}
+          </Badge>
+          <Badge variant={inspection.approvalStatus?.badge_class as any || 'secondary'} title="Status">
+            <ShieldCheck className="mr-1.5 h-4 w-4" />
+            {inspection.approvalStatus?.name || 'N/A'}
+          </Badge>
+          {isApproved && (
+            <button
+                onClick={() => window.open(route('inspection.ac.print', inspection.uuid), '_blank')}
+                className="inline-flex items-center gap-1 rounded-md border border-transparent bg-blue-500 px-2.5 py-0.5 text-xs font-semibold text-white transition-colors hover:bg-blue-600"
+            >
+                <FileText className="h-4 w-4" />
+                Export PDF
+            </button>
 
-                    {showExportPdfButton && (
-                        <Button
-                            onClick={handleExportPdf}
-                            className="inline-flex items-center gap-1 bg-blue-500 text-white hover:bg-blue-600"
-                            size="sm"
-                        >
-                            <FileText className="h-4 w-4" />
-                            Export PDF
-                        </Button>
-                    )}
-                </div>
+          )}
+        </div>
 
-                {/* Detail Card */}
-                <Card>
-                    <CardContent className="grid grid-cols-1 gap-4 pt-4 md:grid-cols-2">
-                        <div>
-                            <p className="text-muted-foreground flex items-center gap-1 text-sm font-medium">
-                                <Calendar className="h-4 w-4" />
-                                Tanggal Inspeksi
-                            </p>
-                            <p className="text-sm">{formatDate(inspection_date)}</p>
-                        </div>
-                        <div>
-                            <p className="text-muted-foreground flex items-center gap-1 text-sm font-medium">
-                                <MapPin className="h-4 w-4" />
-                                Lokasi
-                            </p>
-                            <p className="text-sm">{location?.location ?? '-'}</p>
-                        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Informasi Inspeksi</CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 gap-4 pt-0 md:grid-cols-2 lg:grid-cols-3">
+            <div>
+              <p className="text-muted-foreground flex items-center gap-1 text-sm font-medium">
+                <Calendar className="h-4 w-4" /> Tanggal Inspeksi
+              </p>
+              <p className="text-sm">{formattedInspectionDate}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground flex items-center gap-1 text-sm font-medium">
+                <MapPin className="h-4 w-4" /> Lokasi
+              </p>
+              <p className="text-sm">{firstItem?.master_ac?.room ?? '-'}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground flex items-center gap-1 text-sm font-medium">
+                <ClipboardCheck className="h-4 w-4" /> Kode Inventaris
+              </p>
+              <p className="text-sm">{firstItem?.master_ac?.inventory_code ?? '-'}</p>
+            </div>
 
-                        {isApprovedOrRejected && (
-                            <>
-                                <div>
-                                    <p className="text-muted-foreground flex items-center gap-1 text-sm font-medium">
-                                        <FileText className="h-4 w-4" />
-                                        Nama Proyek
-                                    </p>
-                                    <p className="text-sm">{project_name || '-'}</p>
-                                </div>
-                                <div>
-                                    <p className="text-muted-foreground flex items-center gap-1 text-sm font-medium">
-                                        <UserCheck className="h-4 w-4" />
-                                        Disetujui Oleh
-                                    </p>
-                                    <p className="text-sm">{approvedBy ?? '-'}</p>
-                                </div>
-                                <div>
-                                    <p className="text-muted-foreground flex items-center gap-1 text-sm font-medium">
-                                        <Calendar className="h-4 w-4" />
-                                        Tanggal Disetujui
-                                    </p>
-                                    <p className="text-sm">{formatDate(approved_at)}</p>
-                                </div>
-                                <div className="md:col-span-2">
-                                    <p className="text-muted-foreground flex items-center gap-1 text-sm font-medium">
-                                        <FileText className="h-4 w-4" />
-                                        Komentar Validator
-                                    </p>
-                                    <p className="whitespace-pre-line text-sm">
-                                        {note_validator || '-'}
-                                    </p>
-                                </div>
-                            </>
-                        )}
-                    </CardContent>
-                </Card>
+            {isApprovedOrRejected && (
+              <>
+                <div>
+                  <p className="text-muted-foreground flex items-center gap-1 text-sm font-medium">
+                    <UserCheck className="h-4 w-4" /> Diverifikasi Oleh
+                  </p>
+                  <p className="text-sm">{inspection.approvedBy?.name ?? '-'}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground flex items-center gap-1 text-sm font-medium">
+                    <Calendar className="h-4 w-4" /> Tanggal Verifikasi
+                  </p>
+                  <p className="text-sm">{formattedApprovalDate}</p>
+                </div>
+                <div>
+                    <p className="text-muted-foreground flex items-center gap-1 text-sm font-medium">
+                        <FileText className="h-4 w-4" /> Komentar Validator
+                    </p>
+                    <p className="whitespace-pre-line text-sm">{inspection.note_validator || '-'}</p>
+                </div>
+              </>
+            )}
+          </CardContent>
+        </Card>
 
-                {/* Tabel Items */}
-                <Card>
-                    <CardContent className="overflow-x-auto pt-4">
-                        <Table className="min-w-[700px] w-full table-fixed border-collapse whitespace-normal">
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead className="w-12">No</TableHead>
-                                    <TableHead>Nama Obat</TableHead>
-                                    <TableHead>Jumlah</TableHead>
-                                    <TableHead>Kondisi</TableHead>
-                                    <TableHead>Masa Berlaku</TableHead>
-                                    <TableHead>Keterangan</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {inspectorNotes.length > 0 ? (
-                                    inspectorNotes.map((item, index) => (
-                                        <TableRow key={index}>
-                                            <TableCell>{index + 1}</TableCell>
-                                            <TableCell>{item.item_name}</TableCell>
-                                            <TableCell>{item.quantity_found}</TableCell>
-                                            <TableCell>{item.condition}</TableCell>
-                                            <TableCell>{formatDate(item.expired_at)}</TableCell>
-                                            <TableCell>
-                                                {item.note?.trim()
-                                                    ? item.note
-                                                    : '(Tidak ada keterangan)'}
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
-                                ) : (
-                                    <TableRow>
-                                        <TableCell
-                                            colSpan={6}
-                                            className="text-center text-muted-foreground"
-                                        >
-                                            Tidak ada data inspeksi ditemukan.
-                                        </TableCell>
-                                    </TableRow>
-                                )}
-                            </TableBody>
-                        </Table>
-                    </CardContent>
-                </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Detail Temuan Inspeksi</CardTitle>
+          </CardHeader>
+          <CardContent className="overflow-x-auto">
+            <Table className="border">
+              <TableHeader>
+                <TableRow>
+                  <TableHead colSpan={2} className="border bg-yellow-400 text-center font-bold text-black">Status</TableHead>
+                  <TableHead colSpan={2} className="border bg-yellow-400 text-center font-bold text-black">Kondisi</TableHead>
+                  <TableHead rowSpan={2} className="border bg-yellow-400 align-middle text-center font-bold text-black w-auto">Keterangan</TableHead>
+                </TableRow>
+                <TableRow>
+                  <TableHead className="border bg-yellow-200 text-center w-[120px]">Perbaikan</TableHead>
+                  <TableHead className="border bg-yellow-200 text-center w-[120px]">Perawatan</TableHead>
+                  <TableHead className="border bg-yellow-200 text-center w-[120px]">Baik</TableHead>
+                  <TableHead className="border bg-yellow-200 text-center w-[120px]">Rusak</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {firstItem ? (
+                  <TableRow>
+                    <TableCell className="border text-center">
+                      <Checkbox
+                        className="h-5 w-5 rounded-sm border-[2px] border-gray-400 disabled:opacity-100 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-700"
+                        checked={firstItem.maintenance_status === 'Perbaikan'}
+                        disabled
+                      />
+                    </TableCell>
+                    <TableCell className="border text-center">
+                      <Checkbox
+                        className="h-5 w-5 rounded-sm border-[2px] border-gray-400 disabled:opacity-100 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-700"
+                        checked={firstItem.maintenance_status === 'Perawatan'}
+                        disabled
+                      />
+                    </TableCell>
+                    <TableCell className="border text-center">
+                      <Checkbox
+                        className="h-5 w-5 rounded-sm border-[2px] border-gray-400 disabled:opacity-100 data-[state=checked]:bg-green-600 data-[state=checked]:border-green-700"
+                        checked={firstItem.condition_status === 'Baik'}
+                        disabled
+                      />
+                    </TableCell>
+                    <TableCell className="border text-center">
+                      <Checkbox
+                        className="h-5 w-5 rounded-sm border-[2px] border-gray-400 disabled:opacity-100 data-[state=checked]:bg-red-600 data-[state=checked]:border-red-700"
+                        checked={firstItem.condition_status === 'Rusak'}
+                        disabled
+                      />
+                    </TableCell>
+                    <TableCell className="border">
+                      <Textarea value={firstItem.notes ?? ''} readOnly className="bg-gray-50" />
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center text-muted-foreground">
+                      Tidak ada detail item inspeksi ditemukan.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
 
-                {/* Tombol Aksi */}
-                <div className="mt-6 flex justify-start gap-2">
-                    <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => router.visit(route('inspection.first-aid.index'))}
-                    >
-                        Kembali
-                    </Button>
-                    {canVerify && (
-                        <ValidatorVerifyFirstAidDialog
-                            inspection={{ uuid, approval_status_code }}
-                        />
-                    )}
-                </div>
-            </div>
-        </AppLayout>
-    );
+        <div className="mt-6 flex justify-start gap-2">
+          <Button type="button" variant="outline" onClick={() => router.get(route('inspection.ac.index'))}>
+            Kembali
+          </Button>
+
+          {isOpenForVerification && userIsValidator && (
+            <Button
+              type="button"
+              onClick={() => setVerifyDialogOpen(true)}
+              className="bg-yellow-400 text-black hover:bg-yellow-300"
+            >
+              <ShieldCheck className="mr-2 h-4 w-4" />
+              Verifikasi
+            </Button>
+          )}
+        </div>
+
+        <VerifyDialog
+          open={isVerifyDialogOpen}
+          onOpenChange={setVerifyDialogOpen}
+          inspection={inspection} 
+        />
+      </div>
+    </AppLayout>
+  );
 }

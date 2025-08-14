@@ -7,31 +7,37 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
+// Menggunakan 'use' untuk merapikan kode dan dependensi
+use App\Models\Master\MasterEntity;
+use App\Models\Master\MasterPlant;
+use App\Models\Master\MasterAc;
+use App\Models\ApprovalStatus;
+use App\Models\User;
+use App\Models\AcInspectionItem;
+
 class AcInspection extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $table = 'ac_inspections';
-
     /**
-     * Atribut yang bisa diisi secara massal.
+     * Nama tabel yang terhubung dengan model ini.
+     *
+     * @var string
      */
-    protected $fillable = [
-        'uuid',
-        'inspection_date',
-        'car_auto_number',
-        'entity_code',
-        'plant_code',
-        'location_id',
-        'approval_status_code',
-        'created_by',
-        'approved_by',
-        'note_validator',
-        'approved_at',
-    ];
+    protected $table = 'ac_inspections';
+    
+    /**
+     * Atribut yang dikecualikan dari mass assignment.
+     * Menggunakan array kosong berarti semua atribut boleh diisi.
+     *
+     * @var array
+     */
+    protected $guarded = [];
 
     /**
-     * Tipe data casting untuk atribut.
+     * The attributes that should be cast.
+     *
+     * @var array
      */
     protected $casts = [
         'inspection_date' => 'datetime',
@@ -40,6 +46,7 @@ class AcInspection extends Model
 
     /**
      * Boot method untuk model.
+     * Secara otomatis membuat UUID saat record baru dibuat.
      */
     protected static function boot()
     {
@@ -51,26 +58,42 @@ class AcInspection extends Model
         });
     }
 
+    /**
+     * Mengatur agar Route-Model Binding menggunakan 'uuid' bukan 'id'.
+     */
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
+
     // --- Relationships ---
     
     public function entity()
     {
-        return $this->belongsTo(\App\Models\Master\MasterEntity::class, 'entity_code', 'entity_code');
+        return $this->belongsTo(MasterEntity::class, 'entity_code', 'entity_code');
     }
 
     public function plant()
     {
-        return $this->belongsTo(\App\Models\Master\MasterPlant::class, 'plant_code', 'plant_code');
+        return $this->belongsTo(MasterPlant::class, 'plant_code', 'plant_code');
     }
 
     public function location()
     {
-        return $this->belongsTo(\App\Models\Master\MasterAc::class, 'location_id');
+        return $this->belongsTo(MasterAc::class, 'location_id');
     }
     
+    /**
+     * Relasi ke ApprovalStatus.
+     * Ini adalah kunci agar status dapat ditampilkan dengan benar.
+     */
     public function approvalStatus()
     {
-        return $this->belongsTo(ApprovalStatus::class, 'approval_status_code', 'code');
+        return $this->belongsTo(ApprovalStatus::class, 'approval_status_code', 'code')
+                    ->withDefault([
+                        'name' => 'Status Tidak Ditemukan',
+                        'badge_class' => 'secondary'
+                    ]);
     }
 
     public function createdBy()

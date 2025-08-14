@@ -7,12 +7,11 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { FormEvent, useState } from 'react';
+import { FormEvent, type Dispatch, type SetStateAction } from 'react';
 import { router, usePage } from '@inertiajs/react';
 import { showToast } from '@/components/ui/toast';
 import type { PageProps } from '@/types';
@@ -32,24 +31,27 @@ interface PagePropsWithUser extends PageProps {
     };
 }
 
-// Tipe props yang diterima oleh komponen dialog ini
+// [REVISI] Tipe props yang diterima oleh komponen
+// Ditambahkan 'open' dan 'onOpenChange' agar bisa dikontrol dari luar.
 interface ValidatorVerifyDialogProps {
+    open: boolean;
+    onOpenChange: Dispatch<SetStateAction<boolean>>;
     inspection: {
         uuid: string;
-        approval_status_code: 'SOP' | 'SAP' | 'SRE';
     };
 }
 
-export default function ValidatorVerifyDialog({ inspection }: ValidatorVerifyDialogProps) {
-    const [open, setOpen] = useState(false);
+export default function ValidatorVerifyDialog({ open, onOpenChange, inspection }: ValidatorVerifyDialogProps) {
+    // [DIHAPUS] State internal tidak lagi diperlukan, karena dikontrol oleh parent.
+    // const [open, setOpen] = useState(false);
+
     const { auth } = usePage<PagePropsWithUser>().props;
-
-    // [REVISI] Menggunakan optional chaining (?.) untuk mencegah error jika 'roles' tidak ada.
     const isValidator = auth.user?.roles?.some(role => role.name === 'Validator');
-    const canVerify = inspection.approval_status_code === 'SOP';
 
-    if (!isValidator || !canVerify) {
-        return null; // Jangan render apapun jika tidak memenuhi syarat
+    // Jika user bukan validator, komponen tidak melakukan apa-apa.
+    // Pengecekan status ('SOP') sudah dilakukan di parent sebelum menampilkan tombol.
+    if (!isValidator) {
+        return null;
     }
 
     const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -62,15 +64,15 @@ export default function ValidatorVerifyDialog({ inspection }: ValidatorVerifyDia
             showToast({ type: 'error', message: 'Status verifikasi harus dipilih.' });
             return;
         }
-        
-        // Kirim data ke controller verify
+
         router.post(route('inspection.ac.verify', inspection.uuid), {
             approval_status: approvalStatus,
             note_validator: noteValidator,
         }, {
             preserveScroll: true,
             onSuccess: () => {
-                setOpen(false);
+                // [REVISI] Gunakan onOpenChange untuk menutup dialog.
+                onOpenChange(false);
                 showToast({ type: 'success', message: 'Inspeksi AC berhasil diverifikasi.' });
             },
             onError: (errors) => {
@@ -81,10 +83,9 @@ export default function ValidatorVerifyDialog({ inspection }: ValidatorVerifyDia
     };
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <Button type="button">Verifikasi</Button>
-            </DialogTrigger>
+        // [REVISI] Props 'open' dan 'onOpenChange' diteruskan ke Dialog.
+        // DialogTrigger dihapus karena tombol pemicu ada di komponen parent.
+        <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Verifikasi Inspeksi AC</DialogTitle>
@@ -103,8 +104,8 @@ export default function ValidatorVerifyDialog({ inspection }: ValidatorVerifyDia
                             required
                         >
                             <option value="">Pilih status</option>
-                            <option value="SAP">Setuju (Approved)</option>
-                            <option value="SRE">Tolak (Rejected)</option>
+                            <option value="SAP">Setuju</option>
+                            <option value="SRE">Tolak</option>
                         </select>
                     </div>
 
@@ -119,7 +120,7 @@ export default function ValidatorVerifyDialog({ inspection }: ValidatorVerifyDia
                     </div>
 
                     <DialogFooter className="pt-4">
-                        <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                             Batal
                         </Button>
                         <Button type="submit">Verifikasi</Button>

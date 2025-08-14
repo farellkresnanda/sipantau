@@ -1,6 +1,6 @@
 'use client';
 
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -18,12 +18,24 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { showToast } from '@/components/ui/toast';
-import type { BreadcrumbItem } from '@/types';
+import type { BreadcrumbItem, PageProps as BasePageProps } from '@/types';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 
-interface CreateAcInspectionProps {
+// Tipe Props spesifik untuk halaman ini, memperbaiki semua error TypeScript sebelumnya
+type CreateAcInspectionPageProps = BasePageProps & {
     masterAcs: Array<{ id: number; inventory_code: string; merk: string; room: string; }>;
-    errors: Record<string, string>;
-}
+    flash: BasePageProps['flash'] & {
+        acInspectionCode?: string;
+        success?: string;
+    };
+};
 
 const formSchema = z.object({
     inspection_date: z.string().min(1, "Tanggal wajib diisi."),
@@ -33,8 +45,11 @@ const formSchema = z.object({
     notes: z.string().nullable(),
 });
 
-export default function CreateAcInspectionPage({ masterAcs, errors }: CreateAcInspectionProps) {
-    const [selectedAc, setSelectedAc] = useState<CreateAcInspectionProps['masterAcs'][0] | null>(null);
+export default function CreateAcInspectionPage({ masterAcs, errors }: CreateAcInspectionPageProps) {
+    const [selectedAc, setSelectedAc] = useState<CreateAcInspectionPageProps['masterAcs'][0] | null>(null);
+    const [showFindingModal, setShowFindingModal] = useState(false);
+    const [newInspectionCode, setNewInspectionCode] = useState<string | null>(null);
+    const [findingDescription, setFindingDescription] = useState<string>('');
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -58,14 +73,43 @@ export default function CreateAcInspectionPage({ masterAcs, errors }: CreateAcIn
     useEffect(() => {
         if (Object.keys(errors).length > 0) {
             Object.entries(errors).forEach(([key, message]) => {
-                form.setError(key as any, { type: 'manual', message });
+                form.setError(key as any, { type: 'manual', message: message as string });
             });
             showToast({ type: 'error', message: 'Silakan periksa kembali isian form Anda.'});
         }
     }, [errors, form]);
 
     function onSubmit(values: z.infer<typeof formSchema>) {
-        router.post(route('inspection.ac.store'), values);
+        const hasFindings = values.condition_status === 'Rusak';
+
+        router.post(route('inspection.ac.store'), values, {
+            preserveScroll: true,
+            onSuccess: (page) => {
+                const props = page.props as unknown as CreateAcInspectionPageProps;
+                
+                if (props.flash?.success) {
+                    showToast({ type: 'success', message: props.flash.success });
+                }
+
+                if (hasFindings) {
+                    const inspectionCode = props.flash?.acInspectionCode;
+                    
+                    if (inspectionCode && selectedAc) {
+                        setNewInspectionCode(inspectionCode);
+                        const findingText = `Kondisi Rusak pada AC di ${selectedAc.room} (Inv: ${selectedAc.inventory_code})`;
+                        setFindingDescription(findingText);
+                        setShowFindingModal(true);
+                    } else {
+                        showToast({ type: 'error', message: "Gagal mendapatkan kode inspeksi baru dari server." });
+                    }
+                } else {
+                    router.visit(route('inspection.ac.index'));
+                }
+            },
+            onError: () => {
+                showToast({ type: 'error', message: 'Gagal menyimpan inspeksi. Periksa kembali data Anda.'});
+            }
+        });
     }
 
     const breadcrumbs: BreadcrumbItem[] = [
@@ -90,7 +134,6 @@ export default function CreateAcInspectionPage({ masterAcs, errors }: CreateAcIn
                                 <FormField name="inspection_date" render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Tanggal Inspeksi</FormLabel>
-                                        {/* [REVISI] Tambahkan className="w-full" */}
                                         <FormControl><Input type="date" className="w-full" {...field} /></FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -100,7 +143,6 @@ export default function CreateAcInspectionPage({ masterAcs, errors }: CreateAcIn
                                         <FormLabel>Lokasi AC</FormLabel>
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                             <FormControl>
-                                                {/* [REVISI] Tambahkan className="w-full" */}
                                                 <SelectTrigger className="w-full">
                                                     <SelectValue placeholder="Pilih Lokasi AC..." />
                                                 </SelectTrigger>
@@ -114,7 +156,6 @@ export default function CreateAcInspectionPage({ masterAcs, errors }: CreateAcIn
                                 )}/>
                                 <FormItem>
                                     <FormLabel>Kode Inventaris</FormLabel>
-                                    {/* [REVISI] Tambahkan className="w-full" */}
                                     <Input className="w-full" value={selectedAc?.inventory_code ?? 'Pilih Lokasi AC terlebih dahulu'} readOnly />
                                 </FormItem>
                             </CardContent>
@@ -125,59 +166,105 @@ export default function CreateAcInspectionPage({ masterAcs, errors }: CreateAcIn
                                 <Table className="border">
                                     <TableHeader>
                                         <TableRow>
-                                            <TableHead colSpan={2} className="border bg-yellow-300 text-center font-bold text-black">Status</TableHead>
-                                            <TableHead colSpan={2} className="border bg-yellow-300 text-center font-bold text-black">Kondisi</TableHead>
-                                            <TableHead rowSpan={2} className="border bg-yellow-300 align-middle text-center font-bold text-black w-auto">Keterangan</TableHead>
+                                            <TableHead colSpan={2} className="border bg-yellow-400 text-center font-bold text-black">Status</TableHead>
+                                            <TableHead colSpan={2} className="border bg-yellow-400 text-center font-bold text-black">Kondisi</TableHead>
+                                            <TableHead rowSpan={2} className="border bg-yellow-400 align-middle text-center font-bold text-black w-auto">Keterangan</TableHead>
                                         </TableRow>
                                         <TableRow>
-                                            <TableHead className="border bg-yellow-100 text-center w-[120px]">Perbaikan</TableHead>
-                                            <TableHead className="border bg-yellow-100 text-center w-[120px]">Perawatan</TableHead>
-                                            <TableHead className="border bg-yellow-100 text-center w-[120px]">Baik</TableHead>
-                                            <TableHead className="border bg-yellow-100 text-center w-[120px]">Rusak</TableHead>
+                                            <TableHead className="border bg-yellow-200 text-center w-[120px]">Perbaikan</TableHead>
+                                            <TableHead className="border bg-yellow-200 text-center w-[120px]">Perawatan</TableHead>
+                                            <TableHead className="border bg-yellow-200 text-center w-[120px]">Baik</TableHead>
+                                            <TableHead className="border bg-yellow-200 text-center w-[120px]">Rusak</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
                                         <TableRow>
                                             <TableCell className="border text-center">
                                                 <FormField name="maintenance_status" render={({ field }) => (
-                                                    <FormControl><Checkbox className="data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-600" checked={field.value === 'Perbaikan'} onCheckedChange={() => field.onChange('Perbaikan')} /></FormControl>
+                                                    <FormControl>
+                                                        <Checkbox 
+                                                            className="h-5 w-5 rounded-sm border-2 border-gray-400 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-700"
+                                                            checked={field.value === 'Perbaikan'} 
+                                                            onCheckedChange={() => field.onChange('Perbaikan')} 
+                                                        />
+                                                    </FormControl>
                                                 )}/>
                                             </TableCell>
                                             <TableCell className="border text-center">
                                                 <FormField name="maintenance_status" render={({ field }) => (
-                                                    <FormControl><Checkbox className="data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-600" checked={field.value === 'Perawatan'} onCheckedChange={() => field.onChange('Perawatan')} /></FormControl>
+                                                    <FormControl>
+                                                        <Checkbox 
+                                                            className="h-5 w-5 rounded-sm border-2 border-gray-400 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-700"
+                                                            checked={field.value === 'Perawatan'} 
+                                                            onCheckedChange={() => field.onChange('Perawatan')} 
+                                                        />
+                                                    </FormControl>
                                                 )}/>
                                             </TableCell>
                                             <TableCell className="border text-center">
                                                 <FormField name="condition_status" render={({ field }) => (
-                                                    <FormControl><Checkbox className="data-[state=checked]:bg-green-500 data-[state=checked]:border-green-600" checked={field.value === 'Baik'} onCheckedChange={() => field.onChange('Baik')} /></FormControl>
+                                                    <FormControl>
+                                                        <Checkbox 
+                                                            className="h-5 w-5 rounded-sm border-2 border-gray-400 data-[state=checked]:bg-green-600 data-[state=checked]:border-green-700"
+                                                            checked={field.value === 'Baik'} 
+                                                            onCheckedChange={() => field.onChange('Baik')} 
+                                                        />
+                                                    </FormControl>
                                                 )}/>
                                             </TableCell>
                                             <TableCell className="border text-center">
                                                 <FormField name="condition_status" render={({ field }) => (
-                                                    <FormControl><Checkbox className="data-[state=checked]:bg-red-500 data-[state=checked]:border-red-600" checked={field.value === 'Rusak'} onCheckedChange={() => field.onChange('Rusak')} /></FormControl>
+                                                    <FormControl>
+                                                        <Checkbox 
+                                                            className="h-5 w-5 rounded-sm border-2 border-gray-400 data-[state=checked]:bg-red-600 data-[state=checked]:border-red-700"
+                                                            checked={field.value === 'Rusak'} 
+                                                            onCheckedChange={() => field.onChange('Rusak')} 
+                                                        />
+                                                    </FormControl>
                                                 )}/>
                                             </TableCell>
                                             <TableCell className="border">
                                                 <FormField name="notes" render={({ field }) => (
-                                                     <FormControl><Textarea placeholder="Catatan inspeksi..." {...field} value={field.value ?? ''} /></FormControl>
+                                                    <FormControl><Textarea placeholder="Catatan inspeksi..." {...field} value={field.value ?? ''} /></FormControl>
                                                 )}/>
                                             </TableCell>
                                         </TableRow>
                                     </TableBody>
                                 </Table>
-                                 <div className="pt-2 text-red-600 text-sm">
-                                     <FormMessage>{form.formState.errors.maintenance_status?.message}</FormMessage>
-                                     <FormMessage>{form.formState.errors.condition_status?.message}</FormMessage>
-                                 </div>
+                                <div className="pt-2 text-red-600 text-sm">
+                                    <FormMessage>{form.formState.errors.maintenance_status?.message}</FormMessage>
+                                    <FormMessage>{form.formState.errors.condition_status?.message}</FormMessage>
+                                </div>
                             </CardContent>
                         </Card>
                         
                         <Button type="submit" disabled={form.formState.isSubmitting} className="w-full md:w-auto" size="lg">
-                            {form.formState.isSubmitting ? "Menyimpan..." : "Simpan Inspeksi"}
+                            {form.formState.isSubmitting ? "Submitting..." : "Submit Data"}
                         </Button>
                     </form>
                 </Form>
+
+                <Dialog open={showFindingModal} onOpenChange={setShowFindingModal}>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Temuan Ditemukan</DialogTitle>
+                            <DialogDescription>
+                                Kondisi AC dilaporkan "Rusak". Apakah Anda ingin membuat laporan temuan untuk inspeksi ini sekarang?
+                            </DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter>
+                            <Button
+                                variant="outline"
+                                onClick={() => router.visit(route('inspection.ac.index'))}
+                            >
+                                Nanti Saja
+                            </Button>
+                            <Button onClick={() => router.visit(`/finding/create?inspection=AC&inspection_code=${encodeURIComponent(newInspectionCode || '')}&description=${encodeURIComponent(findingDescription)}`)}>
+                                Ya, Buat Temuan
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
             </div>
         </AppLayout>
     );

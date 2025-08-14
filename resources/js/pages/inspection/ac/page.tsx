@@ -14,7 +14,7 @@ import { columns, AcInspectionRow } from './columns';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Home', href: route('home') },
-    { title: 'Laporan Inspeksi AC', href: route('inspection.ac.index') },
+    { title: 'Inspeksi AC', href: route('inspection.ac.index') },
 ];
 
 // Tipe untuk link paginasi dari Laravel
@@ -60,16 +60,6 @@ export default function AcInspectionPage({ inspections }: CurrentPageProps) {
     const { flash, auth } = usePage<CurrentPageProps>().props;
 
     const canCreate = auth.user.roles.some(role => ['SuperAdmin', 'Technician'].includes(role.name));
-
-    // Efek untuk menampilkan notifikasi (toast) dari server
-    useEffect(() => {
-        if (flash?.success) {
-            showToast({ type: 'success', message: flash.success });
-        }
-        if (flash?.error) {
-            showToast({ type: 'error', message: flash.error });
-        }
-    }, [flash]);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
