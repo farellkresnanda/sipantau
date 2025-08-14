@@ -14,13 +14,12 @@ class AcInspection extends Model
     protected $table = 'ac_inspections';
 
     /**
-     * [FIX FINAL] Sesuaikan $fillable dengan kolom yang benar di database.
-     * Hapus 'notes', ganti '_id' menjadi '_code'.
+     * Atribut yang bisa diisi secara massal.
      */
     protected $fillable = [
         'uuid',
         'inspection_date',
-        'ac_inspection_number', // atau car_auto_number
+        'car_auto_number',
         'entity_code',
         'plant_code',
         'location_id',
@@ -31,11 +30,17 @@ class AcInspection extends Model
         'approved_at',
     ];
 
+    /**
+     * Tipe data casting untuk atribut.
+     */
     protected $casts = [
         'inspection_date' => 'datetime',
         'approved_at' => 'datetime',
     ];
 
+    /**
+     * Boot method untuk model.
+     */
     protected static function boot()
     {
         parent::boot();
@@ -48,7 +53,6 @@ class AcInspection extends Model
 
     // --- Relationships ---
     
-    // [FIX FINAL] Sesuaikan relasi agar menggunakan _code
     public function entity()
     {
         return $this->belongsTo(\App\Models\Master\MasterEntity::class, 'entity_code', 'entity_code');

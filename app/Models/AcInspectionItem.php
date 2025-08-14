@@ -12,10 +12,9 @@ class AcInspectionItem extends Model
     protected $table = 'ac_inspection_items';
 
     /**
-     * [FIX] Sesuaikan nama kolom agar cocok dengan database ('master_ac_unit_id').
+     * [REVISI] Menghapus foreign key dari $fillable karena di-handle oleh relasi.
      */
     protected $fillable = [
-        'ac_inspection_id',
         'master_ac_unit_id',
         'maintenance_status',
         'condition_status',
@@ -24,13 +23,16 @@ class AcInspectionItem extends Model
 
     // --- Relationships ---
 
+    /**
+     * [REVISI] Menggunakan nama foreign key yang benar ('inspection_id').
+     */
     public function inspectionHeader()
     {
-        return $this->belongsTo(AcInspection::class, 'ac_inspection_id');
+        return $this->belongsTo(AcInspection::class, 'inspection_id');
     }
 
     /**
-     * [FIX] Sesuaikan foreign key agar cocok dengan database ('master_ac_unit_id').
+     * [REVISI] Menggunakan nama foreign key yang benar ('master_ac_unit_id').
      */
     public function masterAc()
     {
