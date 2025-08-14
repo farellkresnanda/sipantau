@@ -79,7 +79,7 @@ const mainNavItems: NavItemWithChildren[] = [
             },
             {
                 title: 'Pemeliharaan Gedung',
-                href: '/inspeksi/building',
+                href: '/inspection/building',
                 icon: Building2,
             },
             {

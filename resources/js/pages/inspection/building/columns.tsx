@@ -21,6 +21,7 @@ export const columns: ColumnDef<{
     } | null;
     uuid: string;
     code: string;
+    frequency: string | null;
     inspection_date: string;
     expired_year: number;
     entity: {
@@ -29,11 +30,8 @@ export const columns: ColumnDef<{
     plant: {
         name: string;
     } | null;
-    apar: {
-        apar_no: string;
-        type: string;
-        location: string;
-        inventory_code: string;
+    building: {
+        location_name: string;
     } | null;
     created_by: {
         name: string;
@@ -76,7 +74,7 @@ export const columns: ColumnDef<{
             }
 
             return (
-                <Link href={`/inspection/apar/${row.original.uuid}`} className="inline-flex items-center gap-2">
+                <Link href={`/inspection/building/${row.original.uuid}`} className="inline-flex items-center gap-2">
                     <span
                         className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium transition-all hover:ring-1 hover:ring-offset-1 ${color}`}
                     >
@@ -100,14 +98,14 @@ export const columns: ColumnDef<{
         ),
     },
     {
-        header: 'Nomor & Tipe APAR',
-        id: 'apar',
+        header: 'Nomor & Building',
+        id: 'building',
         enableGlobalFilter: true,
-        accessorFn: (row) => `${row.apar?.type ?? '-'} - ${row.code ?? '-'}`,
+        accessorFn: (row) => `${row.building?.location_name ?? '-'} - ${row.code ?? '-'}`,
         cell: ({ row }) => (
             <div className="flex flex-col gap-1">
                 <div className="font-medium">{row.original.code ?? '-'}</div>
-                <div className="text-sm text-gray-500">{row.original.apar?.type ?? '-'}</div>
+                <div className="text-sm text-gray-500">{row.original.building?.location_name ?? '-'}</div>
             </div>
         ),
     },
@@ -117,24 +115,24 @@ export const columns: ColumnDef<{
         accessorFn: (row) => new Date(row.inspection_date).toLocaleDateString('id-ID'),
         enableGlobalFilter: true,
         cell: ({ row }) => (
-            <div className="flex flex-col">
+            <div className="flex flex-col gap-1">
                 <span className="flex items-center gap-1 text-sm">
                     <CalendarDays className="h-3 w-3" />
                     {new Date(row.original.inspection_date).toLocaleDateString('id-ID')}
                 </span>
-                <span className="text-xs text-gray-500">Expired: {row.original.expired_year}</span>
+                <span className="text-xs text-gray-500 capitalize">{row.original.frequency || '-'}</span>
             </div>
         ),
     },
     {
-        header: 'Lokasi & No Inventori',
-        id: 'location',
-        accessorFn: (row) => `${row.apar?.location ?? '-'} - ${row.apar?.apar_no ?? '-'}`,
+        header: 'Lokasi',
+        id: 'location_name',
+        accessorFn: (row) => `${row.building?.location_name ?? '-'} - ${row.entity?.name ?? '-'}`,
         enableGlobalFilter: true,
         cell: ({ row }) => (
             <div className="flex flex-col gap-1">
-                <div>{row.original.apar?.location ?? '-'}</div>
-                <div className="text-sm text-gray-500">No. Inv: {row.original.apar?.inventory_code ?? '-'}</div>
+                <div className="font-medium">{row.original.building?.location_name ?? '-'}</div>
+                <div className="text-sm text-gray-500">{row.original.entity?.name ?? '-'}</div>
             </div>
         ),
     },
@@ -156,7 +154,7 @@ export const columns: ColumnDef<{
         cell: ({ row }) => {
             const handleDelete = () => {
                 if (confirm('Apakah Anda yakin ingin menghapus data ini?')) {
-                    router.delete(`/inspection/apar/${row.original.id}`);
+                    router.delete(`/inspection/building/${row.original.uuid}`);
                 }
             };
 
@@ -170,7 +168,7 @@ export const columns: ColumnDef<{
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                         <DropdownMenuItem asChild>
-                            <Link href={`/inspection/apar/${row.original.uuid}/edit`}>Edit</Link>
+                            <Link href={`/inspection/building/${row.original.uuid}/edit`}>Edit</Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={handleDelete} className="w-full text-left text-red-600 hover:text-red-700">
                             Delete

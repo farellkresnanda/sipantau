@@ -18,8 +18,8 @@ class MasterBuildingController extends Controller
     {
         $data = MasterBuilding::query()
             ->with([
-                'entityData:entity_code,name', // Memuat relasi entity
-                'plantData:plant_code,name',     // Memuat relasi plant
+                'entity:entity_code,name', // Memuat relasi entity
+                'plant:plant_code,name',     // Memuat relasi plant
             ])
             ->latest()
             ->get()
@@ -29,8 +29,8 @@ class MasterBuildingController extends Controller
                     'entity_code' => $building->entity_code,
                     'plant_code' => $building->plant_code,
                     'location_name' => $building->location_name,
-                    'entity_name' => $building->entityData ? $building->entityData->name : '-',
-                    'plant_name' => $building->plantData ? $building->plantData->name : '-',
+                    'entity_name' => $building->entity ? $building->entity->name : '-',
+                    'plant_name' => $building->plant ? $building->plant->name : '-',
                 ];
             });
 
@@ -82,8 +82,8 @@ class MasterBuildingController extends Controller
     public function edit(MasterBuilding $building)
     {
         $building->load([
-            'entityData:entity_code,name',
-            'plantData:plant_code,name',
+            'entity:entity_code,name',
+            'plant:plant_code,name',
         ]);
 
         $plants = MasterPlant::select(

@@ -73,8 +73,8 @@ interface Location {
     inventory_code: string;
     entity_code: string;
     plant_code: string;
-    entityData?: { id: number; entity_code: string; name?: string };
-    plantData?: { id: number; plant_code: string; name?: string };
+    entity?: { id: number; entity_code: string; name?: string };
+    plant?: { id: number; plant_code: string; name?: string };
 }
 
 interface FirstAidItem {
@@ -126,8 +126,8 @@ export default function CreateFirstAidInspection() {
 
     useEffect(() => {
         if (selectedLocation) {
-            form.setValue('entity_code', selectedLocation.entityData?.entity_code ?? selectedLocation.entity_code);
-            form.setValue('plant_code', selectedLocation.plantData?.plant_code ?? selectedLocation.plant_code);
+            form.setValue('entity_code', selectedLocation.entity?.entity_code ?? selectedLocation.entity_code);
+            form.setValue('plant_code', selectedLocation.plant?.plant_code ?? selectedLocation.plant_code);
         } else {
             form.setValue('entity_code', null);
             form.setValue('plant_code', null);

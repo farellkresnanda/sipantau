@@ -55,8 +55,8 @@ type MasterBuildingProp = {
     entity_code: string;
     plant_code: string;
     location_name: string;
-    entityData: { entity_code: string; name: string } | null;
-    plantData: { plant_code: string; name: string } | null;
+    entity: { entity_code: string; name: string } | null;
+    plant: { plant_code: string; name: string } | null;
 };
 
 export default function EditMasterBuilding({

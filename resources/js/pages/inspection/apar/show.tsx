@@ -95,7 +95,7 @@ export default function ShowAparInspection({ aparInspection }: { aparInspection:
                                 </TableRow>
                                 <TableRow>
                                     <TableCell>Tanggal Inspeksi</TableCell>
-                                    <TableCell>{format(new Date(aparInspection.date_inspection), 'dd MMMM yyyy')}</TableCell>
+                                    <TableCell>{format(new Date(aparInspection.inspection_date), 'dd MMMM yyyy')}</TableCell>
                                 </TableRow>
                                 <TableRow>
                                     <TableCell>Status Inspeksi</TableCell>

@@ -68,7 +68,7 @@ class AparInspectionController extends Controller
                 'code' => $code,
                 'approval_status_code' => 'SOP', // Status Open
                 'apar_id' => $validated['apar_id'],
-                'date_inspection' => $validated['date'],
+                'inspection_date' => $validated['date'],
                 'expired_year' => $validated['expired_year'],
                 'plant_code' => $apar->plant_code,
                 'entity_code' => $apar->entity_code,
@@ -135,7 +135,7 @@ class AparInspectionController extends Controller
             'aparInspection' => [
                 'uuid' => $aparInspection->uuid,
                 'id' => $aparInspection->id,
-                'date' => $aparInspection->date_inspection,
+                'date' => $aparInspection->inspection_date,
                 'apar_id' => (string) $aparInspection->apar_id,
                 'expired_year' => (string) $aparInspection->expired_year,
                 'location' => $aparInspection->location,
@@ -163,7 +163,7 @@ class AparInspectionController extends Controller
         try {
             $aparInspection = AparInspection::where('uuid', $uuid)->firstOrFail();
             $aparInspection->update([
-                'date_inspection' => $validated['date'],
+                'inspection_date' => $validated['date'],
                 'expired_year' => $validated['expired_year'],
                 'note' => $request->note,
             ]);

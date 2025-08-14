@@ -107,7 +107,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Maintenance Mode Driver
+    | Perawatan Mode Driver
     |--------------------------------------------------------------------------
     |
     | These configuration options determine the driver used to determine and

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AparInspectionController;
+use App\Http\Controllers\BuildingInspectionController;
 use App\Http\Controllers\FindingController;
 use App\Http\Controllers\HseInformationController;
 use App\Http\Controllers\FirstAidInspectionController;
@@ -53,8 +54,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('inspection')->group(function () {
         // First Aid Inspection routes
         Route::post('first-aid/verify/{uiid}', [FirstAidInspectionController::class, 'verify'])->name('inspection.first-aid.verify');
-                Route::get('{uuid}/print-pdf', [FirstAidInspectionController::class, 'printPdf'])->name('first-aid-inspection.print');
-                Route::resource('first-aid', FirstAidInspectionController::class)->names('inspection.first-aid');
+        Route::get('{uuid}/print-pdf', [FirstAidInspectionController::class, 'printPdf'])->name('first-aid-inspection.print');
+        Route::resource('first-aid', FirstAidInspectionController::class)->names('inspection.first-aid');
 
         Route::post('apar/verify/{uiid}', [AparInspectionController::class, 'verify'])->name('inspection.apar.verify');
         Route::get('/apar/{id}/print', [AparInspectionController::class, 'print'])->name('inspection.apar.print');
@@ -67,8 +68,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('k3l', K3lInspectionController::class)->names('inspection.k3l');
 
         Route::post('ac/verify/{uuid}', [AcInspectionController::class, 'verify'])->name('inspection.ac.verify');
-                Route::get('/ac/{id}/print', [AcInspectionController::class, 'print'])->name('inspection.ac.print');
-                Route::resource('ac', AcInspectionController::class)->names('inspection.ac');
+        Route::get('/ac/{id}/print', [AcInspectionController::class, 'print'])->name('inspection.ac.print');
+        Route::resource('ac', AcInspectionController::class)->names('inspection.ac');
+
+        Route::post('building/verify/{uuid}', [BuildingInspectionController::class, 'verify'])->name('inspection.building.verify');
+        Route::get('/building/{id}/print', [BuildingInspectionController::class, 'print'])->name('inspection.building.print');
+        Route::resource('building', BuildingInspectionController::class)->names('inspection.building');
     });
 
 
