@@ -5,6 +5,7 @@ use App\Http\Controllers\BuildingInspectionController;
 use App\Http\Controllers\FindingController;
 use App\Http\Controllers\HseInformationController;
 use App\Http\Controllers\FirstAidInspectionController;
+use App\Http\Controllers\JsaDocumentController;
 use App\Http\Controllers\K3lInspectionController;
 use App\Http\Controllers\AcInspectionController;
 use App\Http\Controllers\Master\MasterAcController;
@@ -74,6 +75,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('building/verify/{uuid}', [BuildingInspectionController::class, 'verify'])->name('inspection.building.verify');
         Route::get('/building/{id}/print', [BuildingInspectionController::class, 'print'])->name('inspection.building.print');
         Route::resource('building', BuildingInspectionController::class)->names('inspection.building');
+    });
+
+    // Analysis routes
+    Route::prefix('analysis')->group(function () {
+        // JSA Document routes
+        Route::post('jsa/verify/{uuid}', [JSADocumentController::class, 'verify'])->name('analysis.jsa.verify');
+        Route::get('/jsa/{id}/print', [JSADocumentController::class, 'print'])->name('analysis.jsa.print');
+        Route::resource('jsa', JSADocumentController::class)->names('analysis.jsa');
     });
 
 
