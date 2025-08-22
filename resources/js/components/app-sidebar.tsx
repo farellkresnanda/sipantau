@@ -90,7 +90,7 @@ const mainNavItems: NavItemWithChildren[] = [
             },
             {
                 title: 'Pemeliharaan Genset',
-                href: '/inspeksi/genset',
+                href: '/inspection/genset',
                 icon: Power,
                 roles: ['SuperAdmin', 'Admin', 'Validator', 'Technician'],
             },

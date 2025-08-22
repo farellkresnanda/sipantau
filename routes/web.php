@@ -8,6 +8,7 @@ use App\Http\Controllers\FirstAidInspectionController;
 use App\Http\Controllers\JsaDocumentController;
 use App\Http\Controllers\K3lInspectionController;
 use App\Http\Controllers\AcInspectionController;
+use App\Http\Controllers\GensetInspectionController;
 use App\Http\Controllers\Master\MasterAcController;
 use App\Http\Controllers\Master\MasterAparController;
 use App\Http\Controllers\Master\MasterApdController;
@@ -75,6 +76,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('building/verify/{uuid}', [BuildingInspectionController::class, 'verify'])->name('inspection.building.verify');
         Route::get('/building/{id}/print', [BuildingInspectionController::class, 'print'])->name('inspection.building.print');
         Route::resource('building', BuildingInspectionController::class)->names('inspection.building');
+
+        Route::post('genset/verify/{uuid}', [GensetInspectionController::class, 'verify'])->name('inspection.genset.verify');
+        Route::get('/genset/{id}/print', [GensetInspectionController::class, 'print'])->name('inspection.genset.print');
+        Route::resource('genset', GensetInspectionController::class)->names('inspection.genset');
     });
 
     // Analysis routes

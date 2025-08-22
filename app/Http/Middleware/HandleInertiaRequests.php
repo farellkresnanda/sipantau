@@ -70,6 +70,8 @@ class HandleInertiaRequests extends Middleware
                 'message' => fn () => $request->session()->get('message'),
                 'firstAidInspectionUuid' => fn () => $request->session()->get('firstAidInspectionUuid'),
                 'acInspectionCode' => fn () => $request->session()->get('acInspectionCode'),
+                'gensetInspectionUuid' => fn () => $request->session()->get('gensetInspectionUuid'),
+                'gensetInspectionCode' => fn () => $request->session()->get('gensetInspectionCode'),
             ],
         ];
     }
