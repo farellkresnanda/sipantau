@@ -4,6 +4,7 @@ use App\Http\Controllers\AparInspectionController;
 use App\Http\Controllers\BuildingInspectionController;
 use App\Http\Controllers\FindingController;
 use App\Http\Controllers\HseInformationController;
+use App\Http\Controllers\K3ProgramController;
 use App\Http\Controllers\FirstAidInspectionController;
 use App\Http\Controllers\JsaDocumentController;
 use App\Http\Controllers\K3lInspectionController;
@@ -91,6 +92,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // HSE Information routes
         Route::resource('hse-information', HseInformationController::class);
+
+        // K3 Program routes
+        Route::post('k3-program/{program:uuid}/verify', [K3ProgramController::class, 'verify'])->name('analysis.k3-program.verify');
+        Route::patch('k3-program/items/{itemId}', [K3ProgramController::class, 'updateItemMonthly'])->name('analysis.k3-program.items.updateMonthly');
+        Route::resource('k3-program', K3ProgramController::class)->names('analysis.k3-program');
     });
 
     // Login as user routes

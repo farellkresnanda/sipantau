@@ -101,7 +101,7 @@ const mainNavItems: NavItemWithChildren[] = [
         title: 'Analisis',
         href: '#',
         icon: ChartBarIcon,
-        roles: ['SuperAdmin', 'Admin'],
+        roles: ['SuperAdmin', 'Admin', 'Validator'],
         children: [
             {
                 title: 'JSA',
@@ -115,7 +115,7 @@ const mainNavItems: NavItemWithChildren[] = [
             },
             {
                 title: 'Program Kerja K3',
-                href: '/analysis/dokumen',
+                href: '/analysis/k3-program',
                 icon: FileUserIcon,
             },
             {
