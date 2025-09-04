@@ -7,7 +7,7 @@ ENV VITE_API_URL=${VITE_API_URL}
 ENV VITE_PHOTO_URL=${VITE_PHOTO_URL}
 
 COPY package*.json ./
-RUN npm ci omit=dev
+RUN npm i omit=dev
 COPY . .
 RUN npm run build
 
