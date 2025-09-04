@@ -1,1 +1,75 @@
+name: "🚀 CI/CD Development"
 
+on:
+  push:
+    branches:
+      - "*"
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment: Development
+
+    steps:
+      - name: 📦 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🔐 Docker Hub Login
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: 🏷️ Build Docker Image
+        id: meta
+        run: docker build -t farellkresnanda/sipantau:latest .
+
+      - name: 🛠 Build and Push Docker Image
+        run: docker push farellkresnanda/sipantau:latest
+
+      - name: 🚢 Deploy to VPS Server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            echo "🔁 Pulling latest Docker image..."
+            docker pull farellkresnanda/sipantau:latest
+
+            echo "🛑 Stopping old container (if exists)..."
+            docker stop sipantau || true
+            docker rm sipantau || true
+
+            echo "📂 Ensure data dirs..."
+            mkdir -p /srv/sipantau/storage /srv/sipantau/bootstrap-cache
+
+            echo "🚀 Starting new container..."
+            docker run -d \
+              --name sipantau \
+              --restart unless-stopped \
+              -p "${{ secrets.PORT }}:3000" \
+              -e APP_ENV=production \
+              -e APP_DEBUG=false \
+              -e APP_URL="https://sipantau.kresnansite.my.id" \
+              -e LOG_CHANNEL=stderr \
+              -e RUN_MIGRATIONS=true \
+              -e DB_CONNECTION="mysql" \
+              -e DB_HOST="${{ secrets.DB_HOST }}" \
+              -e DB_PORT="${{ secrets.DB_PORT || 3306 }}" \
+              -e DB_DATABASE="${{ secrets.DB_DATABASE }}" \
+              -e DB_USERNAME="${{ secrets.DB_USERNAME }}" \
+              -e DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
+              -e SESSION_DRIVER="database" \
+              -e QUEUE_CONNECTION="database" \
+              -v /srv/sipantau/storage:/var/www/html/storage \
+              -v /srv/sipantau/bootstrap-cache:/var/www/html/bootstrap/cache \
+              farellkresnanda/sipantau:latest
+
+            echo "🧹 Cleaning up..."
+            docker system prune -f
+
+            echo "✅ Deployment to Development environment completed!"
