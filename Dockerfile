@@ -1,3 +1,9 @@
+FROM composer:2 AS vendor
+WORKDIR /app
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --prefer-dist --optimize-autoloader
+COPY . .
+
 FROM node:20-alpine AS build
 WORKDIR /usr/src/app
 
@@ -7,8 +13,11 @@ ENV VITE_API_URL=${VITE_API_URL}
 ENV VITE_PHOTO_URL=${VITE_PHOTO_URL}
 
 COPY package*.json ./
-RUN npm i
+RUN npm install
 COPY . .
+# copy vendor from PHP stage
+COPY --from=vendor /app/vendor ./vendor
+
 RUN npm run build
 
 FROM nginx:stable-alpine
@@ -16,7 +25,6 @@ FROM nginx:stable-alpine
 COPY --from=build /usr/src/app/dist /usr/share/nginx/html
 
 RUN rm /etc/nginx/conf.d/default.conf
-
 COPY nginx.conf /etc/nginx/conf.d/
 
 EXPOSE 80
