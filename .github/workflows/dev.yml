@@ -14,6 +14,15 @@ jobs:
       - name: 📦 Checkout Code
         uses: actions/checkout@v4
 
+      - name: 🐘 Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql
+
+      - name: 🎼 Install Composer dependencies
+        run: composer install --no-dev --optimize-autoloader
+
       - name: 🔧 Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
