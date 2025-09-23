@@ -29,21 +29,15 @@ RUN apk add --no-cache \
 
 RUN docker-php-ext-install pdo pdo_mysql
 
-# Set working directory
 WORKDIR /var/www/html
 
-# Copy the application files
+# Copy Laravel app (including public/build from build stage)
 COPY . .
+COPY --from=build /usr/src/app/public/build /var/www/html/public/build
 
-# Copy built assets from the previous stage
-COPY --from=build /usr/src/app/dist /var/www/html/public/build
-
-# Copy Nginx and Supervisor configurations
 COPY nginx.conf /etc/nginx/http.d/default.conf
 COPY supervisor.conf /etc/supervisor/conf.d/supervisor.conf
 
-# Expose port 80
 EXPOSE 80
 
-# Start Supervisor to run Nginx and PHP-FPM
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisor.conf"]
