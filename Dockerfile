@@ -1,5 +1,5 @@
 FROM node:20-alpine AS build
-WORKDIR /usr/src/app
+WORKDIR /app
 
 ARG VITE_API_URL
 ARG VITE_PHOTO_URL
@@ -9,13 +9,12 @@ ENV VITE_PHOTO_URL=${VITE_PHOTO_URL}
 COPY package*.json ./
 RUN npm i
 
-COPY vendor ./vendor
 COPY . .
 RUN npm run build
 
 FROM nginx:stable-alpine
 
-COPY --from=build /usr/src/app/public /usr/share/nginx/html
+COPY --from=build /app/public /usr/share/nginx/html
 
 RUN rm /etc/nginx/conf.d/default.conf
 
