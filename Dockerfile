@@ -3,8 +3,18 @@ FROM php:8.3-fpm-alpine AS build
 WORKDIR /app
 
 # Install deps untuk PHP + Node
-RUN apk add --no-cache bash curl git unzip libzip-dev icu-dev oniguruma-dev nodejs npm \
+# Install deps untuk PHP + Node
+RUN apk add --no-cache \
+    bash curl git unzip \
+    libzip-dev icu-dev oniguruma-dev \
+    freetype-dev libjpeg-turbo-dev libpng-dev libwebp-dev \
+    nodejs npm \
+    && docker-php-ext-configure gd \
+        --with-freetype \
+        --with-jpeg \
+        --with-webp \
     && docker-php-ext-install pdo pdo_mysql mbstring zip intl gd
+
 
 # Copy composer dan install deps
 COPY composer.json composer.lock ./
