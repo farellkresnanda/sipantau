@@ -60,7 +60,7 @@ jobs:
             docker run -d \
               --name sipantau \
               --restart unless-stopped \
-              -p "${{ secrets.PORT }}:3000" \
+              -p "${{ secrets.PORT }}:80" \
               -e APP_ENV=production \
               -e APP_DEBUG=false \
               -e APP_URL="https://sipantau.kresnansite.my.id" \
