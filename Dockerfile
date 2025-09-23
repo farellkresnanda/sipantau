@@ -3,7 +3,6 @@ FROM php:8.3-fpm-alpine AS build
 WORKDIR /app
 
 # Install deps untuk PHP + Node
-# Install deps untuk PHP + Node
 RUN apk add --no-cache \
     bash curl git unzip \
     libzip-dev icu-dev oniguruma-dev \
@@ -15,16 +14,21 @@ RUN apk add --no-cache \
         --with-webp \
     && docker-php-ext-install pdo pdo_mysql mbstring zip intl gd
 
-
-# Copy composer dan install deps
-COPY composer.json composer.lock ./
+# Install composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
-RUN composer install --no-dev --optimize-autoloader
 
-# Copy semua source
+# === Composer caching step ===
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --optimize-autoloader --no-scripts
+
+# Copy semua source (baru sekarang artisan ikut ke-copy)
 COPY . .
 
+# Jalankan ulang composer supaya artisan available
+RUN composer install --no-dev --optimize-autoloader
+
 # Install frontend deps dan build
+COPY package.json package-lock.json ./
 RUN npm install
 RUN npm run build
 
