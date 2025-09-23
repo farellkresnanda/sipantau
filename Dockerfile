@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Install deps untuk PHP + Node
 RUN apk add --no-cache bash curl git unzip libzip-dev icu-dev oniguruma-dev nodejs npm \
-    && docker-php-ext-install pdo pdo_mysql mbstring zip intl
+    && docker-php-ext-install pdo pdo_mysql mbstring zip intl gd
 
 # Copy composer dan install deps
 COPY composer.json composer.lock ./
