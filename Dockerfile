@@ -28,7 +28,7 @@ COPY . .
 RUN composer install --no-dev --optimize-autoloader
 
 # Install frontend deps dan build
-COPY package.json package-lock.json ./
+COPY package.json ./
 RUN npm install
 RUN npm run build
 
