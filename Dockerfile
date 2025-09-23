@@ -1,49 +1,49 @@
-# ===== Stage 1: Backend + Frontend build =====
-FROM php:8.3-fpm-alpine AS build
-WORKDIR /app
+# Stage 1: Build the frontend assets
+FROM node:20-alpine AS build
 
-# Install deps untuk PHP + Node
-RUN apk add --no-cache \
-    bash curl git unzip \
-    libzip-dev icu-dev oniguruma-dev \
-    freetype-dev libjpeg-turbo-dev libpng-dev libwebp-dev \
-    nodejs npm \
-    && docker-php-ext-configure gd \
-        --with-freetype \
-        --with-jpeg \
-        --with-webp \
-    && docker-php-ext-install pdo pdo_mysql mbstring zip intl gd
+WORKDIR /usr/src/app
 
-# Install composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
+ARG VITE_API_URL
+ARG VITE_PHOTO_URL
+ENV VITE_API_URL=${VITE_API_URL}
+ENV VITE_PHOTO_URL=${VITE_PHOTO_URL}
 
-# === Composer caching step ===
-COPY composer.json composer.lock ./
-RUN composer install --no-dev --optimize-autoloader --no-scripts
-
-# Copy semua source (baru sekarang artisan ikut ke-copy)
-COPY . .
-
-# Jalankan ulang composer supaya artisan available
-RUN composer install --no-dev --optimize-autoloader
-
-# Install frontend deps dan build
-COPY package.json ./
+COPY package*.json ./
 RUN npm install
+COPY . .
 RUN npm run build
 
-# ===== Stage 2: Production runtime =====
-FROM nginx:stable-alpine
-WORKDIR /var/www
+# Stage 2: Serve the application with Nginx and PHP-FPM
+FROM php:8.2-fpm-alpine
 
-# Copy hasil dari build stage
-COPY --from=build /app /var/www
+# Install system dependencies and PHP extensions
+RUN apk add --no-cache \
+    nginx \
+    libpq-dev \
+    mysql-client \
+    git \
+    supervisor \
+    openssh-client \
+    autoconf \
+    g++
 
-# Hapus default nginx config
-RUN rm /etc/nginx/conf.d/default.conf
+RUN docker-php-ext-install pdo pdo_mysql
 
-# Tambah config custom
-COPY nginx.conf /etc/nginx/conf.d/
+# Set working directory
+WORKDIR /var/www/html
 
+# Copy the application files
+COPY . .
+
+# Copy built assets from the previous stage
+COPY --from=build /usr/src/app/dist /var/www/html/public/build
+
+# Copy Nginx and Supervisor configurations
+COPY nginx.conf /etc/nginx/http.d/default.conf
+COPY supervisor.conf /etc/supervisor/conf.d/supervisor.conf
+
+# Expose port 80
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+
+# Start Supervisor to run Nginx and PHP-FPM
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisor.conf"]
