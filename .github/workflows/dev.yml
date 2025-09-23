@@ -34,10 +34,10 @@ jobs:
 
       - name: 🏷️ Build Docker Image
         id: meta
-        run: docker build -t farellkresnanda/sipantau:latest .
+        run: docker build -t kresnandaf/sipantau:latest .
 
       - name: 🛠 Build and Push Docker Image
-        run: docker push farellkresnanda/sipantau:latest
+        run: docker push kresnandaf/sipantau:latest
 
       - name: 🚢 Deploy to VPS Server
         uses: appleboy/ssh-action@master
@@ -47,7 +47,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             echo "🔁 Pulling latest Docker image..."
-            docker pull farellkresnanda/sipantau:latest
+            docker pull kresnandaf/sipantau:latest
 
             echo "🛑 Stopping old container (if exists)..."
             docker stop sipantau || true
@@ -76,7 +76,7 @@ jobs:
               -e QUEUE_CONNECTION="database" \
               -v /srv/sipantau/storage:/var/www/html/storage \
               -v /srv/sipantau/bootstrap-cache:/var/www/html/bootstrap/cache \
-              farellkresnanda/sipantau:latest
+              kresnandaf/sipantau:latest
 
             echo "🧹 Cleaning up..."
             docker system prune -f
