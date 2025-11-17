@@ -48,7 +48,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('home');
 
     // Temuan routes
-    Route::post('finding/verify/{uiid}', [FindingController::class, 'verify'])->name('finding.verify');
+    Route::post('finding/verify/{uuid}', [FindingController::class, 'verify'])->name('finding.verify');
     Route::get('/finding/{id}/print', [FindingController::class, 'print'])->name('finding.print');
 
     Route::resource('finding', FindingController::class);
@@ -56,18 +56,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Inspection routes
     Route::prefix('inspection')->group(function () {
         // First Aid Inspection routes
-        Route::post('first-aid/verify/{uiid}', [FirstAidInspectionController::class, 'verify'])->name('inspection.first-aid.verify');
+        Route::post('first-aid/verify/{uuid}', [FirstAidInspectionController::class, 'verify'])->name('inspection.first-aid.verify');
         Route::get('{uuid}/print-pdf', [FirstAidInspectionController::class, 'printPdf'])->name('first-aid-inspection.print');
         Route::resource('first-aid', FirstAidInspectionController::class)->names('inspection.first-aid');
 
-        Route::post('apar/verify/{uiid}', [AparInspectionController::class, 'verify'])->name('inspection.apar.verify');
+        Route::post('apar/verify/{uuid}', [AparInspectionController::class, 'verify'])->name('inspection.apar.verify');
         Route::get('/apar/{id}/print', [AparInspectionController::class, 'print'])->name('inspection.apar.print');
         Route::resource('apar', AparInspectionController::class)->names('inspection.apar');
 
-        Route::post('ppe/verify/{uiid}', [PpeInspectionController::class, 'verify'])->name('inspection.ppe.verify');
+        Route::post('ppe/verify/{uuid}', [PpeInspectionController::class, 'verify'])->name('inspection.ppe.verify');
         Route::resource('ppe', PpeInspectionController::class)->names('inspection.ppe');
 
-        Route::post('k3l/verify/{uiid}', [K3lInspectionController::class, 'verify'])->name('inspection.k3l.verify');
+        Route::post('k3l/verify/{uuid}', [K3lInspectionController::class, 'verify'])->name('inspection.k3l.verify');
         Route::resource('k3l', K3lInspectionController::class)->names('inspection.k3l');
 
         Route::post('ac/verify/{uuid}', [AcInspectionController::class, 'verify'])->name('inspection.ac.verify');
