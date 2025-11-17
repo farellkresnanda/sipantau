@@ -81,6 +81,10 @@ RUN mkdir -p /app/storage /app/bootstrap/cache \
     && chown -R www-data:www-data /app \
     && chmod -R 777 /app/storage /app/bootstrap/cache
 
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
+
 EXPOSE 80
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
