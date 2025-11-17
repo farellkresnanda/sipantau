@@ -1,43 +1,86 @@
 # Stage 1: Build the frontend assets
-FROM node:20-alpine AS build
+FROM node:20 AS build
+WORKDIR /app
 
-WORKDIR /usr/src/app
-
-ARG VITE_API_URL
-ARG VITE_PHOTO_URL
-ENV VITE_API_URL=${VITE_API_URL}
-ENV VITE_PHOTO_URL=${VITE_PHOTO_URL}
-
-COPY package*.json ./
+COPY package.json package-lock.json ./
 RUN npm install
+
 COPY . .
+
 RUN npm run build
 
-# Stage 2: Serve the application with Nginx and PHP-FPM
-FROM php:8.2-fpm-alpine
+FROM php:8.2-fpm
 
-# Install system dependencies and PHP extensions
-RUN apk add --no-cache \
-    nginx \
-    libpq-dev \
-    mysql-client \
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
+    unzip \
+    zip \
+    curl \
+    nano \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libzip-dev \
+    libicu-dev \
+    libonig-dev \
+    libxml2-dev \
+    pkg-config \
+    nginx \
     supervisor \
-    openssh-client \
-    autoconf \
-    g++
+    && rm -rf /var/lib/apt/lists/*
 
-RUN docker-php-ext-install pdo pdo_mysql
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) \
+        pdo_mysql \
+        mbstring \
+        exif \
+        pcntl \
+        bcmath \
+        intl \
+        zip \
+        gd \
+        opcache
 
-WORKDIR /var/www/html
+RUN pecl install mongodb xdebug \
+    && docker-php-ext-enable mongodb 
 
-# Copy Laravel app (including public/build from build stage)
+RUN { \
+    echo "opcache.enable=1"; \
+    echo "opcache.memory_consumption=256"; \
+    echo "opcache.interned_strings_buffer=16"; \
+    echo "opcache.max_accelerated_files=10000"; \
+    echo "opcache.revalidate_freq=60"; \
+    echo "opcache.fast_shutdown=1"; \
+    echo "upload_max_filesize=100M"; \
+    echo "post_max_size=100M"; \
+    echo "max_execution_time=300"; \
+    echo "memory_limit=512M"; \
+    } > /usr/local/etc/php/conf.d/custom.ini
+
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
+
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && npm install -g npm@latest
+
+COPY nginx/default.conf /etc/nginx/conf.d/default.conf
+RUN rm /etc/nginx/sites-enabled/default
+
 COPY . .
-COPY --from=build /usr/src/app/public/build /var/www/html/public/build
 
-COPY nginx.conf /etc/nginx/http.d/default.conf
-COPY supervisor.conf /etc/supervisor/conf.d/supervisor.conf
+COPY --from=build /app/public/build /app/public/build
+
+COPY .env.production .env
+RUN composer install --no-dev --optimize-autoloader --no-interaction
+
+RUN mkdir -p /app/storage /app/bootstrap/cache \
+    && chown -R www-data:www-data /app \
+    && chmod -R 777 /app/storage /app/bootstrap/cache
 
 EXPOSE 80
 
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisor.conf"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
