@@ -39,8 +39,8 @@ use Inertia\Inertia;
 Route::middleware(['auth', 'verified'])->group(function () {
     // Set the title for the home page
     Route::get('/', function () {
-        return Inertia::render('home');
-    })->name('home');
+        return redirect()->route('home');
+    });
 
     // Dashboard route
     Route::get('home', function () {
