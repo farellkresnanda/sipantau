@@ -74,7 +74,7 @@ jobs:
             docker run -d \
               --name sipantau \
               --restart unless-stopped \
-              --network developement_mysql_dev_network \
+              --network development_mysql_dev_network \
               -v sipantau:/app/storage \
               kresnandaf/sipantau:latest
 
