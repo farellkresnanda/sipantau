@@ -43,9 +43,9 @@ jobs:
 
       - name: 📤 Build and Push Docker Image  
         run: |
-          docker build -t nevmock/sipantau:latest .
+          docker build -t kresnandaf/sipantau:latest .
           echo "Pushing Docker image..."        
-          docker push nevmock/sipantau:latest
+          docker push kresnandaf/sipantau:latest
 
   deploy:
     runs-on: ubuntu-latest
