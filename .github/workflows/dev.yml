@@ -75,6 +75,7 @@ jobs:
               --name sipantau \
               --restart unless-stopped \
               --network development_mysql_dev_network \
+              -p "${{ secrets.PORT }}":80 \
               -v sipantau:/app/storage \
               kresnandaf/sipantau:latest
 
