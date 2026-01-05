@@ -106,7 +106,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Role Admin and SuperAdmin routes
     Route::group(['middleware' => ['role:Admin|SuperAdmin']], function () {
 
-        // User Management routes
+        // User Manageement routes
         Route::resource('users', UserController::class);
         // Module Manager routes
         Route::resource('module-managers', ModuleManagerController::class);
